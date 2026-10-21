@@ -18,11 +18,15 @@ RLS and RBAC code is real but bypassed.
   badge when it is false, so the demo never misrepresents the posture.
 - Still open (see #8): wiring Clerk so auth is actually enforced, not just honestly labeled.
 
-### 2. Shrink the demo dependency surface  (S)
+### 2. Shrink the demo dependency surface  (S) — DONE
 A clean run currently needs SurrealDB, OpenRouter, Cohere, and Era all up at once.
-- Add a one-command pre-demo health check that pings each and reports green/red.
-- Confirm every surface degrades to a friendly message, not a stack trace or spinner, when a dependency is down.
-- Why: four external dependencies is four ways the live demo breaks.
+- [x] `scripts/preflight.py`: one command that pings all four, reports OK/WARN/FAIL with the reason,
+  names which demo features degrade per dependency, prints the auth posture, and exits non-zero only
+  when a required dependency (SurrealDB) is down. `--no-llm` skips the live LLM call.
+- [x] Confirmed graceful degradation in code: the explainer falls back to deterministic text with no
+  LLM; co-pilots return `available:false`; voice returns `available:false`; SurrealDB-down returns 503
+  that the frontends swallow into an empty state. Screening itself never needs the LLM.
+- Why: four external dependencies is four ways the live demo breaks; now you know before you present.
 
 ### 3. Pick the demo spine and cut what you show  (S)
 Ten surfaces split the story. Decide the spine (core screen-to-apply loop plus the embed pivot) and present the
