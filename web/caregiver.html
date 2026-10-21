@@ -309,12 +309,13 @@ async function loadProgress() {
   const st = data.statuses || {};
   const items = (currentResults || []).filter(r => ACTIONABLE.includes(r.eligibility));
   if (!items.length) { $("dProgress").innerHTML = `<p class="muted" style="font-size:14px">No applications to track.</p>`; return; }
-  $("dProgress").innerHTML = items.map(r => {
+  const disclaimer = `<p class="muted" style="font-size:12px;margin:0 0 8px">Statuses here are self-reported. Covered does not receive updates from CRA or the programs.</p>`;
+  $("dProgress").innerHTML = disclaimer + items.map(r => {
     const pid = r.program_id;
     let chip, action = "";
     if (pid === "dtc") {
       const s = st.dtc;
-      const label = s === "submitted_to_cra" ? "Submitted to CRA · awaiting decision"
+      const label = s === "submitted_to_cra" ? "Submitted in CRA (self-reported)"
         : s === "partb_attested" ? "Part B attested — submit in CRA" : "Awaiting doctor's Part B";
       chip = `<span class="who ${s === "submitted_to_cra" ? "pre" : "you"}">${label}</span>`;
     } else {

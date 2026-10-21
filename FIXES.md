@@ -89,9 +89,15 @@ Convert them to pytest and run the benchmark in CI so a rules regression fails t
 ### 11. Harden the public surface  (M)
 Tighten CORS off `*`, rate-limit `/v1/eligibility`, and remove the demo-key acceptance path outside dev.
 
-### 12. Be precise about submission tracking  (S)
+### 12. Be precise about submission tracking  (S) — DONE
 "Mark submitted in CRA" is self-report with no CRA integration (correct by design). Label it as self-reported so
 status is not mistaken for a live CRA signal.
+- [x] Clinician: the post-submit badge now reads "Marked submitted in CRA · self-reported" with a note that
+  Covered records what the clinician entered and receives no status back from CRA.
+- [x] Caregiver status tracker: dropped "awaiting decision", relabeled to "Submitted in CRA (self-reported)",
+  and added a one-line note that all statuses are self-reported, not fed from CRA or the programs.
+- The mock tax app's own "Submitted via NETFILE" line is left as-is: it is the fictional host's claim, not
+  Covered's tracking.
 
 ## What not to touch
 

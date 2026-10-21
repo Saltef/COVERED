@@ -186,8 +186,10 @@ async function loadQueue() {
           using reference <b>${att.cra_reference_number || "(none)"}</b>.</div>
         <button class="btn mark" data-id="${att.id}" style="margin-top:12px">Mark submitted in CRA</button>`;
     } else {
-      action = `<span class="badge blue">&#10003; Submitted to CRA · awaiting decision</span>
-        <span class="muted" style="margin-left:8px">ref ${att.cra_reference_number || ""}</span>`;
+      action = `<span class="badge blue">&#10003; Marked submitted in CRA</span>
+        <span class="muted" style="margin-left:8px">ref ${att.cra_reference_number || ""} &middot; self-reported</span>
+        <p class="muted" style="margin:6px 0 0;font-size:12px">Covered records what you entered here; it does
+           not receive status back from CRA.</p>`;
     }
     div.innerHTML = `<div class="top"><span class="name">${it.patient_name || "Patient"}</span>
         <span class="badge warn">DTC · ${it.dtc ? it.dtc.eligibility : ""}</span></div>
