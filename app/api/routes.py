@@ -39,9 +39,14 @@ async def healthz() -> dict:
 
 @router.get("/config")
 async def config() -> dict:
-    """Public runtime config for the frontend (which auth to use)."""
+    """Public runtime config for the frontend (which auth to use, and whether auth is enforced)."""
     s = get_settings()
-    return {"clerk_publishable_key": s.clerk_publishable_key, "auth_required": bool(s.clerk_publishable_key)}
+    dev_no_auth = s.dev_allow_no_auth and s.is_development
+    return {"clerk_publishable_key": s.clerk_publishable_key,
+            "auth_required": bool(s.clerk_publishable_key),
+            # auth_enforced is false in local dev (header identity); the UI flags this honestly.
+            "auth_enforced": not dev_no_auth,
+            "dev_mode": dev_no_auth}
 
 
 @router.get("/benchmark")

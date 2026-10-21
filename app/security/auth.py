@@ -85,8 +85,9 @@ async def get_current_user(
         token = authorization.split(" ", 1)[1].strip()
         return _verify_clerk_jwt(token, settings)
 
-    if settings.dev_allow_no_auth and not settings.is_production:
-        # dev-only: X-Dev-User lets the demo act as distinct identities (patient vs. doctor)
+    if settings.dev_allow_no_auth and settings.is_development:
+        # dev-only: X-Dev-User lets the demo act as distinct identities (patient vs. doctor).
+        # Gated on is_development (not merely non-production) so staging never runs header-auth.
         return Principal(user_id=(x_dev_user or "dev-user").strip() or "dev-user",
                          role=_map_role(x_dev_role), is_dev=True)
 

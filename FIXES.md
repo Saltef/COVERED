@@ -1,0 +1,79 @@
+# Covered: prioritized fix list
+
+From the functionality critique. Effort legend: **S** = under 2h, **M** = about half a day, **L** = a day or more.
+Priorities: **P0** = do before the demo (honesty and fragility), **P1** = strengthen the core before judging,
+**P2** = post-hackathon and productionization.
+
+## P0: before the demo
+
+### 1. Make the security posture honest  (S) — DONE
+The app runs with `dev_allow_no_auth = True` and no Clerk keys, so any caller sending `X-Dev-Role: admin`
+reaches the agency console, every screening (income, disability), the audit log, and the partner API. The
+RLS and RBAC code is real but bypassed.
+- [x] Startup now calls `Settings.assert_auth_safe()`, which refuses to boot when `dev_allow_no_auth` is on
+  outside a development env (staging counts as unsafe, not just production).
+- [x] The dev header-identity fallback is gated on `is_development`, not merely `not is_production`, so staging
+  no longer accepts header auth.
+- [x] `/config` exposes `auth_enforced`; the agency and clinician consoles show a red "Dev mode: auth off"
+  badge when it is false, so the demo never misrepresents the posture.
+- Still open (see #8): wiring Clerk so auth is actually enforced, not just honestly labeled.
+
+### 2. Shrink the demo dependency surface  (S)
+A clean run currently needs SurrealDB, OpenRouter, Cohere, and Era all up at once.
+- Add a one-command pre-demo health check that pings each and reports green/red.
+- Confirm every surface degrades to a friendly message, not a stack trace or spinner, when a dependency is down.
+- Why: four external dependencies is four ways the live demo breaks.
+
+### 3. Pick the demo spine and cut what you show  (S)
+Ten surfaces split the story. Decide the spine (core screen-to-apply loop plus the embed pivot) and present the
+care team and agency as "where this goes."
+- Remove or demote the Era CRM co-pilot on the agency page; lead with the book co-pilot (overlaps #6).
+- Why: depth on three things beats ten half-built ones.
+
+## P1: strengthen the core
+
+### 4. Stop implying clinician verification is real  (S now, L for real)
+`verify_clinician` is a stub that approves on field presence, yet "verified doctors" is the care team's trust
+premise.
+- Short term: label it prominently as demo verification in the UI, and keep the `RegistryVerifier` seam.
+- Real: a provincial-college register lookup. **L**, out of scope for the hackathon.
+
+### 5. Get an independent accuracy check  (M)
+The engine passes 11/11, but we wrote both the rules and the answer key, so a wrong threshold passes green.
+- Have a second source (or person) verify 2-3 program thresholds against canada.ca / ontario.ca.
+- Surface a "rates verified" date and a source link per program in the UI.
+- Why: turns "matches our belief" into "matches the law," which is the claim that matters.
+
+### 6. Consolidate the agency co-pilots  (S)
+Two co-pilots over different data (Era CRM vs the screened book) confuse. The book one is the real story.
+- Make the book co-pilot primary; demote Era to "live ingestion proof," or hide it for the demo.
+
+### 7. Make document auto-fill show its work  (M)
+Notice-of-Assessment extraction uses LLM vision with no validation shown.
+- Show the extracted fields for user confirmation before they feed the profile; flag low-confidence fields.
+- Why: the failure mode today is silent wrong data in a benefits form.
+
+## P2: post-hackathon and productionization
+
+### 8. Wire Clerk end to end  (L)
+Real authentication across all roles, replacing dev-mode identity. Turns the architected RLS into enforced RLS.
+
+### 9. Make cross-origin embedding real  (M-L)
+The widget works in the demo only because host and API are same-origin; prod CORS is empty, so a real partner
+domain is blocked. Needs a per-partner CORS allowlist and real partner-key issuance, not the hardcoded demo key.
+
+### 10. Add an automated test suite  (M)
+`pytest` is not installed and there is no `tests/`; what exists is three manual scripts plus the benchmark.
+Convert them to pytest and run the benchmark in CI so a rules regression fails the build.
+
+### 11. Harden the public surface  (M)
+Tighten CORS off `*`, rate-limit `/v1/eligibility`, and remove the demo-key acceptance path outside dev.
+
+### 12. Be precise about submission tracking  (S)
+"Mark submitted in CRA" is self-report with no CRA integration (correct by design). Label it as self-reported so
+status is not mistaken for a live CRA signal.
+
+## What not to touch
+
+The deterministic rules engine is the strongest asset (11/11, correct age edge cases) and the honest flagging
+(illustrative values, Era-not-screenable, CRA-owns-submission) is doing real work. Keep both.

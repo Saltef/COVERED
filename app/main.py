@@ -34,6 +34,8 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     configure_logging()
     settings = get_settings()
+    # Refuse to start wide open: the no-auth dev fallback must never run in a deployed env.
+    settings.assert_auth_safe()
     app = FastAPI(title="Covered", version="0.1.0", lifespan=lifespan,
                   description="Helps Canadians discover and claim the health benefits they're owed.")
     # Dev-friendly CORS; tighten to the real frontend origin before production.

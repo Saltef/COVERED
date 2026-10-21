@@ -52,6 +52,22 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.app_env.lower() in ("production", "prod")
 
+    @property
+    def is_development(self) -> bool:
+        return self.app_env.lower() in ("development", "dev", "local")
+
+    def assert_auth_safe(self) -> None:
+        """Fail fast if the no-auth dev fallback is on outside development.
+
+        The dev fallback mints an identity from request headers (any caller can claim admin),
+        so it must never run in a deployed environment. Checked at startup. Note that staging or
+        any non-development env counts as unsafe here, not just production.
+        """
+        if self.dev_allow_no_auth and not self.is_development:
+            raise RuntimeError(
+                f"DEV_ALLOW_NO_AUTH is enabled but APP_ENV={self.app_env!r} is not a development "
+                "environment. Set DEV_ALLOW_NO_AUTH=false and configure Clerk before deploying.")
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -58,6 +58,8 @@
 <div class="topbar">
   <span class="brand">Covered <span class="leaf">&#127809;</span></span>
   <span class="tag">Clinician</span>
+  <span class="tag hidden" id="devBadge" title="Auth and row-level security are architected but disabled in this local demo. Any caller can act as any role. Do not use real data."
+    style="background:#fbeceb;color:#a3281f">&#9888; Dev mode: auth off</span>
   <span class="spacer"></span>
   <a class="linkout" href="/caregiver">Caseload &#8599;</a>
   <a class="linkout" href="/agency">Agency &#8599;</a>
@@ -213,6 +215,13 @@ $("signinBtn").addEventListener("click", signIn);
 $("email").addEventListener("keydown", (e) => { if (e.key === "Enter") signIn(); });
 $("verifyBtn").addEventListener("click", verify);
 if (EMAIL) $("email").value = EMAIL;
+async function checkDevMode() {
+  try {
+    const cfg = await (await fetch("/config")).json();
+    if (cfg && cfg.auth_enforced === false) $("devBadge").classList.remove("hidden");
+  } catch (e) {}
+}
+checkDevMode();
 render();
 </script>
 </body>
