@@ -38,11 +38,14 @@ care team and agency as "where this goes."
 
 ## P1: strengthen the core
 
-### 4. Stop implying clinician verification is real  (S now, L for real)
+### 4. Stop implying clinician verification is real  (S now, L for real) — DONE (short term)
 `verify_clinician` is a stub that approves on field presence, yet "verified doctors" is the care team's trust
 premise.
-- Short term: label it prominently as demo verification in the UI, and keep the `RegistryVerifier` seam.
-- Real: a provincial-college register lookup. **L**, out of scope for the hackathon.
+- [x] The clinician page labels it honestly: a prominent demo-verification callout before, and an amber
+  "Verified (demo)" badge with a "simulated check only" note after, driven by the profile's real
+  `method == "stub"` so it stays accurate if a real verifier is ever added.
+- Still open: a real provincial-college register lookup via the `RegistryVerifier` seam. **L**, out of scope
+  for the hackathon.
 
 ### 5. Get an independent accuracy check  (M)
 The engine passes 11/11, but we wrote both the rules and the answer key, so a wrong threshold passes green.

@@ -35,6 +35,8 @@
     padding: 4px 11px; border-radius: 99px; }
   .badge.ok { background: var(--ok-bg); color: var(--ok); } .badge.warn { background: var(--maybe-bg); color: var(--maybe); }
   .badge.blue { background: var(--blue-bg); color: var(--blue); }
+  .demo-note { background: var(--maybe-bg); border: 1px solid #f0cfa0; color: #7a4a12;
+    padding: 11px 13px; border-radius: 9px; font-size: 13px; margin: 12px 0 0; }
   .muted { color: var(--muted); } .hidden { display: none; }
   .case { border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin: 14px 0; }
   .case .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -92,10 +94,10 @@
         <div><label>Regulatory college</label><input id="v_college" placeholder="e.g. CPSO" /></div>
         <div><label>Province</label><input id="v_prov" placeholder="e.g. ON" /></div>
       </div>
-      <p class="muted" style="font-size:13px;margin:10px 0 0">We confirm your registration before you can
-         certify any medical form. <i>(Demo: verification is stubbed; the real provincial-college register
-         lookup is the integration point.)</i></p>
-      <button class="btn" id="verifyBtn" style="margin-top:14px">Verify me</button>
+      <div class="demo-note"><b>&#9888; Demo verification.</b> This approves as long as the fields are filled
+         in. It does <b>not</b> check any provincial-college register, so no registration is actually confirmed.
+         A real register lookup is the documented integration point.</div>
+      <button class="btn" id="verifyBtn" style="margin-top:14px">Run demo verification</button>
     </div>
   </section>
 
@@ -132,8 +134,11 @@ async function render() {
   try { me = await (await fetch("/clinician/me", { headers: hdrs(false) })).json(); } catch (e) {}
   const verified = me && me.status === "verified";
   if (verified) {
-    $("verifyStatus").innerHTML = `<span class="badge ok">&#10003; Verified</span>
-      <span class="muted" style="margin-left:10px">${me.full_name || ""} · ${me.college || ""} ${me.license_number || ""}</span>`;
+    const demo = me.method === "stub";
+    $("verifyStatus").innerHTML = `<span class="badge ${demo ? "warn" : "ok"}">&#10003; Verified${demo ? " (demo)" : ""}</span>
+      <span class="muted" style="margin-left:10px">${me.full_name || ""} · ${me.college || ""} ${me.license_number || ""}</span>
+      ${demo ? `<div class="demo-note">Simulated check only: approved because the details were present. No
+        provincial-college register was queried, so this does not confirm a real registration.</div>` : ""}`;
     $("verifyForm").classList.add("hidden");
     $("queueCard").classList.remove("hidden");
     loadQueue();
