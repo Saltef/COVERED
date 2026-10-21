@@ -1,7 +1,8 @@
 """Benefit catalogue + deterministic eligibility rules.
 
-Figures below are verified against 2025 CRA / Ontario public sources (V1, Oct 2026) — see the
-constants block for per-figure sources. A person's actual amount still depends on their situation.
+Figures below re-verified against 2025/2026 official sources on 2026-10-21 (see the constants block).
+Policy note: the Canadian Dental Care Plan is open to ALL ages since the May 2025 expansion (no DTC or
+age route needed). A person's actual amount still depends on their situation.
 
 Design rule: the ENGINE decides eligibility deterministically (auditable / reproducible).
 Claude (agents layer) only phrases the "why" — it never decides eligibility.
@@ -13,9 +14,10 @@ from typing import Callable
 
 from app.models import Eligibility, Profile, ProgramResult
 
-# ---- figures verified against 2025 CRA / Ontario public sources (V1, Oct 2026) ----
-# Canadian Dental Care Plan: adjusted family net income must be under $90,000
-# (0% co-pay under $70k, then tiered). Source: canada.ca/dental.
+# ---- figures re-verified against 2025/2026 official sources (2026-10-21) ----
+# Canadian Dental Care Plan: adjusted family net income under $90,000, no access to dental insurance,
+# prior-year tax return filed, Canadian resident. Open to ALL ages since the May 2025 expansion (no
+# DTC/age route). 0% co-pay under $70k, then tiered. Source: Health Canada / canada.ca/dental.
 CDCP_INCOME_CAP = 90_000
 CDCP_ESTIMATED_VALUE = 900              # estimate: coverage value varies by person/treatment
 
@@ -28,12 +30,12 @@ METC_FEDERAL_RATE = 0.15
 DTC_DISABILITY_AMOUNT = 10_138
 DTC_FEDERAL_VALUE = round(METC_FEDERAL_RATE * DTC_DISABILITY_AMOUNT)
 
-# Canada Disability Benefit (Jul 2026–Jun 2027): max $204.20/mo; reduced 20¢ per $ of adjusted
-# family net income above $23,000 (single) / $32,500 (with a partner). Source: ESDC regulations.
-CDB_MAX_ANNUAL = round(204.20 * 12)     # $2,450
+# Canada Disability Benefit (Jul 2026–Jun 2027): max $204.20/mo ($2,450/yr); reduced 20¢ per $ of
+# adjusted family net income above the indexed thresholds. Source: ESDC.
+CDB_MAX_ANNUAL = round(204.20 * 12)     # $2,450 (2026-27)
 CDB_REDUCTION_RATE = 0.20
-CDB_THRESHOLD_SINGLE = 23_000
-CDB_THRESHOLD_PARTNERED = 32_500
+CDB_THRESHOLD_SINGLE = 23_483           # 2026-27 indexed
+CDB_THRESHOLD_PARTNERED = 33_182
 
 # Ontario Trillium Drug Program deductible (household net income < $100k):
 # ~4.5% of (household net income − $20,000) + $500. Source: Ontario / Benefits Canada.
@@ -122,22 +124,16 @@ def eval_cdcp(p: Profile) -> ProgramResult:
     if not p.canadian_resident:
         ok = False
         reasons.append("Must be a Canadian resident.")
-    senior_route, child_route, dtc_route = p.age >= 65, p.age < 18, p.has_dtc_certificate
-    if not (senior_route or child_route or dtc_route):
-        ok = False
-        reasons.append("Open to seniors 65+, children under 18, and adults with a DTC certificate.")
     if ok:
-        if senior_route:
-            reasons.insert(0, "You qualify via the seniors (65+) route.")
-        elif dtc_route:
-            reasons.insert(0, "You qualify via the adult-with-DTC route.")
+        reasons.insert(0, "Open to anyone without dental insurance and with adjusted family net income "
+                          f"under ${CDCP_INCOME_CAP:,.0f} (all ages, since the May 2025 expansion).")
         return _r(program_id="cdcp", program_name="Canadian Dental Care Plan", jurisdiction="Federal (Health Canada)",
                   eligibility=Eligibility.eligible, confidence=0.9, estimated_annual_value=CDCP_ESTIMATED_VALUE,
                   reasons=reasons,
                   next_steps=["Apply at canada.ca/dental or call 1-833-537-4342.",
-                              "Renew coverage every year (2026 window: Apr 15 – Jun 1)."])
+                              "Renew coverage every year by the annual deadline."])
     return _r(program_id="cdcp", program_name="Canadian Dental Care Plan", jurisdiction="Federal (Health Canada)",
-              eligibility=Eligibility.not_eligible, confidence=0.75, estimated_annual_value=None,
+              eligibility=Eligibility.not_eligible, confidence=0.8, estimated_annual_value=None,
               reasons=reasons, next_steps=[])
 
 

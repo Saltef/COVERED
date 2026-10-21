@@ -71,6 +71,12 @@ CASES: list[dict] = [
         "expected_actionable": {"cdcp"},
     },
     {
+        "id": "uninsured_adult_no_dtc",  # 45, uninsured, no DTC -> CDCP (open to all ages since May 2025)
+        "profile": {"province": "ON", "age": 45, "annual_net_income": 35_000,
+                    "has_private_dental_insurance": False, "prescription_costs_annual": 0},
+        "expected_actionable": {"cdcp"},
+    },
+    {
         "id": "nothing",  # mid-income, insured, no impairment -> don't over-claim
         "profile": {"province": "ON", "age": 40, "annual_net_income": 70_000,
                     "has_private_dental_insurance": True, "prescription_costs_annual": 0},

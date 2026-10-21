@@ -69,12 +69,14 @@ def build_t2201(p: Profile) -> ApplicationPackage:
         ],
         still_needed=[
             "Add your last name, SIN, date of birth and mailing address.",
-            "Sign and date Part A.",
-            "Have your doctor or nurse practitioner complete and sign Part B.",
+            "Complete Part A in CRA My Account's digital DTC application to get a reference number.",
+            "Give the reference number to your doctor or nurse practitioner, who completes Part B in CRA's portal.",
         ],
         submission=[
-            "Submit to the CRA through My Account (‘Submit documents’) or mail it to your tax centre.",
-            "Processing typically takes several weeks. Once approved, the DTC unlocks other programs.",
+            "Apply through the digital DTC application in CRA My Account (Part A → reference number → "
+            "your practitioner completes Part B in CRA's portal), or mail a paper Form T2201.",
+            "Processing typically takes several weeks. Once approved, the DTC unlocks the Canada Disability "
+            "Benefit and the RDSP.",
         ],
     )
 

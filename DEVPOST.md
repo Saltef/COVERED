@@ -20,7 +20,7 @@ and prepares **ready-to-submit applications** — pre-filling everything it safe
   back, checks the spelling of your name, and fills the form. Typing works as a fallback.
 - **Screening with a reason.** A deterministic rules engine decides eligibility (auditable), and
   the model phrases *why* in grade-6 plain language. It surfaces the **DTC "unlock chain"** — the
-  Disability Tax Credit is a key that opens the Canada Disability Benefit, RDSP, and dental coverage.
+  Disability Tax Credit is a key that opens the Canada Disability Benefit and the RDSP.
 - **One number.** "You could be owed about **$3,736 a year** across 4 programs you may not be getting."
 - **Apply, not just advise.** For each program it builds a completed application (e.g. **Form T2201
   Part A**), color-coding what's pre-filled, what you must add (SIN, address), and what your doctor

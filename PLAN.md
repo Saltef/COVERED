@@ -20,7 +20,7 @@ Judging: Innovation · Real-World Impact · UI & Design · Tech & Deployment · 
 Anchor persona: **low-income senior (ON)**. Programs:
 DTC · Canada Disability Benefit · Canadian Dental Care Plan · Medical Expense Tax Credit ·
 Canada Caregiver Credit · RDSP · Ontario Trillium Drug Program.
-Spine: the **DTC "unlock chain"** (DTC → CDB / RDSP / CDCP).
+Spine: the **DTC "unlock chain"** (DTC → CDB / RDSP). *(CDCP is open to all ages since May 2025, so it's no longer DTC-gated.)*
 
 ## Architecture (modular, layered)
 API layer (FastAPI) → Domain layer (rules engine) → Data layer (SurrealDB).

@@ -27,7 +27,7 @@ one answer per mic tap. Have the seeded persona's answers ready (Margaret, below
 > *On screen:* the results list renders; the DTC "unlocked by" badges light up.
 > **Narration:** "In seconds: **you could be owed about $3,736 a year across four programs.**
 > Dental, the medical expense credit, Ontario's drug program — and the Disability Tax Credit, which
-> is a *key* that unlocks three more. Every figure uses 2025 CRA and Ontario rates, with the reason
+> is a *key* that unlocks the Canada Disability Benefit and the RDSP. Every figure uses current CRA and Ontario rates, with the reason
 > in plain language."
 
 ### 1:15–1:40 — Apply (the Wealthsimple move)

@@ -7,9 +7,10 @@ from __future__ import annotations
 
 from app.models import Eligibility, ProgramResult
 
-# node -> programs it unlocks
+# node -> programs it unlocks. (CDCP is NOT here: since the May 2025 expansion it is open to all
+# ages and no longer requires the DTC.)
 UNLOCK_EDGES: dict[str, list[str]] = {
-    "dtc": ["cdb", "rdsp", "cdcp"],
+    "dtc": ["cdb", "rdsp"],
 }
 
 _ACTIVE = (Eligibility.eligible, Eligibility.likely, Eligibility.maybe)
