@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NorthFile — Your 2025 return</title>
+<style>
+  /* A fictional tax-filing app. Deliberately NOT Covered-branded: a third-party host.
+     The orange Covered widget is embedded after filing, pre-filled from the return. */
+  :root { --nf: #4338ca; --nf-dark: #362fa8; --nf-soft: #eef0fd; --ink: #16151f; --muted: #605e73;
+          --bg: #f5f5fb; --line: #e6e5f2; --card: #fff; --ok: #15803d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .top { background: var(--nf); color: #fff; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .top .logo { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 9px; }
+  .top .logo .mk { background: #fff; color: var(--nf); width: 28px; height: 28px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 900; }
+  .top .sp { flex: 1; }
+  .top .acct { font-size: 14px; opacity: .95; }
+  .steps { background: var(--nf-dark); color: #c7c3f0; padding: 10px 24px; display: flex; gap: 10px;
+    font-size: 13px; font-weight: 600; align-items: center; flex-wrap: wrap; }
+  .steps .s { display: flex; align-items: center; gap: 7px; }
+  .steps .s.done { color: #fff; } .steps .s.done .dot { background: #8ef0b8; color: var(--nf-dark); }
+  .steps .dot { width: 18px; height: 18px; border-radius: 50%; background: #5a52c4; color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+  .steps .arr { opacity: .5; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 1fr 360px; gap: 22px; }
+  h1 { font-size: 23px; margin: 0 0 2px; } .sub { color: var(--muted); margin: 0 0 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 13px; padding: 20px; margin-bottom: 18px; }
+  .card h2 { font-size: 16px; margin: 0 0 14px; color: var(--nf-dark); }
+  .refund { background: linear-gradient(180deg, #f0fdf4, #fff); border: 1px solid #c6ecd2; }
+  .refund .big { font-size: 34px; font-weight: 800; color: var(--ok); margin: 2px 0 2px; }
+  .refund .lbl { color: var(--muted); font-size: 14px; } .refund .chk { color: var(--ok); font-weight: 700; }
+  .lines { width: 100%; border-collapse: collapse; }
+  .lines td { padding: 11px 6px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .lines tr:last-child td { border-bottom: none; }
+  .lines .ln { color: var(--muted); font-size: 13px; } .lines .amt { text-align: right; font-weight: 700; white-space: nowrap; }
+  aside .promo { background: var(--nf-soft); border: 1px solid #dcd9f6; border-radius: 13px; padding: 16px; margin-bottom: 14px; }
+  aside .promo .h { font-weight: 750; margin: 0 0 4px; } aside .promo .lead { font-size: 14px; color: var(--muted); margin: 0; }
+  aside .promo .lead b { color: var(--ink); }
+  .foot { max-width: 1060px; margin: 0 auto; padding: 8px 24px 40px; color: var(--muted); font-size: 13px; }
+  code { background: #ecebf8; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+  @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <div class="top">
+    <span class="logo"><span class="mk">NF</span> NorthFile Tax</span>
+    <span class="sp"></span>
+    <span class="acct">Priya S. · 2025 return</span>
+  </div>
+  <div class="steps">
+    <span class="s done"><span class="dot">&#10003;</span> Income</span><span class="arr">&rsaquo;</span>
+    <span class="s done"><span class="dot">&#10003;</span> Deductions</span><span class="arr">&rsaquo;</span>
+    <span class="s done"><span class="dot">&#10003;</span> Review</span><span class="arr">&rsaquo;</span>
+    <span class="s done"><span class="dot">&#10003;</span> Filed</span>
+  </div>
+
+  <div class="wrap">
+    <main>
+      <h1>Your 2025 return is filed &#127881;</h1>
+      <p class="sub">Confirmation NF-2025-88213. Here is your summary.</p>
+
+      <div class="card refund">
+        <div class="lbl">Estimated refund</div>
+        <div class="big">$612</div>
+        <div class="chk">&#10003; Submitted to CRA via NETFILE</div>
+      </div>
+
+      <div class="card">
+        <h2>Return summary</h2>
+        <table class="lines">
+          <tr><td>Net income <div class="ln">Line 23600</div></td><td class="amt">$22,000</td></tr>
+          <tr><td>Province of residence</td><td class="amt">Ontario</td></tr>
+          <tr><td>Marital status</td><td class="amt">Single</td></tr>
+          <tr><td>Prescription receipts claimed <div class="ln">Line 33099</div></td><td class="amt">$1,800</td></tr>
+          <tr><td>Access to private dental insurance <div class="ln">Return question</div></td><td class="amt">No</td></tr>
+          <tr><td>Age</td><td class="amt">61</td></tr>
+        </table>
+      </div>
+    </main>
+
+    <aside>
+      <div class="promo">
+        <p class="h">Before you go</p>
+        <p class="lead">Based on your return, <b>you may qualify for benefits you are not claiming.</b>
+          We already filled in your numbers. Answer a couple more and see.</p>
+      </div>
+
+      <!-- Covered embed. NorthFile pre-fills straight from the filed return:
+           income, province, marital status, prescription receipts, and dental-insurance access
+           are all on the T1, so Priya only answers the health-specific questions. -->
+      <div id="covered-widget"></div>
+      <script src="/static/embed.js"
+              data-covered-key="demo-partner-key"
+              data-mount="#covered-widget"
+              data-brand="#c94a10"
+              data-prefill='{"age":61,"province":"ON","marital_status":"single","annual_net_income":22000,"prescription_costs_annual":1800,"has_private_dental_insurance":false}'></script>
+    </aside>
+  </div>
+
+  <div class="foot">
+    NorthFile Tax is a fictional demo host. The benefits widget is served by Covered via a single
+    embed script and the <code>/v1/eligibility</code> API, pre-filled from the return.
+  </div>
+</body>
+</html>

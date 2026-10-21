@@ -41,6 +41,12 @@ async def pharmacy() -> FileResponse:
     return FileResponse(WEB_DIR / "pharmacy.html")
 
 
+@router.get("/tax")
+async def tax() -> FileResponse:
+    """Demo partner host: a mock tax-filing app that embeds the widget, pre-filled from the return."""
+    return FileResponse(WEB_DIR / "taxsoftware.html")
+
+
 @router.get("/developers")
 async def developers() -> FileResponse:
     """Developer docs: the embed snippet and the v1 API contract."""
