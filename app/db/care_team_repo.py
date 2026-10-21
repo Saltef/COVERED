@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from app.db.repository import SurrealUnavailable, _clean, _db, _rows
+from app.db.repository import SurrealUnavailable, _clean, _db, _rows, write_audit
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +62,10 @@ async def verify_clinician(member_id: str, full_name: str, license_number: str,
              "s": status, "meth": result["method"]},
         )
         rows = _rows(res)
-        return _clean(rows[0]) if rows else {}
+    await write_audit(member_id, "verify", member_id,
+                      f"{full_name} verified ({college or province})" if status == "verified"
+                      else "License verification rejected")
+    return _clean(rows[0]) if rows else {}
 
 
 async def get_clinician_profile(member_id: str) -> Optional[dict]:
@@ -134,11 +137,15 @@ async def create_attestation(clinician_email: str, screening_id: str, fields: di
         return {"error": "no medical access to this patient"}
     async with _db() as db:
         res = await db.query(
-            "CREATE attestation SET screening=$sid, clinician_email=$ce, form='T2201-PartB', "
-            "fields=$f, cra_reference_number=$ref, status='attested', attested_at=time::now();",
-            {"sid": screening_id, "ce": clinician_email, "f": fields, "ref": cra_reference_number})
+            "CREATE attestation SET screening=$sid, clinician_email=$ce, patient_owner=$owner, "
+            "form='T2201-PartB', fields=$f, cra_reference_number=$ref, status='attested', "
+            "attested_at=time::now();",
+            {"sid": screening_id, "ce": clinician_email, "owner": owner, "f": fields,
+             "ref": cra_reference_number})
         rows = _rows(res)
-        return _clean(rows[0]) if rows else {}
+    await write_audit(clinician_email, "attest", owner,
+                      f"{clinician_email} certified T2201 Part B (ref {cra_reference_number or 'n/a'})")
+    return _clean(rows[0]) if rows else {}
 
 
 async def mark_attestation_submitted(clinician_email: str, attestation_id: str) -> None:
@@ -148,3 +155,9 @@ async def mark_attestation_submitted(clinician_email: str, attestation_id: str) 
         await db.query(
             "UPDATE attestation SET status='submitted_in_cra', submitted_at=time::now() "
             "WHERE id=$rid AND clinician_email=$ce;", {"rid": rid, "ce": clinician_email})
+        rows = _rows(await db.query(
+            "SELECT patient_owner, cra_reference_number FROM attestation WHERE id=$rid;", {"rid": rid}))
+    if rows:
+        a = _clean(rows[0])
+        await write_audit(clinician_email, "submit", a.get("patient_owner"),
+                          f"Part B submitted to CRA (ref {a.get('cra_reference_number') or 'n/a'})")

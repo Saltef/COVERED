@@ -137,12 +137,25 @@ async def grant_access(grantor_id: str, grantee_id: str) -> None:
         )
 
 
-async def write_audit(actor_id: str, action: str, subject: Optional[str] = None) -> None:
+async def write_audit(actor_id: str, action: str, subject: Optional[str] = None,
+                      detail: Optional[str] = None) -> None:
     try:
         async with _db() as db:
             await db.query(
-                "CREATE audit_log SET actor=$a, action=$act, subject=$s, at=time::now();",
-                {"a": actor_id, "act": action, "s": subject},
+                "CREATE audit_log SET actor=$a, action=$act, subject=$s, detail=$d, at=time::now();",
+                {"a": actor_id, "act": action, "s": subject, "d": detail},
             )
     except SurrealUnavailable:
         pass  # auditing must never break the request
+
+
+async def list_audit(principal: Principal, limit: int = 60) -> list[dict]:
+    """A principal sees actions on their own record and their own actions; admin sees all."""
+    async with _db() as db:
+        if principal.role is Role.admin:
+            res = await db.query("SELECT * FROM audit_log ORDER BY at DESC LIMIT $n;", {"n": limit})
+        else:
+            res = await db.query(
+                "SELECT * FROM audit_log WHERE subject=$u OR actor=$u ORDER BY at DESC LIMIT $n;",
+                {"u": principal.user_id, "n": limit})
+        return [_clean(r) for r in _rows(res)]

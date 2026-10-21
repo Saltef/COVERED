@@ -28,7 +28,8 @@ async def save_my_screening(
     out = [ProgramResultOut.from_domain(r).model_dump(mode="json") for r in results]
     try:
         saved = await repo.save_screening(user.user_id, headline, profile_in.model_dump(mode="json"), out, s)
-        await repo.write_audit(user.user_id, "save_screening", saved.get("id"))
+        await repo.write_audit(user.user_id, "screen", user.user_id,
+                               f"Screened {profile_in.first_name or 'a client'}")
     except repo.SurrealUnavailable as exc:
         raise HTTPException(503, f"storage unavailable ({exc})")
     return {"id": saved.get("id"), "headline": headline, "summary": s}

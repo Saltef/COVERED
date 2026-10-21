@@ -145,6 +145,10 @@
       </div>
       <div id="ctList"></div>
     </div>
+    <div class="careteam">
+      <p class="sectitle">Activity &amp; audit trail</p>
+      <div id="ctActivity" class="muted" style="font-size:14px">&mdash;</div>
+    </div>
     <p class="note">Amounts use 2025 CRA / Ontario rates and depend on the person's situation. Covered prepares
        these — the person (or you, with their consent) confirms and submits. Nothing is filed automatically.</p>
   </section>
@@ -280,6 +284,17 @@ async function openDetail(id) {
   $("dApplyBtn").classList.remove("hidden");
   $("ctEmail").value = "";
   loadCareTeam();
+  loadActivity();
+}
+
+const fmtTime = (s) => { try { return new Date(s).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } };
+async function loadActivity() {
+  let rows = [];
+  try { rows = await (await fetch("/activity", { headers: hdrs(false) })).json(); } catch (e) {}
+  $("ctActivity").innerHTML = (rows || []).length
+    ? rows.slice(0, 8).map(r => `<div class="ctmember"><span>${r.detail || r.action}</span>
+        <span class="who ${(r.action === "attest" || r.action === "submit") ? "pre" : "you"}">${fmtTime(r.at)}</span></div>`).join("")
+    : "No activity yet.";
 }
 
 async function loadCareTeam() {

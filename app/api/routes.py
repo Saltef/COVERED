@@ -52,6 +52,15 @@ async def benchmark() -> dict:
     return run(fetch_era_cases())
 
 
+@router.get("/activity")
+async def activity(user: Principal = Depends(get_current_user)) -> list[dict]:
+    """Audit trail visible to the caller (own record + own actions; admin sees all)."""
+    try:
+        return await repo.list_audit(user)
+    except repo.SurrealUnavailable as exc:
+        raise HTTPException(503, f"storage unavailable ({exc})")
+
+
 @router.get("/agency/caseload")
 async def agency_caseload(user: Principal = Depends(require_role(Role.admin))) -> dict:
     """Agency oversight: roll up every screening in the caseload (admin sees all via RLS)."""

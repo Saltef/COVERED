@@ -62,6 +62,10 @@
   .answer .a { font-size: 20px; font-weight: 700; margin: 6px 0 2px; }
   .answer .meta { color: var(--muted); font-size: 13px; }
   .bench { margin-top: 14px; color: var(--muted); font-size: 14px; }
+  .arow { display: flex; justify-content: space-between; gap: 12px; padding: 12px 18px;
+    border-bottom: 1px solid var(--line); font-size: 15px; }
+  .arow:last-child { border-bottom: none; }
+  .arow .ameta { color: var(--muted); font-size: 13px; white-space: nowrap; }
   .muted { color: var(--muted); }
 </style>
 </head>
@@ -106,6 +110,12 @@
     <div class="bench"><button class="btn-ghost" id="benchBtn">Run accuracy benchmark</button>
       <span id="benchOut" style="margin-left:10px"></span></div>
   </div>
+
+  <div class="card" style="padding:6px 0 0;margin-top:22px">
+    <div style="padding:16px 18px 0"><h2 style="margin:0 0 4px">Activity &amp; audit trail</h2>
+      <p class="muted" style="margin:0 0 6px;font-size:13px">Every access and action is logged &mdash; who did what, and when.</p></div>
+    <div id="activity"><p class="muted" style="padding:14px 18px">Loading&hellip;</p></div>
+  </div>
 </div>
 
 <script>
@@ -113,6 +123,16 @@ const $ = (id) => document.getElementById(id);
 const H = { "X-Dev-Role": "admin" };
 const money = (n) => "$" + Number(n || 0).toLocaleString();
 const fmtDate = (s) => { try { return new Date(s).toLocaleDateString(undefined, { month: "short", day: "numeric" }); } catch (e) { return ""; } };
+const fmtTime = (s) => { try { return new Date(s).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } };
+
+async function loadActivity() {
+  let rows = [];
+  try { rows = await (await fetch("/activity", { headers: H })).json(); } catch (e) {}
+  $("activity").innerHTML = (rows || []).length
+    ? rows.map(r => `<div class="arow"><span>${r.detail || r.action}</span>
+        <span class="ameta">${r.actor || ""} &middot; ${fmtTime(r.at)}</span></div>`).join("")
+    : `<p class="muted" style="padding:14px 18px">No activity yet.</p>`;
+}
 const SUGGESTED = ["How many contacts are in Canada?", "What is the total value of all deals?",
   "Which plan has the most contacts?", "How many companies are in the CRM?"];
 
@@ -168,6 +188,7 @@ $("askBtn").addEventListener("click", () => ask($("q").value));
 $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") ask($("q").value); });
 $("benchBtn").addEventListener("click", runBenchmark);
 loadCaseload();
+loadActivity();
 </script>
 </body>
 </html>

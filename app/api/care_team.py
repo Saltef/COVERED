@@ -24,7 +24,7 @@ class InviteIn(BaseModel):
 async def invite(body: InviteIn, user: Principal = Depends(get_current_user)) -> dict:
     try:
         grant = await ct.invite_member(user.user_id, body.email, body.role, body.scope)
-        await repo.write_audit(user.user_id, "invite_member", body.email)
+        await repo.write_audit(user.user_id, "invite", user.user_id, f"Invited {body.email} ({body.role})")
     except repo.SurrealUnavailable as exc:
         raise HTTPException(503, f"storage unavailable ({exc})")
     return grant
@@ -42,6 +42,7 @@ async def my_care_team(user: Principal = Depends(get_current_user)) -> list[dict
 async def revoke(grant_id: str, user: Principal = Depends(get_current_user)) -> dict:
     try:
         await ct.revoke_grant(user.user_id, grant_id)
+        await repo.write_audit(user.user_id, "revoke", user.user_id, "Revoked a care-team member")
     except repo.SurrealUnavailable as exc:
         raise HTTPException(503, f"storage unavailable ({exc})")
     return {"ok": True}
