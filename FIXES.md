@@ -65,10 +65,13 @@ Two co-pilots over different data (Era CRM vs the screened book) confuse. The bo
   open-ended CRM co-pilot tucked into a collapsed "Try the live CRM co-pilot" detail. The agency intro now
   leads with the book.
 
-### 7. Make document auto-fill show its work  (M)
+### 7. Make document auto-fill show its work  (M) — DONE
 Notice-of-Assessment extraction uses LLM vision with no validation shown.
-- Show the extracted fields for user confirmation before they feed the profile; flag low-confidence fields.
-- Why: the failure mode today is silent wrong data in a benefits form.
+- [x] Auto-fill no longer writes to the form on its own. Extracted values appear in a confirmation panel
+  with a plain warning that AI reading can be wrong; each value is editable and has a checkbox, and they
+  reach the form only when the caregiver clicks "Apply to form" (or discards). Every field is reviewable,
+  which is stronger than flagging only low-confidence ones.
+- Why: the failure mode was silent wrong data in a benefits form; now a human confirms every value.
 
 ## P2: post-hackathon and productionization
 

@@ -168,7 +168,8 @@
       <div class="full" style="font-size:13px;color:var(--muted);margin-bottom:-4px">Only a first name is required. Everything else sharpens the result; blanks use safe defaults.</div>
       <div class="full"><label>Auto-fill from a document (optional)</label>
         <input id="f_doc" type="file" accept="image/*" style="padding:8px" />
-        <span id="docStatus" class="muted" style="font-size:13px"></span></div>
+        <span id="docStatus" class="muted" style="font-size:13px"></span>
+        <div id="docReview" class="hidden" style="margin-top:10px"></div></div>
       <div><label>First name</label><input id="f_name" type="text" placeholder="e.g. Margaret" /></div>
       <div><label>Province / territory</label>
         <select id="f_prov">
@@ -406,23 +407,64 @@ $("newBtn").addEventListener("click", openModal);
 $("closeBtn").addEventListener("click", closeModal);
 $("cancelBtn").addEventListener("click", closeModal);
 $("saveBtn").addEventListener("click", saveScreening);
+// Document auto-fill never writes to the form on its own. Extracted values are shown for the
+// caregiver to check and edit first (AI reading can be wrong), then applied only on confirm.
+const DOC_FIELDS = [
+  { key: "first_name", target: "f_name", label: "First name" },
+  { key: "province", target: "f_prov", label: "Province" },
+  { key: "age", target: "f_age", label: "Age" },
+  { key: "annual_net_income", target: "f_income", label: "Net income ($)" },
+];
 $("f_doc").addEventListener("change", async () => {
   const f = $("f_doc").files[0];
   if (!f) return;
+  $("docReview").classList.add("hidden"); $("docReview").innerHTML = "";
   $("docStatus").textContent = "Reading the document…";
   const fd = new FormData(); fd.append("file", f, f.name || "doc.png");
   let r = {};
   try { r = await (await fetch("/extract", { method: "POST", headers: hdrs(false), body: fd })).json(); } catch (e) {}
   if (!r.available) { $("docStatus").textContent = "Auto-fill unavailable — please enter fields manually."; return; }
   const fx = r.fields || {};
-  if (fx.first_name) $("f_name").value = fx.first_name;
-  if (fx.province) $("f_prov").value = fx.province;
-  if (fx.age != null) $("f_age").value = fx.age;
-  if (fx.annual_net_income != null) $("f_income").value = fx.annual_net_income;
-  const n = Object.keys(fx).length;
-  $("docStatus").textContent = n ? `Filled ${n} field(s) from the document — please review.`
-                                 : "No fields found — please enter manually.";
+  const found = DOC_FIELDS.filter(d => fx[d.key] != null && fx[d.key] !== "");
+  if (!found.length) { $("docStatus").textContent = "No fields found — please enter manually."; return; }
+  $("docStatus").textContent = `Read ${found.length} field(s). Check them before applying.`;
+  renderDocReview(found, fx);
 });
+
+function renderDocReview(found, fx) {
+  const box = $("docReview");
+  const rows = found.map(d => `
+    <label style="display:flex;align-items:center;gap:8px;margin:7px 0">
+      <input type="checkbox" class="dr-use" data-target="${d.target}" checked style="width:18px;height:18px;flex:0 0 auto" />
+      <span style="min-width:96px;color:var(--muted);font-size:13px">${d.label}</span>
+      <input class="dr-val" data-target="${d.target}" value="${String(fx[d.key]).replace(/"/g, "&quot;")}"
+        style="flex:1;min-width:0;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff" /></label>`).join("");
+  box.innerHTML =
+    `<div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:#fffdfb">
+       <div style="font-size:13px;color:#7a4a12;background:var(--maybe-bg);border-radius:7px;padding:8px 10px;margin-bottom:6px">
+         &#9888; Read from the document by AI, so it can be wrong. Edit or uncheck any value before applying.</div>
+       ${rows}
+       <div style="display:flex;gap:10px;margin-top:10px">
+         <button type="button" class="btn-primary" id="docApply" style="padding:8px 14px">Apply to form</button>
+         <button type="button" id="docDiscard" style="padding:8px 14px;background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer">Discard</button>
+       </div></div>`;
+  box.classList.remove("hidden");
+  $("docApply").addEventListener("click", applyDocReview);
+  $("docDiscard").addEventListener("click", () => {
+    box.classList.add("hidden"); box.innerHTML = "";
+    $("docStatus").textContent = "Discarded. Enter the fields manually, or try another document.";
+  });
+}
+function applyDocReview() {
+  let n = 0;
+  document.querySelectorAll(".dr-use").forEach(cb => {
+    if (!cb.checked) return;
+    const val = document.querySelector(`.dr-val[data-target="${cb.dataset.target}"]`);
+    if (val && $(cb.dataset.target)) { $(cb.dataset.target).value = val.value; n++; }
+  });
+  $("docReview").classList.add("hidden"); $("docReview").innerHTML = "";
+  $("docStatus").textContent = `Applied ${n} field(s). Review the full form below before saving.`;
+}
 $("backBtn").addEventListener("click", showList);
 $("dApplyBtn").addEventListener("click", prepareApplications);
 $("ctInvite").addEventListener("click", inviteDoctor);
