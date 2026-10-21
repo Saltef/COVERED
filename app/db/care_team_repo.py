@@ -161,3 +161,12 @@ async def mark_attestation_submitted(clinician_email: str, attestation_id: str) 
         a = _clean(rows[0])
         await write_audit(clinician_email, "submit", a.get("patient_owner"),
                           f"Part B submitted to CRA (ref {a.get('cra_reference_number') or 'n/a'})")
+
+
+async def get_attestation_for_screening(screening_id: str) -> Optional[dict]:
+    async with _db() as db:
+        res = await db.query(
+            "SELECT * FROM attestation WHERE screening=$sid ORDER BY attested_at DESC LIMIT 1;",
+            {"sid": screening_id})
+        rows = _rows(res)
+        return _clean(rows[0]) if rows else None

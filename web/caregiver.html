@@ -138,6 +138,10 @@
     <button class="btn-primary" id="dApplyBtn" style="margin-top:16px;">Prepare applications</button>
     <div id="dApplications"></div>
     <div class="careteam">
+      <p class="sectitle">Benefit progress</p>
+      <div id="dProgress"></div>
+    </div>
+    <div class="careteam">
       <p class="sectitle">Care team &mdash; invite a doctor to certify T2201 Part B</p>
       <div class="ctrow">
         <input id="ctEmail" type="email" placeholder="doctor's email, e.g. dr.lee@clinic.ca" />
@@ -252,13 +256,15 @@ async function saveScreening() {
 // ---- detail ----
 function showList() { $("detailSection").classList.add("hidden"); $("listSection").classList.remove("hidden"); loadClients(); }
 function showDetail() { $("listSection").classList.add("hidden"); $("detailSection").classList.remove("hidden"); window.scrollTo(0, 0); }
-let currentProfile = null;
+let currentProfile = null, currentId = null, currentResults = [];
 
 async function openDetail(id) {
   let rec = null;
   try { rec = await (await fetch("/me/screenings/" + encodeURIComponent(id), { headers: hdrs(false) })).json(); } catch (e) {}
   if (!rec || rec.error) return;
   currentProfile = rec.profile || {};
+  currentId = id;
+  currentResults = rec.results || [];
   showDetail();
   $("dName").textContent = rec.name || currentProfile.first_name || "Client";
   const p = currentProfile;
@@ -285,6 +291,39 @@ async function openDetail(id) {
   $("ctEmail").value = "";
   loadCareTeam();
   loadActivity();
+  loadProgress();
+}
+
+const ACTIONABLE = ["eligible", "likely", "maybe"];
+async function loadProgress() {
+  if (!currentId) return;
+  let data = { statuses: {} };
+  try { data = await (await fetch(`/me/screenings/${encodeURIComponent(currentId)}/status`, { headers: hdrs(false) })).json(); } catch (e) {}
+  const st = data.statuses || {};
+  const items = (currentResults || []).filter(r => ACTIONABLE.includes(r.eligibility));
+  if (!items.length) { $("dProgress").innerHTML = `<p class="muted" style="font-size:14px">No applications to track.</p>`; return; }
+  $("dProgress").innerHTML = items.map(r => {
+    const pid = r.program_id;
+    let chip, action = "";
+    if (pid === "dtc") {
+      const s = st.dtc;
+      const label = s === "submitted_to_cra" ? "Submitted to CRA · awaiting decision"
+        : s === "partb_attested" ? "Part B attested — submit in CRA" : "Awaiting doctor's Part B";
+      chip = `<span class="who ${s === "submitted_to_cra" ? "pre" : "you"}">${label}</span>`;
+    } else {
+      const s = st[pid] || "ready";
+      const label = s === "approved" ? "Approved" : s === "submitted" ? "Submitted" : "Ready to submit";
+      chip = `<span class="who ${s === "approved" ? "pre" : s === "submitted" ? "doc" : "you"}">${label}</span>`;
+      if (s === "ready") action = `<button class="dl adv" data-pid="${pid}" data-st="submitted">Mark submitted</button>`;
+      else if (s === "submitted") action = `<button class="dl adv" data-pid="${pid}" data-st="approved">Mark approved</button>`;
+    }
+    return `<div class="fr"><span class="fl">${r.program_name}</span>${chip}<span>${action}</span></div>`;
+  }).join("");
+  $("dProgress").querySelectorAll(".adv").forEach(b => b.addEventListener("click", () => advanceStatus(b.dataset.pid, b.dataset.st)));
+}
+async function advanceStatus(pid, status) {
+  try { await fetch(`/me/screenings/${encodeURIComponent(currentId)}/status/${pid}`, { method: "POST", headers: hdrs(true), body: JSON.stringify({ status }) }); } catch (e) {}
+  loadProgress();
 }
 
 const fmtTime = (s) => { try { return new Date(s).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } };

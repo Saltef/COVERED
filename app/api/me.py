@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 
 from app.api.schemas import ProfileIn, ProgramResultOut
+from app.db import care_team_repo as ct
 from app.db import repository as repo
 from app.domain.rules_engine import screen, summarize
 from app.security.auth import Principal, Role, get_current_user
@@ -52,3 +54,39 @@ async def get_my_screening(rid: str, user: Principal = Depends(get_current_user)
     if rec is None:
         raise HTTPException(404, "not found")
     return rec
+
+
+class StatusIn(BaseModel):
+    status: str
+
+
+@router.get("/me/screenings/{rid}/status")
+async def screening_status(rid: str, user: Principal = Depends(get_current_user)) -> dict:
+    try:
+        rec = await repo.get_screening(user, rid)
+        if rec is None:
+            raise HTTPException(404, "not found")
+        statuses = await repo.get_program_statuses(rid)
+        att = await ct.get_attestation_for_screening(rid)
+    except repo.SurrealUnavailable as exc:
+        raise HTTPException(503, f"storage unavailable ({exc})")
+    if att:  # the DTC status is driven by the clinician's Part B attestation
+        statuses["dtc"] = "submitted_to_cra" if att.get("status") == "submitted_in_cra" else "partb_attested"
+    return {"statuses": statuses, "attestation": att}
+
+
+@router.post("/me/screenings/{rid}/status/{program_id}")
+async def set_screening_status(
+    rid: str, program_id: str, body: StatusIn,
+    user: Principal = Depends(require_role(Role.senior, Role.caregiver, Role.support_worker)),
+) -> dict:
+    try:
+        rec = await repo.get_screening(user, rid)
+        if rec is None:
+            raise HTTPException(404, "not found")
+        await repo.set_program_status(rec.get("owner"), rid, program_id, body.status)
+        await repo.write_audit(user.user_id, "status", rec.get("owner"),
+                               f"Marked {program_id.upper()} {body.status}")
+    except repo.SurrealUnavailable as exc:
+        raise HTTPException(503, f"storage unavailable ({exc})")
+    return {"ok": True}

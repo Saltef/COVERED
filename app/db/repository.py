@@ -79,7 +79,24 @@ _INIT_SQL = (
     "DEFINE TABLE IF NOT EXISTS care_team_grant SCHEMALESS;"
     "DEFINE TABLE IF NOT EXISTS clinician_profile SCHEMALESS;"
     "DEFINE TABLE IF NOT EXISTS attestation SCHEMALESS;"
+    "DEFINE TABLE IF NOT EXISTS program_status SCHEMALESS;"
 )
+
+
+async def set_program_status(owner: str, screening_id: str, program_id: str, status: str) -> None:
+    async with _db() as db:
+        await db.query("DELETE program_status WHERE screening=$s AND program=$p;",
+                       {"s": screening_id, "p": program_id})
+        await db.query(
+            "CREATE program_status SET owner=$o, screening=$s, program=$p, status=$st, updated_at=time::now();",
+            {"o": owner, "s": screening_id, "p": program_id, "st": status})
+
+
+async def get_program_statuses(screening_id: str) -> dict:
+    async with _db() as db:
+        res = await db.query("SELECT program, status FROM program_status WHERE screening=$s;",
+                             {"s": screening_id})
+        return {r.get("program"): r.get("status") for r in _rows(res) if isinstance(r, dict)}
 
 
 async def init_schema() -> None:
