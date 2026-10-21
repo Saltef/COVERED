@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Covered — For developers</title>
+<link rel="stylesheet" href="/static/styles.css" />
+<style>
+  /* palette: /static/styles.css */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .topbar { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 14px; padding: 14px 24px; }
+  .brand { font-weight: 800; font-size: 19px; } .brand .leaf { color: var(--brand); }
+  .tag { font-size: 12px; font-weight: 700; color: var(--brand-strong); background: var(--brand-tint);
+    padding: 3px 9px; border-radius: 99px; letter-spacing: .03em; text-transform: uppercase; }
+  .spacer { flex: 1; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 32px 24px 64px; }
+  h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -.01em; }
+  .lede { color: var(--muted); font-size: 19px; margin: 0 0 28px; max-width: 60ch; }
+  h2 { font-size: 20px; margin: 34px 0 10px; }
+  p { margin: 0 0 14px; } .muted { color: var(--muted); }
+  .steps3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 8px 0 8px; }
+  .step { background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .step .n { color: var(--brand); font-weight: 800; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; }
+  .step .h { font-weight: 750; margin: 4px 0 4px; } .step .d { color: var(--muted); font-size: 14px; }
+  pre { background: #2a211b; color: #f6ece2; border-radius: 12px; padding: 16px 18px; overflow-x: auto;
+    font: 13.5px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; margin: 0 0 16px; }
+  pre .c { color: #e59b6b; } pre .k { color: #9ecbff; } pre .s { color: #b5e3a8; } pre .m { color: #9a8c80; }
+  code.inl { background: var(--brand-tint); color: var(--brand-strong); padding: 2px 7px; border-radius: 6px;
+    font: 13.5px ui-monospace, Consolas, monospace; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: 14px; vertical-align: top; }
+  th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  td code { font: 13px ui-monospace, Consolas, monospace; color: var(--brand-strong); }
+  .cta { display: inline-block; background: var(--brand); color: #fff; text-decoration: none; font-weight: 700;
+    padding: 12px 20px; border-radius: 11px; margin-top: 6px; }
+  .cta:hover { background: var(--brand-strong); }
+  .callout { background: var(--blue-bg); border: 1px solid #cfe0fb; color: #1e40af; border-radius: 11px;
+    padding: 14px 16px; font-size: 14px; margin: 8px 0 16px; }
+  .linkout { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600; margin-left: 10px; }
+  .linkout:hover { color: var(--ink); }
+  @media (max-width: 640px) { .topbar { flex-wrap: wrap; } .steps3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Covered <span class="leaf">&#127809;</span></span>
+  <span class="tag">For developers</span>
+  <span class="spacer"></span>
+  <a class="linkout" href="/pharmacy">Live demo &#8599;</a>
+  <a class="linkout" href="/">Senior app &#8599;</a>
+</div>
+
+<div class="wrap">
+  <h1>The benefits layer for any system.</h1>
+  <p class="lede">Your users already trust you with their health and their money. Covered screens them for the
+    government benefits they are missing and pre-fills the applications, right inside your product. Three lines
+    to embed, one API to call.</p>
+
+  <div class="steps3">
+    <div class="step"><div class="n">Embed</div><div class="h">Drop in the widget</div>
+      <div class="d">One script tag renders a screener in an isolated Shadow DOM. Pre-fill what you already know.</div></div>
+    <div class="step"><div class="n">Or call</div><div class="h">Hit the API</div>
+      <div class="d">POST a profile to <code class="inl">/v1/eligibility</code>, get programs and dollar values back.</div></div>
+    <div class="step"><div class="n">Deterministic</div><div class="h">Auditable results</div>
+      <div class="d">A rules engine, not a guess. Same function the Covered app uses, benchmarked against ground truth.</div></div>
+  </div>
+
+  <h2>Embed the widget</h2>
+  <p class="muted">Paste this where you want the screener to appear. The pharmacy in the
+    <a href="/pharmacy">live demo</a> uses exactly this.</p>
+<pre><span class="c">&lt;!-- the host pre-fills what it already knows --&gt;</span>
+<span class="k">&lt;div</span> <span class="s">id</span>=<span class="s">"covered-widget"</span><span class="k">&gt;&lt;/div&gt;</span>
+<span class="k">&lt;script</span> <span class="s">src</span>=<span class="s">"https://covered.example/static/embed.js"</span>
+        <span class="s">data-covered-key</span>=<span class="s">"demo-partner-key"</span>
+        <span class="s">data-mount</span>=<span class="s">"#covered-widget"</span>
+        <span class="s">data-brand</span>=<span class="s">"#c94a10"</span>
+        <span class="s">data-prefill</span>=<span class="s">'{"age":72,"province":"ON","prescription_costs_annual":2400}'</span><span class="k">&gt;&lt;/script&gt;</span></pre>
+
+  <table>
+    <tr><th>Attribute</th><th>Purpose</th></tr>
+    <tr><td><code>data-covered-key</code></td><td>Your partner key. Sent as the <code>X-Covered-Key</code> header on every call.</td></tr>
+    <tr><td><code>data-mount</code></td><td>CSS selector of the container to render into. Omit to insert after the script.</td></tr>
+    <tr><td><code>data-brand</code></td><td>Hex color for the widget accent, so it matches your product.</td></tr>
+    <tr><td><code>data-prefill</code></td><td>JSON of any profile fields you already hold. The person answers only the rest.</td></tr>
+  </table>
+
+  <h2>Or call the API directly</h2>
+  <p class="muted">Server to server, for your own UI or batch screening.</p>
+<pre><span class="c"># request</span>
+<span class="k">curl</span> -X POST https://covered.example/v1/eligibility \
+  -H <span class="s">"X-Covered-Key: demo-partner-key"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"age":72,"province":"ON","annual_net_income":24000,
+       "prescription_costs_annual":2400,"has_private_dental_insurance":false}'</span></pre>
+<pre><span class="c"># response</span>
+{
+  <span class="s">"api_version"</span>: <span class="s">"1.0"</span>,
+  <span class="s">"currency"</span>: <span class="s">"CAD"</span>,
+  <span class="s">"total_estimated_annual"</span>: <span class="m">3736</span>,
+  <span class="s">"programs_claimable"</span>: <span class="m">4</span>,
+  <span class="s">"programs"</span>: [
+    {
+      <span class="s">"id"</span>: <span class="s">"cdcp"</span>,
+      <span class="s">"name"</span>: <span class="s">"Canadian Dental Care Plan"</span>,
+      <span class="s">"eligibility"</span>: <span class="s">"likely"</span>,
+      <span class="s">"estimated_annual_value"</span>: <span class="m">850</span>,
+      <span class="s">"reasons"</span>: [<span class="s">"..."</span>],
+      <span class="s">"next_steps"</span>: [<span class="s">"..."</span>],
+      <span class="s">"unlocked_by"</span>: <span class="k">null</span>
+    }
+  ],
+  <span class="s">"disclaimer"</span>: <span class="s">"Estimates use 2025-2026 CRA and Ontario rates..."</span>
+}</pre>
+
+  <div class="callout"><b>Auth.</b> Every request carries a partner key in the <code>X-Covered-Key</code> header.
+    The demo key <code>demo-partner-key</code> works against this instance. Real keys are issued per partner
+    and scoped per environment.</div>
+
+  <h2>Why embed instead of redirect</h2>
+  <p>People do not leave to start a new account on a benefits site they have never heard of. They act where they
+    already are: at the pharmacy counter, inside their tax software, in their banking app. Embedding puts the
+    screen in front of millions of people at the moment coverage is on their mind, with zero new habit to learn.</p>
+
+  <a class="cta" href="/pharmacy">See it live in a pharmacy portal &#8594;</a>
+</div>
+</body>
+</html>

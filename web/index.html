@@ -46,10 +46,14 @@
   .ghost { flex: 1; min-height: 58px; font-size: 18px; background: var(--brand-tint); color: var(--brand-strong); }
   .ghost:active { background: #ffdcc2; }
 
-  .typerow { display: flex; gap: 12px; margin-top: 14px; }
-  input[type=text] { flex: 1; font: inherit; padding: 16px 18px; min-height: 60px;
+  .typerow { display: flex; gap: 12px; }
+  input[type=text] { flex: 1; font: inherit; padding: 18px 18px; min-height: 68px;
                      border: 2px solid var(--line); border-radius: 16px; background: #fffdfb; color: var(--ink); }
-  .send { min-width: 92px; min-height: 60px; font-size: 20px; background: var(--ink); color: #fff; }
+  input[type=text]:focus { border-color: var(--brand); }
+  .send { min-width: 110px; min-height: 68px; font-size: 22px; background: var(--brand); color: var(--brand-ink);
+          box-shadow: 0 4px 0 var(--brand-strong); }
+  .send:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--brand-strong); }
+  .ghost.rec { background: var(--brand); color: var(--brand-ink); animation: pulse 1.1s infinite; }
 
   .status { color: var(--brand-strong); min-height: 28px; margin: 16px 0 0; font-size: 20px; font-weight: 600; }
   .banner { background: var(--maybe-bg); border: 2px solid #f0cfa0; color: #7a4a12;
@@ -105,7 +109,7 @@
 <div class="wrap">
   <header>
     <h1>Covered <span class="leaf">&#127809;</span></h1>
-    <p>Let's find the benefits you're owed. Answer out loud or type &mdash; it only takes a minute.</p>
+    <p>Let's find the benefits you're owed. Just type your answers &mdash; or use your voice if you prefer. It only takes a minute.</p>
     <p style="margin:8px 0 0"><a href="/caregiver"
        style="color:var(--brand);font-size:17px;font-weight:700;text-decoration:none">Helping someone else? Open the caregiver view &#8594;</a></p>
   </header>
@@ -116,16 +120,15 @@
     <div class="progress"><div id="bar"></div></div>
     <p class="q" id="question">&nbsp;</p>
 
-    <button class="mic" id="micBtn" aria-pressed="false">&#127908; Tap and speak your answer</button>
-
-    <div class="altrow">
-      <button class="ghost" id="hearBtn">&#128266; Hear it again</button>
-      <button class="ghost" id="skipBtn">&#8617; Start over</button>
+    <div class="typerow">
+      <input type="text" id="answer" placeholder="Type your answer here" aria-label="Type your answer" />
+      <button class="send" id="sendBtn">Enter</button>
     </div>
 
-    <div class="typerow">
-      <input type="text" id="answer" placeholder="&hellip;or type your answer" aria-label="Type your answer" />
-      <button class="send" id="sendBtn">Enter</button>
+    <div class="altrow">
+      <button class="ghost" id="micBtn" aria-pressed="false">&#127908; Speak instead</button>
+      <button class="ghost" id="hearBtn">&#128266; Hear it again</button>
+      <button class="ghost" id="skipBtn">&#8617; Start over</button>
     </div>
 
     <p class="status" id="status" aria-live="polite"></p>
@@ -355,7 +358,7 @@ function setRec(on) {
   recording = on;
   $("micBtn").classList.toggle("rec", on);
   $("micBtn").setAttribute("aria-pressed", on ? "true" : "false");
-  $("micBtn").innerHTML = on ? "&#9209; Stop &amp; send" : "&#127908; Tap and speak your answer";
+  $("micBtn").innerHTML = on ? "&#9209; Stop &amp; send" : "&#127908; Speak instead";
 }
 
 // ----- results -----

@@ -35,6 +35,18 @@ async def agency() -> FileResponse:
     return FileResponse(WEB_DIR / "agency.html")
 
 
+@router.get("/pharmacy")
+async def pharmacy() -> FileResponse:
+    """Demo partner host: a mock pharmacy portal with the Covered widget embedded."""
+    return FileResponse(WEB_DIR / "pharmacy.html")
+
+
+@router.get("/developers")
+async def developers() -> FileResponse:
+    """Developer docs: the embed snippet and the v1 API contract."""
+    return FileResponse(WEB_DIR / "developers.html")
+
+
 @router.get("/interview/script")
 async def interview_script() -> list[dict]:
     return [

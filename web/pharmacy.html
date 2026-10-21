@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MapleCare Pharmacy — My Account</title>
+<style>
+  /* A fictional pharmacy portal. Deliberately NOT Covered-branded: this is a third-party
+     host system, and the orange Covered widget is embedded inside it. */
+  :root { --ph: #0d7a6f; --ph-dark: #0a5f56; --ink: #15201e; --muted: #5e6d6a;
+          --bg: #f3f7f6; --line: #e2ecea; --card: #fff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .top { background: var(--ph); color: #fff; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .top .logo { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+  .top .logo .rx { background: #fff; color: var(--ph); width: 28px; height: 28px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 900; }
+  .top .sp { flex: 1; }
+  .top .acct { font-size: 14px; opacity: .95; }
+  .nav { background: var(--ph-dark); color: #cdeae6; padding: 0 24px; display: flex; gap: 22px; font-size: 14px; }
+  .nav a { color: #cdeae6; text-decoration: none; padding: 11px 0; display: inline-block; font-weight: 600; }
+  .nav a.on { color: #fff; box-shadow: inset 0 -3px 0 #fff; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 1fr 360px; gap: 22px; }
+  h1 { font-size: 23px; margin: 0 0 2px; } .sub { color: var(--muted); margin: 0 0 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 13px; padding: 20px; margin-bottom: 18px; }
+  .card h2 { font-size: 16px; margin: 0 0 14px; color: var(--ph-dark); }
+  .pt { display: flex; gap: 16px; align-items: center; }
+  .avatar { width: 54px; height: 54px; border-radius: 50%; background: var(--ph); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 22px; }
+  .pt .nm { font-weight: 750; font-size: 18px; } .pt .meta { color: var(--muted); font-size: 14px; }
+  .rx-list { width: 100%; border-collapse: collapse; }
+  .rx-list td { padding: 12px 6px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .rx-list tr:last-child td { border-bottom: none; }
+  .rx-list .med { font-weight: 650; } .rx-list .cost { text-align: right; font-weight: 700; white-space: nowrap; }
+  .rx-list .refill { font-size: 13px; color: var(--muted); }
+  .tot { display: flex; justify-content: space-between; padding: 12px 6px 0; font-weight: 800; }
+  .tot .n { color: var(--ph-dark); }
+  aside .promo { background: #fff; border: 1px solid var(--line); border-radius: 13px; padding: 16px 16px 6px; margin-bottom: 14px; }
+  aside .promo .lead { font-size: 14px; color: var(--muted); margin: 0 0 12px; }
+  aside .promo .lead b { color: var(--ink); }
+  .foot { max-width: 1060px; margin: 0 auto; padding: 8px 24px 40px; color: var(--muted); font-size: 13px; }
+  @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <div class="top">
+    <span class="logo"><span class="rx">Rx</span> MapleCare Pharmacy</span>
+    <span class="sp"></span>
+    <span class="acct">Margaret T. · #MC-4471</span>
+  </div>
+  <div class="nav">
+    <a href="#">Prescriptions</a>
+    <a href="#" class="on">My Account</a>
+    <a href="#">Refills</a>
+    <a href="#">Messages</a>
+  </div>
+
+  <div class="wrap">
+    <main>
+      <h1>My Account</h1>
+      <p class="sub">Your profile, prescriptions, and coverage in one place.</p>
+
+      <div class="card">
+        <h2>Patient</h2>
+        <div class="pt">
+          <div class="avatar">MT</div>
+          <div>
+            <div class="nm">Margaret Thompson</div>
+            <div class="meta">Age 72 · Ontario · Member since 2019</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Current prescriptions</h2>
+        <table class="rx-list">
+          <tr><td class="med">Metformin 500mg<div class="refill">Refill due Nov 2</div></td><td class="cost">$38 / mo</td></tr>
+          <tr><td class="med">Atorvastatin 20mg<div class="refill">Refill due Nov 9</div></td><td class="cost">$51 / mo</td></tr>
+          <tr><td class="med">Levothyroxine 75mcg<div class="refill">Refill due Oct 28</div></td><td class="cost">$24 / mo</td></tr>
+          <tr><td class="med">Apixaban 5mg<div class="refill">Refill due Nov 14</div></td><td class="cost">$87 / mo</td></tr>
+          <tr class="tot"><td class="n">Out of pocket, yearly</td><td class="cost n">~$2,400</td></tr>
+        </table>
+      </div>
+    </main>
+
+    <aside>
+      <div class="promo">
+        <p class="lead">You're paying out of pocket for prescriptions. <b>You may qualify for government
+          coverage</b> that lowers these costs. Take a quick check below.</p>
+      </div>
+
+      <!-- Covered embed. The pharmacy pre-fills what it already knows about Margaret;
+           she only answers the rest. One script tag, no backend work for the pharmacy. -->
+      <div id="covered-widget"></div>
+      <script src="/static/embed.js"
+              data-covered-key="demo-partner-key"
+              data-mount="#covered-widget"
+              data-brand="#c94a10"
+              data-prefill='{"age":72,"province":"ON","prescription_costs_annual":2400,"has_private_dental_insurance":false}'></script>
+    </aside>
+  </div>
+
+  <div class="foot">
+    MapleCare Pharmacy is a fictional demo host. The benefits widget is served by Covered via a single
+    embed script and the <code>/v1/eligibility</code> API.
+  </div>
+</body>
+</html>

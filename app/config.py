@@ -29,6 +29,14 @@ class Settings(BaseSettings):
     clerk_publishable_key: str = ""
     clerk_jwt_key: str = ""  # PEM public key for local JWT verification
 
+    # Partner embed API: comma-separated keys that may call /v1/eligibility.
+    # In dev a built-in demo key is always accepted; set real keys for staging/prod.
+    partner_api_keys: str = ""
+
+    @property
+    def partner_key_set(self) -> set[str]:
+        return {k.strip() for k in self.partner_api_keys.split(",") if k.strip()}
+
     # Era by Eon (optional: pull a client population from a simulated agency to screen)
     era_system: str = ""          # e.g. "hubspot" | "salesforce" — picks <SYSTEM>_BASE_URL/_MCP_HEADER
     era_records_path: str = ""    # vendor records collection, e.g. "/crm/v3/objects/contacts"
