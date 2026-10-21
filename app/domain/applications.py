@@ -185,6 +185,28 @@ def get_package(program_id: str, profile: Profile) -> Optional[ApplicationPackag
     return builder(profile) if builder else None
 
 
+def build_partb_context(profile: dict) -> dict:
+    """What a clinician sees to complete T2201 Part B. Covered pre-fills identity + the patient's
+    self-reported status; the doctor completes the clinical sections and submits in CRA's portal."""
+    return {
+        "patient_first_name": profile.get("first_name") or "",
+        "province": profile.get("province"),
+        "self_reported": ("Patient reports a severe and prolonged impairment."
+                          if profile.get("has_severe_prolonged_impairment")
+                          else "No impairment reported by the patient."),
+        "sections_to_complete": [
+            "Nature of the impairment (vision, speaking, hearing, walking, eliminating, feeding, "
+            "dressing, mental functions, or life-sustaining therapy).",
+            "Effects of the impairment on everyday activities.",
+            "When it began and whether it is prolonged (12+ months).",
+            "Your profession and how long you have been the patient's practitioner.",
+            "Certification and signature.",
+        ],
+        "handoff": ("Covered pre-fills the patient's identity and self-reported status. You complete "
+                    "the clinical Part B and submit it in CRA's portal using the reference number."),
+    }
+
+
 def package_to_dict(pkg: ApplicationPackage) -> dict:
     return {
         "program_id": pkg.program_id,

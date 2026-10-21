@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.apply import router as apply_router
+from app.api.care_team import router as care_team_router
 from app.api.interview import router as interview_router
 from app.api.me import router as me_router
 from app.api.routes import router
@@ -42,6 +43,7 @@ def create_app() -> FastAPI:
     app.include_router(interview_router)
     app.include_router(apply_router)
     app.include_router(me_router)
+    app.include_router(care_team_router)
     return app
 
 

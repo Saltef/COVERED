@@ -21,7 +21,10 @@ log = logging.getLogger(__name__)
 
 class Role(str, Enum):
     senior = "senior"
+    patient = "patient"
     caregiver = "caregiver"
+    support_worker = "support_worker"
+    clinician = "clinician"
     admin = "admin"
 
 
@@ -37,8 +40,14 @@ def _map_role(raw: Optional[str]) -> Role:
     raw = (raw or "").lower()
     if "admin" in raw:
         return Role.admin
+    if "clinician" in raw or "doctor" in raw or "physician" in raw:
+        return Role.clinician
+    if "support" in raw:
+        return Role.support_worker
     if "caregiver" in raw:
         return Role.caregiver
+    if "patient" in raw:
+        return Role.patient
     return Role.senior
 
 
@@ -69,6 +78,7 @@ def _verify_clerk_jwt(token: str, settings: Settings) -> Principal:
 async def get_current_user(
     authorization: Optional[str] = Header(default=None),
     x_dev_role: Optional[str] = Header(default=None),
+    x_dev_user: Optional[str] = Header(default=None),
     settings: Settings = Depends(get_settings),
 ) -> Principal:
     if authorization and authorization.lower().startswith("bearer "):
@@ -76,6 +86,8 @@ async def get_current_user(
         return _verify_clerk_jwt(token, settings)
 
     if settings.dev_allow_no_auth and not settings.is_production:
-        return Principal(user_id="dev-user", role=_map_role(x_dev_role), is_dev=True)
+        # dev-only: X-Dev-User lets the demo act as distinct identities (patient vs. doctor)
+        return Principal(user_id=(x_dev_user or "dev-user").strip() or "dev-user",
+                         role=_map_role(x_dev_role), is_dev=True)
 
     raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Authentication required")

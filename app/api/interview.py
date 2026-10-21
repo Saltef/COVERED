@@ -20,6 +20,16 @@ async def index() -> FileResponse:
     return FileResponse(WEB_DIR / "index.html")
 
 
+@router.get("/caregiver")
+async def caregiver() -> FileResponse:
+    return FileResponse(WEB_DIR / "caregiver.html")
+
+
+@router.get("/clinician")
+async def clinician() -> FileResponse:
+    return FileResponse(WEB_DIR / "clinician.html")
+
+
 @router.get("/interview/script")
 async def interview_script() -> list[dict]:
     return [

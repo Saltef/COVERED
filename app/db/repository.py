@@ -76,6 +76,9 @@ _INIT_SQL = (
     "DEFINE TABLE IF NOT EXISTS screening SCHEMALESS;"
     "DEFINE TABLE IF NOT EXISTS access_grant SCHEMALESS;"
     "DEFINE TABLE IF NOT EXISTS audit_log SCHEMALESS;"
+    "DEFINE TABLE IF NOT EXISTS care_team_grant SCHEMALESS;"
+    "DEFINE TABLE IF NOT EXISTS clinician_profile SCHEMALESS;"
+    "DEFINE TABLE IF NOT EXISTS attestation SCHEMALESS;"
 )
 
 
@@ -86,10 +89,12 @@ async def init_schema() -> None:
 
 
 async def save_screening(owner_id: str, headline: str, profile: dict, results: list, summary: dict) -> dict:
+    name = (profile.get("first_name") or "").strip() or "(unnamed)"
     async with _db() as db:
         res = await db.query(
-            "CREATE screening SET owner=$o, headline=$h, profile=$p, results=$r, summary=$s, created_at=time::now();",
-            {"o": owner_id, "h": headline, "p": profile, "r": results, "s": summary},
+            "CREATE screening SET owner=$o, name=$n, headline=$h, profile=$p, results=$r, summary=$s, "
+            "created_at=time::now();",
+            {"o": owner_id, "n": name, "h": headline, "p": profile, "r": results, "s": summary},
         )
         rows = _rows(res)
         return _clean(rows[0]) if rows else {}
@@ -99,10 +104,10 @@ async def list_screenings(principal: Principal) -> list[dict]:
     async with _db() as db:
         if principal.role is Role.admin:
             res = await db.query(
-                "SELECT id, owner, headline, summary, created_at FROM screening ORDER BY created_at DESC;")
+                "SELECT id, owner, name, headline, summary, created_at FROM screening ORDER BY created_at DESC;")
         else:
             res = await db.query(
-                "SELECT id, owner, headline, summary, created_at FROM screening "
+                "SELECT id, owner, name, headline, summary, created_at FROM screening "
                 "WHERE owner = $o OR owner IN (SELECT VALUE grantor FROM access_grant WHERE grantee = $o) "
                 "ORDER BY created_at DESC;",
                 {"o": principal.user_id},
