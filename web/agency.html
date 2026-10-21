@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Covered — Agency</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #ffffff; --ink: #111826; --muted: #5b6472;
+    --line: #e6e9ee; --brand: #ea580c; --brand-strong: #c2410c; --brand-tint: #fff2ea;
+    --blue: #175cd3; --blue-bg: #eff6ff; --ok: #067647; --ok-bg: #ecfdf3;
+    --shadow: 0 1px 3px rgba(16,24,40,.08), 0 1px 2px rgba(16,24,40,.06);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .topbar { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 14px; padding: 14px 24px; }
+  .brand { font-weight: 800; font-size: 19px; } .brand .leaf { color: var(--brand); }
+  .tag { font-size: 12px; font-weight: 700; color: var(--brand-strong); background: var(--brand-tint);
+    padding: 3px 9px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; }
+  .spacer { flex: 1; }
+  .linkout { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600; margin-left: 4px; }
+  .linkout:hover { color: var(--ink); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 28px 24px 60px; }
+  h1 { font-size: 24px; margin: 0 0 4px; } .sub { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 22px; }
+  .stat { padding: 18px 20px; }
+  .stat .k { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+  .stat .v { font-size: 30px; font-weight: 800; margin-top: 6px; }
+  .stat .v.brand { color: var(--brand-strong); }
+  h2 { font-size: 17px; margin: 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted); font-weight: 700; padding: 13px 18px; border-bottom: 1px solid var(--line); }
+  tbody td { padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  tbody tr:last-child td { border-bottom: none; }
+  .cname { font-weight: 700; } .cpot { font-weight: 800; color: var(--brand-strong); }
+  .cmuted { color: var(--muted); font-size: 14px; }
+
+  .copilot { padding: 22px; margin-top: 22px; }
+  .copilot .head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .pill { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+  .pill.blue { background: var(--blue-bg); color: var(--blue); }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .chip { font: inherit; font-size: 14px; background: #f7f8fa; border: 1px solid var(--line); color: var(--ink);
+    border-radius: 99px; padding: 7px 13px; cursor: pointer; }
+  .chip:hover { background: var(--brand-tint); border-color: var(--brand-tint); }
+  .askrow { display: flex; gap: 10px; }
+  .askrow input { flex: 1; font: inherit; padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; }
+  .askrow input:focus { outline: 2px solid var(--brand); border-color: var(--brand); }
+  button { font: inherit; border: none; border-radius: 10px; cursor: pointer; font-weight: 650; }
+  .btn { background: var(--brand); color: #fff; padding: 11px 18px; } .btn:hover { background: var(--brand-strong); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn-ghost { background: #fff; border: 1px solid var(--line); color: var(--ink); padding: 10px 14px; }
+  .answer { margin-top: 16px; background: #f7f8fa; border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; display: none; }
+  .answer.show { display: block; }
+  .answer .q { color: var(--muted); font-size: 14px; }
+  .answer .a { font-size: 20px; font-weight: 700; margin: 6px 0 2px; }
+  .answer .meta { color: var(--muted); font-size: 13px; }
+  .bench { margin-top: 14px; color: var(--muted); font-size: 14px; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Covered <span class="leaf">&#127809;</span></span>
+  <span class="tag">Agency</span>
+  <span class="spacer"></span>
+  <a class="linkout" href="/caregiver">Caseload &#8599;</a>
+  <a class="linkout" href="/clinician">Clinician &#8599;</a>
+</div>
+
+<div class="wrap">
+  <h1>Agency console</h1>
+  <p class="sub">Oversight across your whole caseload, plus an AI co-pilot that answers questions over
+     your client systems &mdash; powered by <b>Eon / Era</b>.</p>
+
+  <div class="cards">
+    <div class="card stat"><div class="k">Clients screened</div><div class="v" id="sClients">&mdash;</div></div>
+    <div class="card stat"><div class="k">Total annual potential</div><div class="v brand" id="sTotal">&mdash;</div></div>
+    <div class="card stat"><div class="k">Avg per client</div><div class="v" id="sAvg">&mdash;</div></div>
+  </div>
+
+  <div class="card" style="padding:6px 0 0">
+    <div style="padding:16px 18px 0"><h2>Caseload</h2></div>
+    <div id="caseload"><p class="muted" style="padding:14px 18px">Loading&hellip;</p></div>
+  </div>
+
+  <div class="card copilot">
+    <div class="head"><h2 style="margin:0">Ask your client data</h2>
+      <span class="pill blue">Eon · Era co-pilot</span><span id="benchPill"></span></div>
+    <p class="muted" style="margin:2px 0 0;font-size:14px">A Claude tool-use agent answers questions over
+       the agency's live CRM. It reads the data and reasons to an exact answer.</p>
+    <div class="chips" id="chips"></div>
+    <div class="askrow">
+      <input id="q" placeholder="e.g. How many contacts are in Canada?" />
+      <button class="btn" id="askBtn">Ask</button>
+    </div>
+    <div class="answer" id="answer">
+      <div class="q" id="aQ"></div><div class="a" id="aA"></div><div class="meta" id="aMeta"></div>
+    </div>
+    <div class="bench"><button class="btn-ghost" id="benchBtn">Run accuracy benchmark</button>
+      <span id="benchOut" style="margin-left:10px"></span></div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const H = { "X-Dev-Role": "admin" };
+const money = (n) => "$" + Number(n || 0).toLocaleString();
+const fmtDate = (s) => { try { return new Date(s).toLocaleDateString(undefined, { month: "short", day: "numeric" }); } catch (e) { return ""; } };
+const SUGGESTED = ["How many contacts are in Canada?", "What is the total value of all deals?",
+  "Which plan has the most contacts?", "How many companies are in the CRM?"];
+
+async function loadCaseload() {
+  let data = { summary: {}, clients: [] };
+  try { data = await (await fetch("/agency/caseload", { headers: H })).json(); } catch (e) {}
+  const s = data.summary || {};
+  $("sClients").textContent = s.n_clients || 0;
+  $("sTotal").textContent = money(s.total_annual);
+  $("sAvg").textContent = money(s.avg);
+  const rows = (data.clients || []).map(c => `<tr>
+      <td class="cname">${c.name || "(unnamed)"}</td>
+      <td class="cpot">${money(c.total)}/yr</td>
+      <td class="cmuted">${c.programs} program(s)</td>
+      <td class="cmuted">${fmtDate(c.created_at)}</td></tr>`).join("");
+  $("caseload").innerHTML = rows
+    ? `<table><thead><tr><th>Client</th><th>Potential</th><th>Programs</th><th>Screened</th></tr></thead><tbody>${rows}</tbody></table>`
+    : `<p class="muted" style="padding:14px 18px">No screenings yet.</p>`;
+}
+
+async function ask(q) {
+  if (!q || !q.trim()) return;
+  $("askBtn").disabled = true; $("askBtn").textContent = "Thinking…";
+  $("answer").classList.remove("show");
+  let r = {};
+  try { r = await (await fetch("/ops/ask?q=" + encodeURIComponent(q), { headers: H })).json(); } catch (e) {}
+  $("askBtn").disabled = false; $("askBtn").textContent = "Ask";
+  $("answer").classList.add("show");
+  $("aQ").textContent = q;
+  if (r.available === false) {
+    $("aA").textContent = "Co-pilot not configured";
+    $("aMeta").textContent = r.detail || "Needs OPENROUTER_API_KEY + Era HubSpot.";
+    return;
+  }
+  $("aA").textContent = (r.answer !== undefined && r.answer !== null) ? r.answer : "(no answer)";
+  $("aMeta").textContent = (r.tool_calls != null ? `Reached via ${r.tool_calls} tool call(s) over the live CRM.` : "");
+}
+
+async function runBenchmark() {
+  $("benchBtn").disabled = true; $("benchOut").textContent = "Running 5 questions…";
+  let r = {};
+  try { r = await (await fetch("/ops/benchmark", { headers: H })).json(); } catch (e) {}
+  $("benchBtn").disabled = false;
+  if (r.accuracy == null) { $("benchOut").textContent = r.agent_available === false ? "Co-pilot not configured." : "—"; return; }
+  const pct = Math.round(r.accuracy * 100);
+  $("benchOut").innerHTML = `<span class="pill ok">&#10003; ${r.passed}/${r.n} correct · ${pct}% vs ground truth</span>`;
+  $("benchPill").innerHTML = `<span class="pill ok">benchmarked ${pct}%</span>`;
+}
+
+$("chips").innerHTML = SUGGESTED.map(q => `<button class="chip">${q}</button>`).join("");
+$("chips").querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { $("q").value = b.textContent; ask(b.textContent); }));
+$("askBtn").addEventListener("click", () => ask($("q").value));
+$("q").addEventListener("keydown", (e) => { if (e.key === "Enter") ask($("q").value); });
+$("benchBtn").addEventListener("click", runBenchmark);
+loadCaseload();
+</script>
+</body>
+</html>

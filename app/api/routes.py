@@ -5,7 +5,7 @@ Screening itself is a pure function of the posted profile; Claude only adds the 
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.agents.explainer import explain
 from app.api.schemas import ProfileIn, ProgramResultOut, ScreenResponse
@@ -50,6 +50,26 @@ async def benchmark() -> dict:
     from app.eval.benchmark import run
     from app.eval.era import fetch_era_cases
     return run(fetch_era_cases())
+
+
+@router.get("/agency/caseload")
+async def agency_caseload(user: Principal = Depends(require_role(Role.admin))) -> dict:
+    """Agency oversight: roll up every screening in the caseload (admin sees all via RLS)."""
+    try:
+        screenings = await repo.list_screenings(user)
+    except repo.SurrealUnavailable as exc:
+        raise HTTPException(503, f"storage unavailable ({exc})")
+    clients, total = [], 0
+    for s in screenings:
+        summ = s.get("summary") or {}
+        amt = summ.get("total_estimated_annual") or 0
+        total += amt
+        clients.append({"id": s.get("id"), "name": s.get("name"), "owner": s.get("owner"),
+                        "total": amt, "programs": summ.get("n_eligible_or_maybe") or 0,
+                        "created_at": s.get("created_at")})
+    n = len(clients)
+    return {"summary": {"n_clients": n, "total_annual": total, "avg": round(total / n) if n else 0},
+            "clients": clients}
 
 
 @router.get("/era/clients")

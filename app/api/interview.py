@@ -30,6 +30,11 @@ async def clinician() -> FileResponse:
     return FileResponse(WEB_DIR / "clinician.html")
 
 
+@router.get("/agency")
+async def agency() -> FileResponse:
+    return FileResponse(WEB_DIR / "agency.html")
+
+
 @router.get("/interview/script")
 async def interview_script() -> list[dict]:
     return [

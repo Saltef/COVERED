@@ -20,7 +20,7 @@ def _headline(s: dict) -> str:
 @router.post("/me/screenings")
 async def save_my_screening(
     profile_in: ProfileIn,
-    user: Principal = Depends(require_role(Role.senior, Role.caregiver)),
+    user: Principal = Depends(require_role(Role.senior, Role.caregiver, Role.support_worker)),
 ) -> dict:
     results = screen(profile_in.to_domain())
     s = summarize(results)
