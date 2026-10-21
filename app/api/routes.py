@@ -124,6 +124,26 @@ async def ops_ask(q: str) -> dict:
     return {"available": True, "question": q, **(result or {})}
 
 
+@router.get("/agency/book-stats")
+async def agency_book_stats(user: Principal = Depends(require_role(Role.admin))) -> dict:
+    """Deterministic rollup over the screened book (clients, unclaimed $/yr, per-program counts)."""
+    from app.ops import book_agent
+    try:
+        return await book_agent.book_stats()
+    except repo.SurrealUnavailable as exc:
+        raise HTTPException(503, f"storage unavailable ({exc})")
+
+
+@router.get("/ops/ask-book")
+async def ops_ask_book(q: str, user: Principal = Depends(require_role(Role.admin))) -> dict:
+    """Ask the co-pilot one question over the agency's screened book of clients."""
+    from app.ops import book_agent
+    if not book_agent.available():
+        return {"available": False, "detail": "Needs an LLM provider key (OPENROUTER_API_KEY)."}
+    result = await book_agent.answer(q)
+    return {"available": True, "question": q, **(result or {})}
+
+
 @router.get("/ops/benchmark")
 async def ops_benchmark() -> dict:
     """Grade the ops co-pilot against ground truth computed from Era's data."""

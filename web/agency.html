@@ -63,7 +63,12 @@
   .arow:last-child { border-bottom: none; }
   .arow .ameta { color: var(--muted); font-size: 13px; white-space: nowrap; }
   .muted { color: var(--muted); }
+  .barrow { display: grid; grid-template-columns: 220px 1fr 48px; gap: 12px; align-items: center; margin: 9px 0; font-size: 14px; }
+  .barrow .bl { color: var(--ink); } .barrow .bn { text-align: right; font-weight: 800; color: var(--brand-strong); }
+  .track { background: var(--brand-tint); border-radius: 99px; height: 14px; overflow: hidden; }
+  .track > span { display: block; height: 100%; background: var(--brand); border-radius: 99px; }
   @media (max-width: 680px) {
+    .barrow { grid-template-columns: 1fr 60px 40px; }
     .topbar { flex-wrap: wrap; gap: 8px; }
     .cards { grid-template-columns: 1fr; }
     .askrow { flex-direction: column; align-items: stretch; }
@@ -95,6 +100,24 @@
   <div class="card" style="padding:6px 0 0">
     <div style="padding:16px 18px 0"><h2>Caseload</h2></div>
     <div id="caseload"><p class="muted" style="padding:14px 18px">Loading&hellip;</p></div>
+  </div>
+
+  <div class="card copilot">
+    <div class="head"><h2 style="margin:0">Coverage gaps across your book</h2>
+      <span class="pill ok" id="bookPct"></span></div>
+    <p class="muted" style="margin:2px 0 0;font-size:14px">Every screened client, rolled up. Deterministic,
+       straight from the rules engine &mdash; no model in the loop.</p>
+    <div id="bookBars" style="margin-top:14px"><p class="muted">Loading&hellip;</p></div>
+    <div class="head" style="margin-top:20px"><h3 style="margin:0;font-size:15px">Ask about your book</h3>
+      <span class="pill blue">book co-pilot</span></div>
+    <div class="chips" id="bookChips"></div>
+    <div class="askrow">
+      <input id="bookQ" placeholder="e.g. How much benefit value is my book missing per year?" />
+      <button class="btn" id="bookAskBtn">Ask</button>
+    </div>
+    <div class="answer" id="bookAnswer">
+      <div class="q" id="bookAQ"></div><div class="a" id="bookAA"></div><div class="meta" id="bookAMeta"></div>
+    </div>
   </div>
 
   <div class="card copilot">
@@ -146,13 +169,19 @@ async function loadCaseload() {
   $("sClients").textContent = s.n_clients || 0;
   $("sTotal").textContent = money(s.total_annual);
   $("sAvg").textContent = money(s.avg);
-  const rows = (data.clients || []).map(c => `<tr>
+  const all = (data.clients || []).slice().sort((a, b) => (b.total || 0) - (a.total || 0));
+  const CAP = 12;
+  const shown = all.slice(0, CAP);
+  const rows = shown.map(c => `<tr>
       <td class="cname">${c.name || "(unnamed)"}</td>
       <td class="cpot">${money(c.total)}/yr</td>
       <td class="cmuted">${c.programs} program(s)</td>
       <td class="cmuted">${fmtDate(c.created_at)}</td></tr>`).join("");
+  const more = all.length > CAP
+    ? `<p class="muted" style="padding:12px 18px 2px;font-size:13px">Showing the ${CAP} highest-potential of ${all.length} clients.</p>`
+    : "";
   $("caseload").innerHTML = rows
-    ? `<table><thead><tr><th>Client</th><th>Potential</th><th>Programs</th><th>Screened</th></tr></thead><tbody>${rows}</tbody></table>`
+    ? `<table><thead><tr><th>Client</th><th>Potential</th><th>Programs</th><th>Screened</th></tr></thead><tbody>${rows}</tbody></table>${more}`
     : `<p class="muted" style="padding:14px 18px">No screenings yet.</p>`;
 }
 
@@ -185,11 +214,55 @@ async function runBenchmark() {
   $("benchPill").innerHTML = `<span class="pill ok">benchmarked ${pct}%</span>`;
 }
 
+// ----- benefits book: deterministic rollup + book co-pilot -----
+async function loadBookStats() {
+  let s = {};
+  try { s = await (await fetch("/agency/book-stats", { headers: H })).json(); } catch (e) {}
+  const counts = s.program_counts || {};
+  const n = s.n_clients || 0;
+  $("bookPct").textContent = n ? `${s.pct_with_benefit}% have a benefit` : "";
+  const max = Math.max(1, ...Object.values(counts));
+  const rows = Object.entries(counts).map(([name, c]) => `<div class="barrow">
+      <span class="bl">${name}</span>
+      <span class="track"><span style="width:${Math.round(100 * c / max)}%"></span></span>
+      <span class="bn">${c}</span></div>`).join("");
+  $("bookBars").innerHTML = n
+    ? `<p style="margin:0 0 10px"><b style="color:var(--brand-strong);font-size:20px">${money(s.total_unclaimed_annual)}/yr</b>
+         <span class="muted">unclaimed across ${n} screened clients · avg ${money(s.avg_per_client)} each</span></p>${rows}`
+    : `<p class="muted">No screenings yet. Seed a book with <code>scripts/seed_synthetic.py</code>.</p>`;
+}
+
+const BOOK_SUGGESTED = ["How much benefit value is my book missing per year?",
+  "How many clients qualify for the Canadian Dental Care Plan?",
+  "What is the average benefit value per client?", "How many clients are in Ontario?"];
+
+async function askBook(q) {
+  if (!q || !q.trim()) return;
+  $("bookAskBtn").disabled = true; $("bookAskBtn").textContent = "Thinking…";
+  $("bookAnswer").classList.remove("show");
+  let r = {};
+  try { r = await (await fetch("/ops/ask-book?q=" + encodeURIComponent(q), { headers: H })).json(); } catch (e) {}
+  $("bookAskBtn").disabled = false; $("bookAskBtn").textContent = "Ask";
+  $("bookAnswer").classList.add("show");
+  $("bookAQ").textContent = q;
+  if (r.available === false) {
+    $("bookAA").textContent = "Co-pilot not configured";
+    $("bookAMeta").textContent = r.detail || "Needs an LLM provider key."; return;
+  }
+  $("bookAA").textContent = (r.answer !== undefined && r.answer !== null) ? r.answer : "(no answer)";
+  $("bookAMeta").textContent = (r.tool_calls != null ? `Reached via ${r.tool_calls} exact tool call(s) over the book.` : "");
+}
+
 $("chips").innerHTML = SUGGESTED.map(q => `<button class="chip">${q}</button>`).join("");
 $("chips").querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { $("q").value = b.textContent; ask(b.textContent); }));
 $("askBtn").addEventListener("click", () => ask($("q").value));
 $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") ask($("q").value); });
 $("benchBtn").addEventListener("click", runBenchmark);
+$("bookChips").innerHTML = BOOK_SUGGESTED.map(q => `<button class="chip">${q}</button>`).join("");
+$("bookChips").querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { $("bookQ").value = b.textContent; askBook(b.textContent); }));
+$("bookAskBtn").addEventListener("click", () => askBook($("bookQ").value));
+$("bookQ").addEventListener("keydown", (e) => { if (e.key === "Enter") askBook($("bookQ").value); });
+loadBookStats();
 loadCaseload();
 loadActivity();
 </script>

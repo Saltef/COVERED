@@ -132,6 +132,17 @@ async def list_screenings(principal: Principal) -> list[dict]:
         return [_clean(r) for r in _rows(res)]
 
 
+async def all_screenings_detailed() -> list[dict]:
+    """Every screening with its summary, results, and profile essentials — for agency book
+    rollups and the book co-pilot. Admin-only at the endpoint; the engine output is not PII-free,
+    so callers must enforce the admin role before using this."""
+    async with _db() as db:
+        res = await db.query(
+            "SELECT owner, name, summary, results, "
+            "profile.province AS province, profile.age AS age FROM screening;")
+        return [_clean(r) for r in _rows(res)]
+
+
 async def get_screening(principal: Principal, rid: str) -> Optional[dict]:
     from surrealdb import RecordID
 
