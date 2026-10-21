@@ -163,6 +163,9 @@
   <div class="modal">
     <div class="modal-head"><h2>New screening</h2><button class="x" id="closeBtn">&times;</button></div>
     <div class="form">
+      <div class="full"><label>Auto-fill from a document (optional)</label>
+        <input id="f_doc" type="file" accept="image/*" style="padding:8px" />
+        <span id="docStatus" class="muted" style="font-size:13px"></span></div>
       <div><label>First name</label><input id="f_name" type="text" placeholder="e.g. Margaret" /></div>
       <div><label>Province / territory</label>
         <select id="f_prov">
@@ -400,6 +403,23 @@ $("newBtn").addEventListener("click", openModal);
 $("closeBtn").addEventListener("click", closeModal);
 $("cancelBtn").addEventListener("click", closeModal);
 $("saveBtn").addEventListener("click", saveScreening);
+$("f_doc").addEventListener("change", async () => {
+  const f = $("f_doc").files[0];
+  if (!f) return;
+  $("docStatus").textContent = "Reading the document…";
+  const fd = new FormData(); fd.append("file", f, f.name || "doc.png");
+  let r = {};
+  try { r = await (await fetch("/extract", { method: "POST", headers: hdrs(false), body: fd })).json(); } catch (e) {}
+  if (!r.available) { $("docStatus").textContent = "Auto-fill unavailable — please enter fields manually."; return; }
+  const fx = r.fields || {};
+  if (fx.first_name) $("f_name").value = fx.first_name;
+  if (fx.province) $("f_prov").value = fx.province;
+  if (fx.age != null) $("f_age").value = fx.age;
+  if (fx.annual_net_income != null) $("f_income").value = fx.annual_net_income;
+  const n = Object.keys(fx).length;
+  $("docStatus").textContent = n ? `Filled ${n} field(s) from the document — please review.`
+                                 : "No fields found — please enter manually.";
+});
 $("backBtn").addEventListener("click", showList);
 $("dApplyBtn").addEventListener("click", prepareApplications);
 $("ctInvite").addEventListener("click", inviteDoctor);

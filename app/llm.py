@@ -33,3 +33,14 @@ def chat(messages: list, tools: list | None = None, max_tokens: int = 1024):
     if tools:
         kwargs["tools"] = tools
     return _client().chat.completions.create(**kwargs)
+
+
+def chat_vision(prompt: str, image_data_url: str, max_tokens: int = 500):
+    """Send a text prompt + an image (data URL) to a multimodal model (e.g. gpt-4o-mini)."""
+    content = [
+        {"type": "text", "text": prompt},
+        {"type": "image_url", "image_url": {"url": image_data_url}},
+    ]
+    return _client().chat.completions.create(
+        model=model(), max_tokens=max_tokens,
+        messages=[{"role": "user", "content": content}])

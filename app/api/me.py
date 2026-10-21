@@ -1,7 +1,7 @@
 """Per-user persistence endpoints. Every record is row-level-scoped to the caller."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from app.api.schemas import ProfileIn, ProgramResultOut
@@ -35,6 +35,17 @@ async def save_my_screening(
     except repo.SurrealUnavailable as exc:
         raise HTTPException(503, f"storage unavailable ({exc})")
     return {"id": saved.get("id"), "headline": headline, "summary": s}
+
+
+@router.post("/extract")
+async def extract_document(
+    file: UploadFile = File(...),
+    user: Principal = Depends(get_current_user),
+) -> dict:
+    """Read a document (e.g. a Notice of Assessment) and return profile fields to pre-fill."""
+    from app.agents.extract import extract_profile_fields
+    data = await file.read()
+    return await extract_profile_fields(data, file.content_type or "image/png")
 
 
 @router.get("/me/screenings")
