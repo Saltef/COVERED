@@ -31,7 +31,9 @@ A clean run currently needs SurrealDB, OpenRouter, Cohere, and Era all up at onc
 ### 3. Pick the demo spine and cut what you show  (S)
 Ten surfaces split the story. Decide the spine (core screen-to-apply loop plus the embed pivot) and present the
 care team and agency as "where this goes."
-- Remove or demote the Era CRM co-pilot on the agency page; lead with the book co-pilot (overlaps #6).
+- [x] Era CRM co-pilot demoted on the agency page; book co-pilot leads (done, see #6).
+- Still a presentation call: decide the spine you actually walk judges through (core screen-to-apply loop
+  plus the embed pivot) and present the rest as "where this goes."
 - Why: depth on three things beats ten half-built ones.
 
 ## P1: strengthen the core
@@ -48,9 +50,12 @@ The engine passes 11/11, but we wrote both the rules and the answer key, so a wr
 - Surface a "rates verified" date and a source link per program in the UI.
 - Why: turns "matches our belief" into "matches the law," which is the claim that matters.
 
-### 6. Consolidate the agency co-pilots  (S)
+### 6. Consolidate the agency co-pilots  (S) — DONE
 Two co-pilots over different data (Era CRM vs the screened book) confuse. The book one is the real story.
-- Make the book co-pilot primary; demote Era to "live ingestion proof," or hide it for the demo.
+- [x] The book co-pilot is primary. The Era box is recast as a "Live data ingestion" proof card (live
+  connection status, record count, the honest not-screenable note, and the accuracy benchmark), with the
+  open-ended CRM co-pilot tucked into a collapsed "Try the live CRM co-pilot" detail. The agency intro now
+  leads with the book.
 
 ### 7. Make document auto-fill show its work  (M)
 Notice-of-Assessment extraction uses LLM vision with no validation shown.

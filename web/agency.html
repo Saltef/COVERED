@@ -90,8 +90,8 @@
 
 <div class="wrap">
   <h1>Agency console</h1>
-  <p class="sub">Oversight across your whole caseload, plus an AI co-pilot that answers questions over
-     your client systems &mdash; powered by <b>Eon / Era</b>.</p>
+  <p class="sub">Oversight across your whole caseload, a co-pilot over your screened book, and live
+     ingestion from client systems via <b>Eon / Era</b>.</p>
 
   <div class="cards">
     <div class="card stat"><div class="k">Clients screened</div><div class="v" id="sClients">&mdash;</div></div>
@@ -123,20 +123,26 @@
   </div>
 
   <div class="card copilot">
-    <div class="head"><h2 style="margin:0">Ask your client data</h2>
-      <span class="pill blue">Eon · Era co-pilot</span><span id="benchPill"></span></div>
-    <p class="muted" style="margin:2px 0 0;font-size:14px">A Claude tool-use agent answers questions over
-       the agency's live CRM. It reads the data and reasons to an exact answer.</p>
-    <div class="chips" id="chips"></div>
-    <div class="askrow">
-      <input id="q" placeholder="e.g. How many contacts are in Canada?" />
-      <button class="btn" id="askBtn">Ask</button>
-    </div>
-    <div class="answer" id="answer">
-      <div class="q" id="aQ"></div><div class="a" id="aA"></div><div class="meta" id="aMeta"></div>
-    </div>
-    <div class="bench"><button class="btn-ghost" id="benchBtn">Run accuracy benchmark</button>
+    <div class="head"><h2 style="margin:0">Live data ingestion</h2>
+      <span class="pill blue">Eon · Era</span><span id="benchPill"></span></div>
+    <p class="muted" style="margin:2px 0 0;font-size:14px">Covered ingests a client population from the agency's
+       own systems through Era's live API &mdash; proof the platform plugs into existing infrastructure.</p>
+    <div id="eraStatus" style="margin-top:12px"><p class="muted">Checking connection&hellip;</p></div>
+    <div class="bench" style="margin-top:14px"><button class="btn-ghost" id="benchBtn">Run screening accuracy benchmark</button>
       <span id="benchOut" style="margin-left:10px"></span></div>
+    <details style="margin-top:16px">
+      <summary style="cursor:pointer;font-weight:650;font-size:14px;color:var(--muted)">Try the live CRM co-pilot</summary>
+      <p class="muted" style="margin:10px 0 0;font-size:14px">A Claude tool-use agent answers questions over the
+         agency's live CRM and reasons to an exact answer. Separate from the benefits book above.</p>
+      <div class="chips" id="chips"></div>
+      <div class="askrow">
+        <input id="q" placeholder="e.g. How many contacts are in Canada?" />
+        <button class="btn" id="askBtn">Ask</button>
+      </div>
+      <div class="answer" id="answer">
+        <div class="q" id="aQ"></div><div class="a" id="aA"></div><div class="meta" id="aMeta"></div>
+      </div>
+    </details>
   </div>
 
   <div class="card" style="padding:6px 0 0;margin-top:22px">
@@ -270,7 +276,21 @@ async function checkDevMode() {
     if (cfg && cfg.auth_enforced === false) $("devBadge").classList.remove("hidden");
   } catch (e) {}
 }
+async function loadEraStatus() {
+  let d = {};
+  try { d = await (await fetch("/era/clients", { headers: H })).json(); } catch (e) {}
+  if (d && d.configured) {
+    $("eraStatus").innerHTML =
+      `<p style="margin:0"><span class="pill ok">&#10003; Connected</span>
+         <span class="muted" style="margin-left:8px">${d.source || "era"} &middot; ${d.n_ingested || 0} records ingested live</span></p>
+       <p class="muted" style="margin:8px 0 0;font-size:13px">${d.note || ""}</p>`;
+  } else {
+    $("eraStatus").innerHTML =
+      `<p class="muted" style="margin:0">Era not configured. Set <code>ERA_*</code> in <code>.env</code> to ingest live.</p>`;
+  }
+}
 checkDevMode();
+loadEraStatus();
 loadBookStats();
 loadCaseload();
 loadActivity();
