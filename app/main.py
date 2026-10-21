@@ -4,8 +4,11 @@ from __future__ import annotations
 import logging
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.apply import router as apply_router
 from app.api.care_team import router as care_team_router
@@ -44,6 +47,8 @@ def create_app() -> FastAPI:
     app.include_router(apply_router)
     app.include_router(me_router)
     app.include_router(care_team_router)
+    app.mount("/static", StaticFiles(directory=str(Path(__file__).resolve().parent.parent / "web")),
+              name="static")
     return app
 
 

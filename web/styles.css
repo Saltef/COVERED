@@ -1,0 +1,30 @@
+/* Covered — shared orange design tokens (single source of truth for all pages).
+   Warm, accessible orange. Pages link this and keep only their own layout CSS. */
+:root {
+  --bg: #fff7f0;            /* warm off-white */
+  --card: #ffffff;
+  --panel: #ffffff;
+  --ink: #1a1510;          /* warm near-black, high contrast */
+  --muted: #6b5d52;        /* warm gray, AA on white */
+  --brand: #c2410c;        /* deep orange — primary buttons / emphasis (white text = AA) */
+  --brand-strong: #9a3412;
+  --accent: #ea580c;       /* bright orange — accents */
+  --brand-tint: #ffe9d9;   /* light orange fill */
+  --brand-ink: #ffffff;
+  --ok: #15803d; --ok-bg: #e4f6ea;
+  --maybe: #b45309; --maybe-bg: #fdefdc;
+  --off: #6b6b6b; --off-bg: #f0eeec;
+  --blue: #175cd3; --blue-bg: #eff6ff;   /* info callout (e.g. the CRA handoff) */
+  --line: #f0d9c7;         /* warm border */
+  --shadow: 0 2px 14px rgba(154, 52, 18, .09);
+}
+
+/* zero-specificity defaults so pages can still override freely */
+:where(a) { color: var(--brand); }
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 2px;
+}
+
+/* shared top-nav link (professional pages) */
+.linkout { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600; margin-left: 4px; }
+.linkout:hover { color: var(--ink); }
