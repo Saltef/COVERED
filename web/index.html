@@ -81,6 +81,9 @@
   .why { color: var(--ink); font-size: 19px; margin: 10px 0 0; }
   .steps { margin: 10px 0 0 22px; padding: 0; font-size: 19px; line-height: 1.5; }
   .note { color: var(--muted); font-size: 16px; margin-top: 18px; }
+  .src { margin: 10px 0 0; }
+  .src a { color: var(--brand-strong); font-size: 16px; font-weight: 700; text-decoration: none; }
+  .src a:hover { text-decoration: underline; }
 
   /* apply */
   .appcard { border: 2px solid var(--line); border-radius: 16px; padding: 18px; margin: 16px 0; background: #fffdfb; }
@@ -155,8 +158,8 @@
     <p class="why" id="explanation"></p>
     <button class="mic" id="applyBtn" style="margin-top:14px;">&#128221; Prepare my applications</button>
     <div id="applications"></div>
-    <p class="note">Dollar amounts use 2025 CRA / Ontario rates; your actual amount depends on your situation.
-       We prepare these &mdash; you (or your caregiver) confirm and submit. Nothing is filed automatically.</p>
+    <p class="note" id="ratesNote">Dollar amounts use official CRA / Ontario rates; your actual amount depends on your situation.
+       We prepare these; you or your caregiver confirm and submit. Nothing is filed automatically.</p>
   </section>
 </div>
 
@@ -388,10 +391,17 @@ async function finish() {
          <span class="pill ${r.eligibility}">${r.eligibility.replace("_"," ")}</span>${unlock}</span>
          <span class="val">${val}</span></div>
        <p class="why">${(r.reasons && r.reasons[0]) || ""}</p>
-       ${steps ? `<ul class="steps">${steps}</ul>` : ""}`;
+       ${steps ? `<ul class="steps">${steps}</ul>` : ""}
+       ${r.source_url ? `<p class="src"><a href="${r.source_url}" target="_blank" rel="noopener">&#128279; Official rules &amp; rates</a></p>` : ""}`;
     box.appendChild(div);
   }
   $("explanation").textContent = data.explanation || "";
+  if (data.rates_verified) {
+    $("ratesNote").textContent =
+      `Rates verified ${data.rates_verified} against official CRA / Ontario sources; your actual amount `
+      + "depends on your situation. We prepare these; you or your caregiver confirm and submit. "
+      + "Nothing is filed automatically. Tap “Official rules & rates” on any program to check the source.";
+  }
   speak(data.headline);
 }
 

@@ -39,9 +39,11 @@ class ProgramResultOut(BaseModel):
     next_steps: list[str]
     unlocked_by: Optional[str]
     value_is_illustrative: bool
+    source_url: Optional[str] = None
 
     @classmethod
     def from_domain(cls, r: ProgramResult) -> "ProgramResultOut":
+        from app.domain.programs import SOURCES
         return cls(
             program_id=r.program_id,
             program_name=r.program_name,
@@ -53,6 +55,7 @@ class ProgramResultOut(BaseModel):
             next_steps=r.next_steps,
             unlocked_by=r.unlocked_by,
             value_is_illustrative=r.value_is_illustrative,
+            source_url=SOURCES.get(r.program_id),
         )
 
 
@@ -61,3 +64,4 @@ class ScreenResponse(BaseModel):
     summary: dict
     results: list[ProgramResultOut]
     explanation: Optional[str] = None
+    rates_verified: Optional[str] = None

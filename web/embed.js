@@ -72,6 +72,7 @@
     ".pill.eligible,.pill.likely{background:#e4f6ea;color:#15803d}" +
     ".pill.maybe{background:#fdefdc;color:#b45309}.pill.not_eligible{background:#f0eeec;color:#6b6b6b}" +
     ".why{color:#4a4038;font-size:13px;margin:7px 0 0}" +
+    ".src{margin:6px 0 0}.src a{color:var(--b);font-size:12px;font-weight:700;text-decoration:none}" +
     ".unlock{font-size:11px;color:var(--b);font-weight:800;margin-left:4px}" +
     ".foot{font-size:11px;color:#8a7d72;margin-top:12px;line-height:1.4}" +
     ".err{color:#b42318;font-size:14px;padding:4px 0}" +
@@ -169,14 +170,17 @@
       if (r.eligibility === "not_eligible") return;
       var val = r.estimated_annual_value ? money(r.estimated_annual_value) + "/yr" : "";
       var unlock = r.unlocked_by ? "<span class='unlock'>unlocked by " + String(r.unlocked_by).toUpperCase() + "</span>" : "";
+      var src = r.source_url
+        ? "<p class='src'><a href='" + r.source_url + "' target='_blank' rel='noopener'>Official rules &amp; rates &#8599;</a></p>" : "";
       var p = h("div", { class: "p" },
         "<div class='tp'><span class='nm'>" + r.name +
         "<span class='pill " + r.eligibility + "'>" + r.eligibility.replace(/_/g, " ") + "</span>" + unlock +
         "</span><span class='vl'>" + val + "</span></div>" +
-        "<p class='why'>" + ((r.reasons && r.reasons[0]) || "") + "</p>");
+        "<p class='why'>" + ((r.reasons && r.reasons[0]) || "") + "</p>" + src);
       body.appendChild(p);
     });
-    body.appendChild(h("div", { class: "foot" }, data.disclaimer || ""));
+    var verified = data.rates_verified ? "Rates verified " + data.rates_verified + ". " : "";
+    body.appendChild(h("div", { class: "foot" }, verified + (data.disclaimer || "")));
     var again = h("button", { class: "btn" }, "Start over");
     again.addEventListener("click", renderForm);
     body.appendChild(again);

@@ -29,7 +29,9 @@ async def _build(profile: Profile) -> ScreenResponse:
     )
     out = [ProgramResultOut.from_domain(r) for r in results]
     explanation = await explain(headline, out)
-    return ScreenResponse(headline=headline, summary=s, results=out, explanation=explanation)
+    from app.domain.programs import RATES_VERIFIED
+    return ScreenResponse(headline=headline, summary=s, results=out, explanation=explanation,
+                          rates_verified=RATES_VERIFIED)
 
 
 @router.get("/healthz")

@@ -48,6 +48,7 @@ async def eligibility(
     _key: str = Depends(require_partner_key),
 ) -> dict:
     """Screen a profile and return the programs it is likely owed (stable v1 contract)."""
+    from app.domain.programs import RATES_VERIFIED, SOURCES
     results = screen(profile_in.to_domain())
     s = summarize(results)
     order = {"eligible": 0, "likely": 1, "maybe": 2, "not_eligible": 3}
@@ -63,6 +64,7 @@ async def eligibility(
             "reasons": r.reasons,
             "next_steps": r.next_steps,
             "unlocked_by": r.unlocked_by,
+            "source_url": SOURCES.get(r.program_id),
         }
         for r in results
     ]
@@ -70,6 +72,7 @@ async def eligibility(
     return {
         "api_version": API_VERSION,
         "currency": "CAD",
+        "rates_verified": RATES_VERIFIED,
         "total_estimated_annual": s["total_estimated_annual"],
         "programs_claimable": s["n_eligible_or_maybe"],
         "programs": programs,

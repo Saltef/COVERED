@@ -47,11 +47,16 @@ premise.
 - Still open: a real provincial-college register lookup via the `RegistryVerifier` seam. **L**, out of scope
   for the hackathon.
 
-### 5. Get an independent accuracy check  (M)
+### 5. Get an independent accuracy check  (M) — DONE
 The engine passes 11/11, but we wrote both the rules and the answer key, so a wrong threshold passes green.
-- Have a second source (or person) verify 2-3 program thresholds against canada.ca / ontario.ca.
-- Surface a "rates verified" date and a source link per program in the UI.
-- Why: turns "matches our belief" into "matches the law," which is the claim that matters.
+- [x] Spot-checked three thresholds against canada.ca: CDCP ($90k adjusted family net income cap, all ages
+  since May 2025) confirmed; METC (lesser of $2,834 and 3% of net income at 15%) confirmed; CDB confirmed
+  with a caveat — the engine uses the Jul 2026–Jun 2027 indexed figures ($204.20/mo, $23,483 single), which
+  is right for the current date, though canada.ca pages disagree slightly on the forward numbers.
+- [x] Every program now carries an official `source_url`; the engine exposes a `rates_verified` date
+  (2026-10-21). Both the senior results and the embed widget show an "Official rules & rates" link per
+  program and a "Rates verified <date>" line. Exposed in the `/screen` and `/v1/eligibility` responses.
+- Why: turns "matches our belief" into "matches the law, traceable to the page."
 
 ### 6. Consolidate the agency co-pilots  (S) — DONE
 Two co-pilots over different data (Era CRM vs the screened book) confuse. The book one is the real story.

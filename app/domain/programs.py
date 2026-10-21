@@ -209,6 +209,20 @@ def eval_trillium(p: Profile) -> ProgramResult:
               next_steps=["Still worth applying if your drug costs are high relative to income."])
 
 
+# Date the figures above were last checked against official sources, and the official page per
+# program. Surfaced in the UI so the numbers are traceable, not just asserted.
+RATES_VERIFIED = "2026-10-21"
+SOURCES: dict[str, str] = {
+    "dtc": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/segments/tax-credits-deductions-persons-disabilities/disability-tax-credit.html",
+    "cdb": "https://www.canada.ca/en/services/benefits/disability/canada-disability-benefit/amount.html",
+    "cdcp": "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/qualify.html",
+    "metc": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/lines-33099-33199-eligible-medical-expenses-you-claim-on-your-tax-return.html",
+    "ccc": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/line-30450-canada-caregiver-amount-other-infirm-dependants-age-18-older-including-parent-grandparent.html",
+    "rdsp": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/registered-disability-savings-plan-rdsp.html",
+    "otdp": "https://www.ontario.ca/page/get-coverage-high-prescription-drug-costs",
+}
+
+
 PROGRAMS: list[Program] = [
     Program("dtc", "Disability Tax Credit", "Federal (CRA)", eval_dtc),
     Program("cdb", "Canada Disability Benefit", "Federal (ESDC)", eval_cdb),
