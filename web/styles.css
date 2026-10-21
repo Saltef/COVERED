@@ -6,8 +6,8 @@
   --panel: #ffffff;
   --ink: #1a1510;          /* warm near-black, high contrast */
   --muted: #6b5d52;        /* warm gray, AA on white */
-  --brand: #c2410c;        /* deep orange — primary buttons / emphasis (white text = AA) */
-  --brand-strong: #9a3412;
+  --brand: #c94a10;        /* warm deep orange: primary buttons / emphasis (white text AA) */
+  --brand-strong: #b2440c; /* cleaner warm orange for hover + dollar values (AA on white) */
   --accent: #ea580c;       /* bright orange — accents */
   --brand-tint: #ffe9d9;   /* light orange fill */
   --brand-ink: #ffffff;

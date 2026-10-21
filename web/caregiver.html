@@ -101,6 +101,13 @@
     border-bottom: 1px solid var(--line); font-size: 15px; }
   .note { color: var(--muted); font-size: 13px; margin-top: 18px; }
   .hidden { display: none; }
+  @media (max-width: 700px) {
+    .topbar { flex-wrap: wrap; gap: 8px; }
+    .form { grid-template-columns: 1fr; }
+    .page-head { flex-direction: column; align-items: flex-start; }
+    #listCard, #dApplications { overflow-x: auto; }
+    table { font-size: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -158,6 +165,7 @@
   <div class="modal">
     <div class="modal-head"><h2>New screening</h2><button class="x" id="closeBtn">&times;</button></div>
     <div class="form">
+      <div class="full" style="font-size:13px;color:var(--muted);margin-bottom:-4px">Only a first name is required. Everything else sharpens the result; blanks use safe defaults.</div>
       <div class="full"><label>Auto-fill from a document (optional)</label>
         <input id="f_doc" type="file" accept="image/*" style="padding:8px" />
         <span id="docStatus" class="muted" style="font-size:13px"></span></div>

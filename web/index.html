@@ -93,6 +93,12 @@
   .sechd { font-size: 15px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 14px 0 2px; }
   .dl { min-height: 50px; font-size: 17px; padding: 10px 18px; background: var(--brand-tint); color: var(--brand-strong); }
   .hidden { display: none; }
+  @media (max-width: 480px) {
+    body { padding: 12px; }
+    header h1 { font-size: 30px; }
+    .q { font-size: 27px; }
+    .mic { min-height: 68px; font-size: 22px; }
+  }
 </style>
 </head>
 <body>
@@ -124,6 +130,14 @@
 
     <p class="status" id="status" aria-live="polite"></p>
     <div class="banner" id="voiceBanner">Voice isn't turned on yet &mdash; please type your answers for now.</div>
+  </section>
+
+  <!-- Review -->
+  <section id="review" class="card hidden">
+    <p class="stepcount">Review</p>
+    <p class="q">Please check your answers</p>
+    <div id="reviewList" class="profile"></div>
+    <button class="mic" id="seeResultsBtn" style="margin-top:18px">&#9989; See my benefits</button>
   </section>
 
   <!-- Live profile -->
@@ -227,7 +241,7 @@ async function loadScript() {
   ask();
 }
 function ask() {
-  if (idx >= script.length) return finish();
+  if (idx >= script.length) return showReview();
   const q = script[idx];
   $("stepcount").textContent = `Question ${idx + 1} of ${script.length}`;
   $("bar").style.width = Math.round((idx / script.length) * 100) + "%";
@@ -236,6 +250,29 @@ function ask() {
   $("answer").focus();
   setStatus("");
   speak(q.prompt);
+}
+
+function showReview() {
+  $("interview").classList.add("hidden");
+  $("review").classList.remove("hidden");
+  const el = $("reviewList"); el.innerHTML = "";
+  for (let i = 0; i < script.length; i++) {
+    const f = script[i].field;
+    if (profile[f] === undefined) continue;
+    const row = document.createElement("div"); row.className = "row";
+    const btn = `<button class="ghost rv-edit" data-i="${i}" style="min-height:40px;font-size:16px">Change</button>`;
+    row.innerHTML = `<span class="k">${LABELS[f] || f}</span><span class="v">${fmtVal(f, profile[f])}</span>${btn}`;
+    el.appendChild(row);
+  }
+  el.querySelectorAll(".rv-edit").forEach(b => b.addEventListener("click", () => editAnswer(parseInt(b.dataset.i))));
+  speak("Please check your answers. When you're ready, tap see my benefits.");
+  window.scrollTo(0, 0);
+}
+function editAnswer(i) {
+  idx = i;
+  $("review").classList.add("hidden");
+  $("interview").classList.remove("hidden");
+  ask();
 }
 
 async function handleAnswer(text) {
@@ -323,6 +360,8 @@ function setRec(on) {
 
 // ----- results -----
 async function finish() {
+  $("interview").classList.add("hidden");
+  $("review").classList.add("hidden");
   $("stepcount").textContent = "All done";
   $("bar").style.width = "100%";
   $("question").textContent = "Here's what I found.";
@@ -425,6 +464,7 @@ $("sendBtn").addEventListener("click", () => handleAnswer($("answer").value));
 $("hearBtn").addEventListener("click", () => speak($("question").textContent));
 $("answer").addEventListener("keydown", (e) => { if (e.key === "Enter") handleAnswer($("answer").value); });
 $("skipBtn").addEventListener("click", () => { if (idx < script.length) ask(); });
+$("seeResultsBtn").addEventListener("click", finish);
 initAuth().then(loadScript).catch(loadScript);
 </script>
 </body>
