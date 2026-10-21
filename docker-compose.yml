@@ -1,0 +1,28 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Reliable uvicorn --reload on Windows bind mounts (inotify events don't cross the mount).
+      WATCHFILES_FORCE_POLLING: "true"
+      SURREAL_URL: ws://surrealdb:8000/rpc
+    volumes:
+      - ./:/app
+    depends_on:
+      - surrealdb
+
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    # Run as root so RocksDB can write the mounted volume.
+    user: root
+    command: start --user ${SURREAL_USER:-root} --pass ${SURREAL_PASS:-root} --bind 0.0.0.0:8000 rocksdb:/data/database.db
+    ports:
+      - "8001:8000"
+    volumes:
+      - surreal_data:/data
+
+volumes:
+  surreal_data:

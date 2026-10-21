@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Covered</title>
+<style>
+  :root {
+    --bg: #fff7f0;          /* warm off-white */
+    --card: #ffffff;
+    --ink: #1a1510;         /* near-black, high contrast */
+    --muted: #6b5d52;       /* warm gray, AA on white */
+    --brand: #c2410c;       /* deep orange — buttons, emphasis (white text = AA) */
+    --brand-strong: #9a3412;
+    --accent: #ea580c;      /* bright orange — accents */
+    --brand-tint: #ffe9d9;  /* light orange fill */
+    --brand-ink: #ffffff;
+    --ok: #15803d; --ok-bg: #e4f6ea;
+    --maybe: #b45309; --maybe-bg: #fdefdc;
+    --off: #6b6b6b; --off-bg: #f0eeec;
+    --line: #f0d9c7;
+    --shadow: 0 3px 18px rgba(154,52,18,.10);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 22px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 16px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  header { text-align: center; padding: 20px 0 6px; }
+  header h1 { font-size: 36px; margin: 0; letter-spacing: -.01em; }
+  header h1 .leaf { color: var(--accent); }
+  header p { color: var(--muted); margin: 10px 0 0; font-size: 20px; }
+
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 20px;
+          box-shadow: var(--shadow); padding: 26px; margin: 20px 0; }
+
+  .stepcount { color: var(--brand); font-weight: 800; font-size: 18px; margin: 0 0 10px;
+               letter-spacing: .02em; }
+  .progress { height: 14px; background: var(--brand-tint); border-radius: 99px; overflow: hidden; margin-bottom: 22px; }
+  .progress > div { height: 100%; width: 0%; background: var(--brand); transition: width .35s; }
+  .q { font-size: 32px; font-weight: 750; line-height: 1.25; margin: 0 0 22px; }
+
+  /* buttons */
+  button { font: inherit; border: none; border-radius: 16px; cursor: pointer; font-weight: 700; }
+  button:focus-visible, input:focus-visible { outline: 4px solid var(--accent); outline-offset: 3px; }
+  .mic {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    width: 100%; min-height: 76px; font-size: 24px;
+    background: var(--brand); color: var(--brand-ink); box-shadow: 0 4px 0 var(--brand-strong);
+  }
+  .mic:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--brand-strong); }
+  .mic.rec { background: var(--brand-strong); animation: pulse 1.1s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 4px 0 var(--brand-strong), 0 0 0 0 rgba(234,88,12,.5); }
+                     50% { box-shadow: 0 4px 0 var(--brand-strong), 0 0 0 14px rgba(234,88,12,0); } }
+
+  .altrow { display: flex; gap: 12px; margin-top: 14px; }
+  .ghost { flex: 1; min-height: 58px; font-size: 18px; background: var(--brand-tint); color: var(--brand-strong); }
+  .ghost:active { background: #ffdcc2; }
+
+  .typerow { display: flex; gap: 12px; margin-top: 14px; }
+  input[type=text] { flex: 1; font: inherit; padding: 16px 18px; min-height: 60px;
+                     border: 2px solid var(--line); border-radius: 16px; background: #fffdfb; color: var(--ink); }
+  .send { min-width: 92px; min-height: 60px; font-size: 20px; background: var(--ink); color: #fff; }
+
+  .status { color: var(--brand-strong); min-height: 28px; margin: 16px 0 0; font-size: 20px; font-weight: 600; }
+  .banner { background: var(--maybe-bg); border: 2px solid #f0cfa0; color: #7a4a12;
+            padding: 14px 16px; border-radius: 14px; font-size: 18px; margin-top: 14px; display: none; }
+
+  /* live profile */
+  .profile h3 { margin: 0 0 12px; font-size: 16px; letter-spacing: .06em;
+                text-transform: uppercase; color: var(--muted); }
+  .profile .row { display: flex; justify-content: space-between; gap: 14px; align-items: baseline;
+                  padding: 10px 0; border-bottom: 2px solid var(--bg); font-size: 19px; }
+  .profile .k { color: var(--muted); } .profile .v { font-weight: 700; text-align: right; }
+
+  /* results */
+  .headline { font-size: 30px; font-weight: 800; line-height: 1.3; margin: 0 0 6px; }
+  .headline b { color: var(--brand); }
+  .prog { border: 2px solid var(--line); border-radius: 16px; padding: 18px; margin: 14px 0; }
+  .prog .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .prog .name { font-weight: 750; font-size: 22px; }
+  .prog .val { font-weight: 800; font-size: 22px; color: var(--brand); white-space: nowrap; }
+  .pill { font-size: 15px; font-weight: 800; padding: 4px 12px; border-radius: 99px; }
+  .pill.eligible, .pill.likely { background: var(--ok-bg); color: var(--ok); }
+  .pill.maybe { background: var(--maybe-bg); color: var(--maybe); }
+  .pill.not_eligible { background: var(--off-bg); color: var(--off); }
+  .unlock { font-size: 15px; color: var(--accent); font-weight: 800; margin-left: 6px; }
+  .why { color: var(--ink); font-size: 19px; margin: 10px 0 0; }
+  .steps { margin: 10px 0 0 22px; padding: 0; font-size: 19px; line-height: 1.5; }
+  .note { color: var(--muted); font-size: 16px; margin-top: 18px; }
+
+  /* apply */
+  .appcard { border: 2px solid var(--line); border-radius: 16px; padding: 18px; margin: 16px 0; background: #fffdfb; }
+  .apptop { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .apptop h3 { margin: 0; font-size: 20px; }
+  .fr { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center;
+        padding: 10px 0; border-bottom: 2px solid var(--bg); font-size: 18px; }
+  .fl { color: var(--muted); } .fv { font-weight: 700; text-align: right; }
+  .fv.todo { color: var(--maybe); }
+  .who { font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+  .who.pre { background: var(--ok-bg); color: var(--ok); }
+  .who.you { background: var(--maybe-bg); color: var(--maybe); }
+  .who.doc { background: var(--off-bg); color: var(--off); }
+  .sechd { font-size: 15px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 14px 0 2px; }
+  .dl { min-height: 50px; font-size: 17px; padding: 10px 18px; background: var(--brand-tint); color: var(--brand-strong); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Covered <span class="leaf">&#127809;</span></h1>
+    <p>Let's find the benefits you're owed. Answer out loud or type &mdash; it only takes a minute.</p>
+  </header>
+
+  <!-- Interview -->
+  <section id="interview" class="card">
+    <p class="stepcount" id="stepcount">Getting ready&hellip;</p>
+    <div class="progress"><div id="bar"></div></div>
+    <p class="q" id="question">&nbsp;</p>
+
+    <button class="mic" id="micBtn" aria-pressed="false">&#127908; Tap and speak your answer</button>
+
+    <div class="altrow">
+      <button class="ghost" id="hearBtn">&#128266; Hear it again</button>
+      <button class="ghost" id="skipBtn">&#8617; Start over</button>
+    </div>
+
+    <div class="typerow">
+      <input type="text" id="answer" placeholder="&hellip;or type your answer" aria-label="Type your answer" />
+      <button class="send" id="sendBtn">Enter</button>
+    </div>
+
+    <p class="status" id="status" aria-live="polite"></p>
+    <div class="banner" id="voiceBanner">Voice isn't turned on yet &mdash; please type your answers for now.</div>
+  </section>
+
+  <!-- Live profile -->
+  <section class="card">
+    <div class="profile" id="profile"><h3>What we've got so far</h3></div>
+  </section>
+
+  <!-- Results -->
+  <section id="results" class="card hidden">
+    <p class="headline" id="headline"></p>
+    <div id="programs"></div>
+    <p class="why" id="explanation"></p>
+    <button class="mic" id="applyBtn" style="margin-top:14px;">&#128221; Prepare my applications</button>
+    <div id="applications"></div>
+    <p class="note">Dollar amounts use 2025 CRA / Ontario rates; your actual amount depends on your situation.
+       We prepare these &mdash; you (or your caregiver) confirm and submit. Nothing is filed automatically.</p>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let script = [], idx = 0, profile = { province: "ON", marital_status: "single",
+  has_dtc_certificate: false, canadian_resident: true };
+let recording = false;
+let AUTH_TOKEN = null;
+function hdrs(json) {
+  const h = json ? { "Content-Type": "application/json" } : {};
+  if (AUTH_TOKEN) h["Authorization"] = "Bearer " + AUTH_TOKEN;
+  return h;
+}
+
+const LABELS = {
+  first_name: "Name", province: "Province", age: "Age",
+  annual_net_income: "Net income", has_private_dental_insurance: "Dental insurance",
+  out_of_pocket_medical_annual: "Medical costs", prescription_costs_annual: "Prescriptions",
+  has_severe_prolonged_impairment: "Impairment", is_caregiver: "Caregiver",
+  filed_taxes_last_year: "Filed taxes",
+};
+
+// Pick the most natural female English voice available (neural "Natural/Online" voices win).
+let VOICE = null;
+const FEMALE_NAMES = ["aria", "jenny", "michelle", "sonia", "clara", "libby", "natasha", "emma",
+  "ava", "samantha", "zira", "hazel", "susan", "linda", "catherine", "hayley", "heera", "fiona",
+  "tessa", "karen", "moira", "serena", "allison", "kate", "google us english",
+  "google uk english female", "female", "woman"];
+const MALE_NAMES = ["david", "mark", "richard", "george", "james", "paul", "ravi", "guy", "ryan",
+  "william", "daniel", "alex", "fred", "tom", "eric", "oliver", "male", " man"];
+function pickVoice() {
+  if (!window.speechSynthesis) return;
+  const voices = window.speechSynthesis.getVoices() || [];
+  const pool = voices.filter(v => /^en/i.test(v.lang));
+  const list = pool.length ? pool : voices;
+  if (!list.length) return;
+  const score = (v) => {
+    const n = (v.name || "").toLowerCase(); let s = 0;
+    if (/(natural|neural|online)/.test(n)) s += 6;          // high-quality neural voices
+    if (FEMALE_NAMES.some(f => n.includes(f))) s += 4;      // female voice
+    if (MALE_NAMES.some(m => n.includes(m))) s -= 6;        // avoid male voices
+    if (/en-ca/i.test(v.lang)) s += 2;                      // Canadian first
+    else if (/en-(us|gb|au)/i.test(v.lang)) s += 1;
+    return s;
+  };
+  VOICE = list.slice().sort((a, b) => score(b) - score(a))[0] || null;
+}
+function speak(text) {
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    if (VOICE) u.voice = VOICE;
+    u.rate = 0.9;    // slightly slow = calm, relaxed, easy to follow
+    u.pitch = 1.0;
+    window.speechSynthesis.speak(u);
+  } catch (e) {}
+}
+if (window.speechSynthesis) {
+  pickVoice();
+  window.speechSynthesis.onvoiceschanged = pickVoice;  // voices load asynchronously
+}
+function setStatus(t) { $("status").textContent = t || ""; }
+
+function fmtVal(field, v) {
+  if (typeof v === "boolean") return v ? "Yes" : "No";
+  if (["annual_net_income","out_of_pocket_medical_annual","prescription_costs_annual"].includes(field))
+    return "$" + Number(v).toLocaleString();
+  return v;
+}
+function renderProfile() {
+  const el = $("profile");
+  el.innerHTML = "<h3>What we've got so far</h3>";
+  for (const f in LABELS) {
+    if (profile[f] === undefined) continue;
+    const row = document.createElement("div"); row.className = "row";
+    row.innerHTML = `<span class="k">${LABELS[f]}</span><span class="v"></span>`;
+    row.querySelector(".v").textContent = fmtVal(f, profile[f]);
+    el.appendChild(row);
+  }
+}
+
+async function loadScript() {
+  script = await (await fetch("/interview/script", { headers: hdrs(false) })).json();
+  ask();
+}
+function ask() {
+  if (idx >= script.length) return finish();
+  const q = script[idx];
+  $("stepcount").textContent = `Question ${idx + 1} of ${script.length}`;
+  $("bar").style.width = Math.round((idx / script.length) * 100) + "%";
+  $("question").textContent = q.prompt;
+  $("answer").value = "";
+  $("answer").focus();
+  setStatus("");
+  speak(q.prompt);
+}
+
+async function handleAnswer(text) {
+  if (!text || !text.trim()) return;
+  const q = script[idx];
+  const res = await fetch("/interview/parse", {
+    method: "POST", headers: hdrs(true),
+    body: JSON.stringify({ field: q.field, text }),
+  }).then(r => r.json());
+
+  setStatus(res.confirmation);
+  speak(res.confirmation);
+  if (res.needs_clarification) return;   // stay on this question
+  profile[q.field] = res.value;
+  renderProfile();
+  idx++;
+  setTimeout(ask, 1300);  // let the confirmation be heard before the next question
+}
+
+// ----- mic: records 16kHz mono WAV (Cohere Transcribe accepts wav, not webm) -----
+let audioCtx = null, micSource = null, micProc = null, pcm = [], micStream = null;
+async function toggleMic() {
+  if (recording) { await stopRec(); return; }
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    micSource = audioCtx.createMediaStreamSource(micStream);
+    micProc = audioCtx.createScriptProcessor(4096, 1, 1);
+    pcm = [];
+    micProc.onaudioprocess = (e) => pcm.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+    micSource.connect(micProc); micProc.connect(audioCtx.destination);
+    setRec(true); setStatus("Listening… tap the button again when you're done.");
+  } catch (e) { $("voiceBanner").style.display = "block"; setStatus("Microphone unavailable — please type."); }
+}
+async function stopRec() {
+  const sr = audioCtx ? audioCtx.sampleRate : 48000;
+  try { micProc.disconnect(); micSource.disconnect(); micStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+  try { await audioCtx.close(); } catch (e) {}
+  setRec(false);
+  const wav = encodeWav(pcm, sr); pcm = [];
+  if (!wav) { setStatus("Didn't catch any audio — try again or type."); return; }
+  setStatus("Transcribing…");
+  const fd = new FormData();
+  fd.append("file", wav, "answer.wav");
+  try {
+    const j = await (await fetch("/voice/transcribe", { method: "POST", body: fd, headers: hdrs(false) })).json();
+    if (j.available && j.text) { $("answer").value = j.text; handleAnswer(j.text); }
+    else { $("voiceBanner").style.display = "block";
+           setStatus(j.detail ? ("Voice: " + j.detail + " — please type.") : "Voice not available — please type."); }
+  } catch (e) { setStatus("Couldn't reach the transcriber — please type."); }
+}
+function downsample(buf, from, to) {
+  if (to >= from) return buf;
+  const ratio = from / to, n = Math.round(buf.length / ratio), out = new Float32Array(n);
+  let o = 0, i = 0;
+  while (o < n) {
+    const next = Math.round((o + 1) * ratio);
+    let sum = 0, c = 0;
+    for (; i < next && i < buf.length; i++) { sum += buf[i]; c++; }
+    out[o++] = c ? sum / c : 0;
+  }
+  return out;
+}
+function encodeWav(chunks, sr) {
+  const len = chunks.reduce((a, c) => a + c.length, 0);
+  if (!len) return null;
+  let data = new Float32Array(len), off = 0;
+  for (const c of chunks) { data.set(c, off); off += c.length; }
+  if (sr > 16000) { data = downsample(data, sr, 16000); sr = 16000; }
+  const view = new DataView(new ArrayBuffer(44 + data.length * 2));
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+  ws(0, "RIFF"); view.setUint32(4, 36 + data.length * 2, true); ws(8, "WAVE"); ws(12, "fmt ");
+  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+  view.setUint32(24, sr, true); view.setUint32(28, sr * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+  ws(36, "data"); view.setUint32(40, data.length * 2, true);
+  let o = 44; for (let i = 0; i < data.length; i++) { const s = Math.max(-1, Math.min(1, data[i])); view.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true); o += 2; }
+  return new Blob([view], { type: "audio/wav" });
+}
+function setRec(on) {
+  recording = on;
+  $("micBtn").classList.toggle("rec", on);
+  $("micBtn").setAttribute("aria-pressed", on ? "true" : "false");
+  $("micBtn").innerHTML = on ? "&#9209; Stop &amp; send" : "&#127908; Tap and speak your answer";
+}
+
+// ----- results -----
+async function finish() {
+  $("stepcount").textContent = "All done";
+  $("bar").style.width = "100%";
+  $("question").textContent = "Here's what I found.";
+  setStatus("");
+  const data = await (await fetch("/screen", {
+    method: "POST", headers: hdrs(true), body: JSON.stringify(profile),
+  })).json();
+
+  $("results").classList.remove("hidden");
+  $("headline").innerHTML = data.headline.replace(/\$[\d,]+/, m => "<b>" + m + "</b>");
+  const box = $("programs"); box.innerHTML = "";
+  const order = { eligible: 0, likely: 1, maybe: 2, not_eligible: 3 };
+  data.results.sort((a, b) => order[a.eligibility] - order[b.eligibility]);
+  for (const r of data.results) {
+    const div = document.createElement("div"); div.className = "prog";
+    const val = r.estimated_annual_value ? "$" + Number(r.estimated_annual_value).toLocaleString() + "/yr" : "";
+    const unlock = r.unlocked_by ? `<span class="unlock">&#128273; unlocked by ${r.unlocked_by.toUpperCase()}</span>` : "";
+    const steps = (r.next_steps || []).map(s => `<li>${s}</li>`).join("");
+    div.innerHTML =
+      `<div class="top"><span class="name">${r.program_name}
+         <span class="pill ${r.eligibility}">${r.eligibility.replace("_"," ")}</span>${unlock}</span>
+         <span class="val">${val}</span></div>
+       <p class="why">${(r.reasons && r.reasons[0]) || ""}</p>
+       ${steps ? `<ul class="steps">${steps}</ul>` : ""}`;
+    box.appendChild(div);
+  }
+  $("explanation").textContent = data.explanation || "";
+  speak(data.headline);
+}
+
+// ----- apply step -----
+async function prepareApplications() {
+  $("applyBtn").textContent = "Preparing…";
+  const pkgs = await (await fetch("/apply", {
+    method: "POST", headers: hdrs(true), body: JSON.stringify(profile),
+  })).json();
+  const box = $("applications"); box.innerHTML = "";
+  for (const p of pkgs) {
+    const rows = p.fields.map(f => {
+      const todo = f.value === null;
+      const val = todo ? "— to complete —" : f.value;
+      const cls = f.who === "prefilled" ? "pre" : (f.who === "practitioner" ? "doc" : "you");
+      const whoL = f.who === "prefilled" ? "Pre-filled" : (f.who === "practitioner" ? "Doctor" : "You");
+      return `<div class="fr"><span class="fl">${f.label}</span>
+        <span class="fv ${todo ? "todo" : ""}">${val}</span><span class="who ${cls}">${whoL}</span></div>`;
+    }).join("");
+    const needed = (p.still_needed || []).map(s => `<li>${s}</li>`).join("");
+    const sub = (p.submission || []).map(s => `<li>${s}</li>`).join("");
+    const card = document.createElement("div"); card.className = "appcard";
+    card.innerHTML =
+      `<div class="apptop"><h3>${p.form_name}</h3>
+         <button class="ghost dl" data-id="${p.program_id}">&#11015; Download PDF</button></div>
+       <div class="fields">${rows}</div>
+       <p class="sechd">What you still need to do</p><ul class="steps">${needed}</ul>
+       <p class="sechd">How to submit</p><ul class="steps">${sub}</ul>`;
+    box.appendChild(card);
+  }
+  box.querySelectorAll(".dl").forEach(b => b.addEventListener("click", () => downloadPdf(b.dataset.id)));
+  $("applyBtn").innerHTML = "&#128221; Prepare my applications";
+}
+async function downloadPdf(pid) {
+  const r = await fetch(`/apply/${pid}/pdf`, {
+    method: "POST", headers: hdrs(true), body: JSON.stringify(profile),
+  });
+  if (!r.ok) { setStatus("PDF not available."); return; }
+  const url = URL.createObjectURL(await r.blob());
+  const a = document.createElement("a"); a.href = url; a.download = `${pid}-application.pdf`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ----- auth (Clerk, only when a publishable key is configured) -----
+async function initAuth() {
+  let cfg;
+  try { cfg = await (await fetch("/config")).json(); } catch (e) { return; }
+  if (!cfg.clerk_publishable_key) return;  // dev mode — backend supplies a dev identity
+  await loadClerk(cfg.clerk_publishable_key);
+  const Clerk = window.Clerk;
+  await Clerk.load();
+  if (!Clerk.user) {
+    Clerk.openSignIn();
+    await new Promise(res => Clerk.addListener(({ user }) => { if (user) res(); }));
+  }
+  try { AUTH_TOKEN = await Clerk.session.getToken(); } catch (e) {}
+}
+function loadClerk(pk) {
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.async = true;
+    s.src = "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js";
+    s.setAttribute("data-clerk-publishable-key", pk);
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+// ----- events -----
+$("applyBtn").addEventListener("click", prepareApplications);
+$("micBtn").addEventListener("click", toggleMic);
+$("sendBtn").addEventListener("click", () => handleAnswer($("answer").value));
+$("hearBtn").addEventListener("click", () => speak($("question").textContent));
+$("answer").addEventListener("keydown", (e) => { if (e.key === "Enter") handleAnswer($("answer").value); });
+$("skipBtn").addEventListener("click", () => { if (idx < script.length) ask(); });
+initAuth().then(loadScript).catch(loadScript);
+</script>
+</body>
+</html>
