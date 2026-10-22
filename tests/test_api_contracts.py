@@ -61,7 +61,8 @@ def test_benchmark_endpoint_is_perfect(client):
     assert d["cases_passed"] == d["n_cases"]
 
 
-@pytest.mark.parametrize("path", ["/", "/caregiver", "/clinician", "/agency", "/pharmacy", "/tax", "/developers"])
+@pytest.mark.parametrize("path", ["/", "/benefits", "/homecare", "/caregiver", "/clinician",
+                                  "/agency", "/pharmacy", "/tax", "/developers"])
 def test_pages_served(client, path):
     r = client.get(path)
     assert r.status_code == 200 and "text/html" in r.headers["content-type"]
