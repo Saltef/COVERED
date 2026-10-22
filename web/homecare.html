@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Covered — Home care</title>
+<link rel="stylesheet" href="/static/styles.css" />
+<style>
+  /* palette: /static/styles.css */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 16px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  header { text-align: center; padding: 18px 0 6px; }
+  header h1 { font-size: 34px; margin: 0; } header h1 .leaf { color: var(--accent); }
+  .tagline { color: var(--brand-strong); font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    font-size: 15px; margin: 6px 0 0; }
+  .lede { color: var(--muted); font-size: 20px; margin: 12px 0 0; }
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+    padding: 24px; margin: 20px 0; }
+  h2 { font-size: 23px; margin: 0 0 4px; } .sub { color: var(--muted); margin: 0 0 18px; font-size: 17px; }
+  .q { margin: 18px 0 0; } .q > label { display: block; font-weight: 700; font-size: 19px; margin: 0 0 8px; }
+  .seg { display: inline-flex; border: 2px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .seg button { font: inherit; font-size: 18px; font-weight: 700; border: none; background: #fff; color: var(--ink);
+    padding: 12px 22px; cursor: pointer; min-width: 92px; }
+  .seg button.on { background: var(--brand); color: #fff; }
+  input[type=number] { font: inherit; font-size: 19px; padding: 13px 15px; min-height: 56px; width: 180px;
+    border: 2px solid var(--line); border-radius: 12px; background: #fffdfb; color: var(--ink); }
+  input[type=number]:focus, .seg button:focus-visible { outline: 4px solid var(--accent); outline-offset: 2px; }
+  .hint { color: var(--muted); font-size: 16px; margin: 6px 0 0; }
+  .tasks { display: grid; gap: 10px; margin-top: 10px; }
+  .tasks .grp { font-size: 15px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--muted); margin: 8px 0 2px; }
+  .chk { display: flex; align-items: center; gap: 12px; border: 2px solid var(--line); border-radius: 12px;
+    padding: 12px 14px; cursor: pointer; font-size: 18px; background: #fff; }
+  .chk input { width: 24px; height: 24px; accent-color: var(--brand); flex: 0 0 auto; }
+  .chk.sel { border-color: var(--brand); background: var(--brand-tint); }
+  .cta { width: 100%; min-height: 68px; font: inherit; font-size: 22px; font-weight: 800; border: none;
+    border-radius: 16px; background: var(--brand); color: #fff; box-shadow: 0 4px 0 var(--brand-strong);
+    cursor: pointer; margin-top: 24px; }
+  .cta:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--brand-strong); }
+  .hidden { display: none; }
+
+  .pill { display: inline-block; font-size: 16px; font-weight: 800; padding: 5px 14px; border-radius: 99px; }
+  .pill.likely { background: var(--ok-bg); color: var(--ok); }
+  .pill.maybe { background: var(--maybe-bg); color: var(--maybe); }
+  .pill.not_eligible { background: var(--off-bg); color: var(--off); }
+  .headline { font-size: 26px; font-weight: 800; margin: 12px 0 4px; }
+  .reasons { margin: 10px 0 0; padding-left: 22px; } .reasons li { margin: 6px 0; }
+  .budget { border: 2px solid var(--line); border-radius: 14px; padding: 18px; margin: 18px 0; background: #fffdfb; }
+  .budget .big { font-size: 34px; font-weight: 800; color: var(--brand); }
+  .brow { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1.5px solid var(--bg); font-size: 17px; }
+  .brow:last-child { border-bottom: none; font-weight: 800; }
+  .brow .k { color: var(--muted); }
+  .steps { margin: 10px 0 0 22px; padding: 0; font-size: 18px; } .steps li { margin: 7px 0; }
+  .app .arow { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start;
+    padding: 12px 0; border-bottom: 1.5px solid var(--bg); }
+  .app .arow:last-child { border-bottom: none; }
+  .app .an { font-weight: 750; font-size: 18px; } .app .anote { color: var(--muted); font-size: 16px; margin-top: 2px; }
+  .who { font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 99px; white-space: nowrap; height: fit-content; }
+  .who.you { background: var(--maybe-bg); color: var(--maybe); }
+  .who.covered-assisted { background: var(--ok-bg); color: var(--ok); }
+  .callout { background: var(--blue-bg); border: 2px solid #cfe0fb; color: #1e40af; border-radius: 12px;
+    padding: 14px 16px; font-size: 17px; margin-top: 16px; }
+  .callout a { color: var(--blue); font-weight: 800; }
+  .note { color: var(--muted); font-size: 16px; margin-top: 16px; }
+  a.src { color: var(--brand-strong); font-weight: 800; text-decoration: none; }
+  @media (max-width: 480px) { body { padding: 12px; } header h1 { font-size: 28px; } .seg button { min-width: 78px; padding: 12px 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Covered <span class="leaf">&#127809;</span></h1>
+    <p class="tagline">Home care &middot; Direct Funding</p>
+    <p class="lede">Hire and direct your own attendants, paid for by Ontario. Let's see if
+       <b>Direct Funding</b> fits, and what your monthly budget could be.</p>
+  </header>
+
+  <!-- Screening -->
+  <section class="card" id="screen">
+    <h2>A few questions</h2>
+    <p class="sub">Direct Funding is for people with a permanent physical disability who want to manage their
+       own attendant care. Administered by the Centre for Independent Living in Toronto (CILT).</p>
+
+    <div class="q"><label>How old are you?</label>
+      <input type="number" id="age" min="0" inputmode="numeric" placeholder="e.g. 68" /></div>
+
+    <div class="q"><label>Do you live in Ontario and have a valid health card (OHIP)?</label>
+      <div class="seg" data-key="ohip"><button data-v="1" class="on">Yes</button><button data-v="0">No</button></div></div>
+
+    <div class="q"><label>Do you have a permanent physical disability?</label>
+      <div class="seg" data-key="disability"><button data-v="1">Yes</button><button data-v="0" class="on">No</button></div></div>
+
+    <div class="q"><label>What do you need help with?</label>
+      <p class="hint">Choose everything that applies. Direct Funding needs at least two, including at least
+         one hands-on task from the first group.</p>
+      <div class="tasks" id="tasks"><p class="hint">Loading&hellip;</p></div></div>
+
+    <div class="q"><label>Have your care needs been steady for at least a year?</label>
+      <div class="seg" data-key="stable"><button data-v="1">Yes</button><button data-v="0" class="on">No</button></div></div>
+
+    <div class="q"><label>Could you direct your own attendants: hiring, scheduling and training them?</label>
+      <p class="hint">You don't have to do the physical work yourself. This is about running the care.</p>
+      <div class="seg" data-key="selfmanage"><button data-v="1">Yes</button><button data-v="0" class="on">Not sure</button></div></div>
+
+    <div class="q"><label>About how many hours of help do you need per week?</label>
+      <input type="number" id="hours" min="0" inputmode="numeric" placeholder="e.g. 20" />
+      <p class="hint">A rough number is fine. We use it to estimate your monthly budget.</p></div>
+
+    <button class="cta" id="checkBtn">Check my eligibility</button>
+  </section>
+
+  <!-- Result -->
+  <section class="card hidden" id="result"></section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const money = (n) => "$" + Number(n || 0).toLocaleString();
+const state = { ohip: true, disability: false, stable: false, selfmanage: false };
+
+// segmented yes/no controls
+document.querySelectorAll(".seg").forEach(seg => {
+  seg.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    seg.querySelectorAll("button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    state[seg.dataset.key] = b.dataset.v === "1";
+  }));
+});
+
+// task checklist from the backend (single source of truth)
+let TASKS = [];
+async function loadTasks() {
+  try { TASKS = (await (await fetch("/homecare/tasks")).json()).tasks || []; } catch (e) {}
+  const box = $("tasks"); box.innerHTML = "";
+  const core = TASKS.filter(t => t.core), other = TASKS.filter(t => !t.core);
+  const add = (label, list) => {
+    const h = document.createElement("div"); h.className = "grp"; h.textContent = label; box.appendChild(h);
+    list.forEach(t => {
+      const l = document.createElement("label"); l.className = "chk";
+      l.innerHTML = `<input type="checkbox" value="${t.id}" /> <span>${t.label}</span>`;
+      const cb = l.querySelector("input");
+      cb.addEventListener("change", () => l.classList.toggle("sel", cb.checked));
+      box.appendChild(l);
+    });
+  };
+  add("Hands-on personal care", core);
+  add("Other daily activities", other);
+}
+loadTasks();
+
+function selectedTasks() {
+  return Array.from($("tasks").querySelectorAll("input:checked")).map(c => c.value);
+}
+
+$("checkBtn").addEventListener("click", check);
+async function check() {
+  const body = {
+    age: Number($("age").value || 0),
+    ontario_resident: state.ohip, has_ohip: state.ohip,
+    permanent_physical_disability: state.disability,
+    tasks: selectedTasks(),
+    needs_stable_1yr: state.stable,
+    can_self_manage: state.selfmanage,
+    hours_per_week: Number($("hours").value || 0),
+  };
+  $("checkBtn").textContent = "Checking…"; $("checkBtn").disabled = true;
+  let r = {};
+  try { r = await (await fetch("/homecare/screen", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+  })).json(); } catch (e) {}
+  $("checkBtn").textContent = "Check my eligibility"; $("checkBtn").disabled = false;
+  renderResult(r);
+  $("result").scrollIntoView({ behavior: "smooth" });
+}
+
+function renderResult(r) {
+  const el = $("result"); el.classList.remove("hidden");
+  const label = { likely: "Likely a fit", maybe: "Possibly a fit", not_eligible: "Not a fit right now" }[r.eligibility] || "";
+  const reasons = (r.reasons || []).map(x => `<li>${x}</li>`).join("");
+  const steps = (r.next_steps || []).map(x => `<li>${x}</li>`).join("");
+
+  let budget = "";
+  if (r.budget_breakdown) {
+    const b = r.budget_breakdown;
+    budget = `<div class="budget">
+      <div class="big">${money(r.monthly_budget)}/mo</div>
+      <div class="hint" style="margin:0 0 12px">about ${money(b.annual_total)} a year &middot; ${b.monthly_hours} attendant hours/month${b.capped ? " (at the 212-hour cap)" : ""}</div>
+      <div class="brow"><span class="k">Attendant wages (${b.monthly_hours} hrs &times; $22)</span><span>${money(b.wages)}</span></div>
+      <div class="brow"><span class="k">Employer costs (MERCs, 21%)</span><span>${money(b.mercs)}</span></div>
+      <div class="brow"><span class="k">Admin (bookkeeper, bank, insurance)</span><span>${money(b.misc)}</span></div>
+      <div class="brow"><span class="k">Contingency (5%)</span><span>${money(b.contingency)}</span></div>
+      <div class="brow"><span class="k">Estimated monthly budget</span><span>${money(b.monthly_total)}</span></div>
+    </div>`;
+  }
+
+  let app = "";
+  if ((r.application || []).length) {
+    const rows = r.application.map(a => `<div class="arow">
+        <div><div class="an">${a.section}</div><div class="anote">${a.note}</div></div>
+        <span class="who ${a.who}">${a.who === "covered-assisted" ? "Covered helps" : "You complete"}</span>
+      </div>`).join("");
+    app = `<h2 style="margin-top:22px">Prepare your application</h2>
+      <p class="sub">CILT asks you to complete the form in your own words. Covered drafts and calculates what
+         it safely can; you confirm, sign and send it.</p>
+      <div class="app">${rows}</div>`;
+  }
+
+  el.innerHTML = `
+    <span class="pill ${r.eligibility}">${label}</span>
+    <p class="headline">${r.name} &mdash; ${r.subtitle}</p>
+    <ul class="reasons">${reasons}</ul>
+    ${budget}
+    <h2 style="margin-top:20px">Your next steps</h2>
+    <ul class="steps">${steps}</ul>
+    ${app}
+    <div class="callout">Apply or ask questions through CILT: <b>${r.cilt_phone}</b> &middot;
+      <a href="https://www.dfontario.ca" target="_blank" rel="noopener">dfontario.ca</a> &middot;
+      <a href="${r.guide_url}" target="_blank" rel="noopener">application guide &#8599;</a></div>
+    <p class="note">Rates verified ${r.rates_verified} against the DF Application Guide. ${r.disclaimer}
+       Covered prepares and tracks; nothing is submitted for you.</p>`;
+}
+</script>
+</body>
+</html>

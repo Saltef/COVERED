@@ -74,6 +74,18 @@ def test_auth_gate_fails_closed_outside_development():
             Settings(app_env=env, dev_allow_no_auth=True).assert_auth_safe()
 
 
+def test_homecare_screen_contract(client):
+    r = client.post("/homecare/screen", json={"age": 68, "permanent_physical_disability": True,
+        "tasks": ["bathing", "household"], "needs_stable_1yr": True, "can_self_manage": True,
+        "hours_per_week": 20})
+    assert r.status_code == 200
+    d = r.json()
+    assert d["eligibility"] == "likely"
+    assert d["monthly_budget"] > 0
+    assert d["source_url"].startswith("https://www.dfontario.ca")
+    assert len(d["application"]) == 8
+
+
 @requires_surreal
 def test_book_stats_requires_admin(client):
     assert client.get("/agency/book-stats", headers=dev("senior")).status_code == 403

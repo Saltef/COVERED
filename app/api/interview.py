@@ -35,6 +35,12 @@ async def agency() -> FileResponse:
     return FileResponse(WEB_DIR / "agency.html")
 
 
+@router.get("/homecare")
+async def homecare() -> FileResponse:
+    """The home-care journey: Direct Funding (CILT) screening and application prep."""
+    return FileResponse(WEB_DIR / "homecare.html")
+
+
 @router.get("/pharmacy")
 async def pharmacy() -> FileResponse:
     """Demo partner host: a mock pharmacy portal with the Covered widget embedded."""
