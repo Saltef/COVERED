@@ -82,9 +82,13 @@ Real authentication across all roles, replacing dev-mode identity. Turns the arc
 The widget works in the demo only because host and API are same-origin; prod CORS is empty, so a real partner
 domain is blocked. Needs a per-partner CORS allowlist and real partner-key issuance, not the hardcoded demo key.
 
-### 10. Add an automated test suite  (M)
+### 10. Add an automated test suite  (M) — DONE
 `pytest` is not installed and there is no `tests/`; what exists is three manual scripts plus the benchmark.
-Convert them to pytest and run the benchmark in CI so a rules regression fails the build.
+- [x] Added a `pytest` suite in `tests/` organized into four layers (engine matrix, API contracts, persona
+  journeys, resilience) and documented in `USE-CASES.md`. 46 tests; all green with SurrealDB up, 41 pass and
+  5 skip cleanly with it down, so it runs in CI with no database. The engine matrix is data-driven off
+  `ground_truth.CASES`, so the benchmark now fails the build on a rules regression.
+- `requirements-dev.txt` pins pytest; `pytest.ini` sets the path and test discovery.
 
 ### 11. Harden the public surface  (M)
 Tighten CORS off `*`, rate-limit `/v1/eligibility`, and remove the demo-key acceptance path outside dev.
