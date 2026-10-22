@@ -65,6 +65,15 @@
   .callout a { color: var(--blue); font-weight: 800; }
   .note { color: var(--muted); font-size: 16px; margin-top: 16px; }
   a.src { color: var(--brand-strong); font-weight: 800; text-decoration: none; }
+  .forkintro { margin: 18px 0 0; }
+  .forkcard { background: var(--card); border: 2px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+    padding: 24px; margin: 16px 0; }
+  .forkcard.primary { border-color: var(--brand); }
+  .forktag { display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+    padding: 5px 12px; border-radius: 99px; margin-bottom: 10px; }
+  .forktag.rec { background: var(--brand); color: #fff; } .forktag.alt { background: var(--off-bg); color: var(--off); }
+  .svc { margin: 10px 0 0 22px; } .svc li { margin: 6px 0; font-size: 18px; }
+  .compact .headline { font-size: 22px; } .compact { padding: 20px; }
   @media (max-width: 480px) { body { padding: 12px; } header h1 { font-size: 28px; } .seg button { min-width: 78px; padding: 12px 16px; } }
 </style>
 </head>
@@ -112,7 +121,7 @@
   </section>
 
   <!-- Result -->
-  <section class="card hidden" id="result"></section>
+  <section class="hidden" id="result"></section>
 </div>
 
 <script>
@@ -175,29 +184,40 @@ async function check() {
   $("result").scrollIntoView({ behavior: "smooth" });
 }
 
-function renderResult(r) {
-  const el = $("result"); el.classList.remove("hidden");
-  const label = { likely: "Likely a fit", maybe: "Possibly a fit", not_eligible: "Not a fit right now" }[r.eligibility] || "";
-  const reasons = (r.reasons || []).map(x => `<li>${x}</li>`).join("");
-  const steps = (r.next_steps || []).map(x => `<li>${x}</li>`).join("");
+const PILL = { likely: "Likely a fit", maybe: "Possibly a fit", not_eligible: "Not a fit right now" };
+function tag(primary) {
+  return primary ? `<span class="forktag rec">Recommended for you</span>`
+                 : `<span class="forktag alt">Or</span>`;
+}
 
+function dfCard(d, primary) {
+  const reasons = (d.reasons || []).map(x => `<li>${x}</li>`).join("");
   let budget = "";
-  if (r.budget_breakdown) {
-    const b = r.budget_breakdown;
+  if (d.budget_breakdown) {
+    const b = d.budget_breakdown;
     budget = `<div class="budget">
-      <div class="big">${money(r.monthly_budget)}/mo</div>
-      <div class="hint" style="margin:0 0 12px">about ${money(b.annual_total)} a year &middot; ${b.monthly_hours} attendant hours/month${b.capped ? " (at the 212-hour cap)" : ""}</div>
-      <div class="brow"><span class="k">Attendant wages (${b.monthly_hours} hrs &times; $22)</span><span>${money(b.wages)}</span></div>
+      <div class="big">${money(d.monthly_budget)}/mo</div>
+      <div class="hint" style="margin:0 0 ${primary ? "12px" : "0"}">about ${money(b.annual_total)} a year &middot; ${b.monthly_hours} attendant hours/month${b.capped ? " (at the 212-hour cap)" : ""}</div>
+      ${primary ? `<div class="brow"><span class="k">Attendant wages (${b.monthly_hours} hrs &times; $22)</span><span>${money(b.wages)}</span></div>
       <div class="brow"><span class="k">Employer costs (MERCs, 21%)</span><span>${money(b.mercs)}</span></div>
       <div class="brow"><span class="k">Admin (bookkeeper, bank, insurance)</span><span>${money(b.misc)}</span></div>
       <div class="brow"><span class="k">Contingency (5%)</span><span>${money(b.contingency)}</span></div>
-      <div class="brow"><span class="k">Estimated monthly budget</span><span>${money(b.monthly_total)}</span></div>
+      <div class="brow"><span class="k">Estimated monthly budget</span><span>${money(b.monthly_total)}</span></div>` : ""}
     </div>`;
   }
-
+  if (!primary) {
+    return `<section class="forkcard compact">${tag(false)}
+      <span class="pill ${d.eligibility}">${PILL[d.eligibility] || ""}</span>
+      <p class="headline">${d.name} &mdash; ${d.subtitle}</p>
+      <p class="sub" style="margin:0 0 10px">Run your own care: hire and direct your own attendants with a monthly budget.</p>
+      ${budget}
+      <p style="margin:12px 0 0"><a class="src" href="https://www.dfontario.ca" target="_blank" rel="noopener">See the steps and apply at dfontario.ca &#8599;</a></p>
+    </section>`;
+  }
+  const steps = (d.next_steps || []).map(x => `<li>${x}</li>`).join("");
   let app = "";
-  if ((r.application || []).length) {
-    const rows = r.application.map(a => `<div class="arow">
+  if ((d.application || []).length) {
+    const rows = d.application.map(a => `<div class="arow">
         <div><div class="an">${a.section}</div><div class="anote">${a.note}</div></div>
         <span class="who ${a.who}">${a.who === "covered-assisted" ? "Covered helps" : "You complete"}</span>
       </div>`).join("");
@@ -206,20 +226,53 @@ function renderResult(r) {
          it safely can; you confirm, sign and send it.</p>
       <div class="app">${rows}</div>`;
   }
-
-  el.innerHTML = `
-    <span class="pill ${r.eligibility}">${label}</span>
-    <p class="headline">${r.name} &mdash; ${r.subtitle}</p>
+  return `<section class="forkcard primary">${tag(true)}
+    <span class="pill ${d.eligibility}">${PILL[d.eligibility] || ""}</span>
+    <p class="headline">${d.name} &mdash; ${d.subtitle}</p>
     <ul class="reasons">${reasons}</ul>
     ${budget}
     <h2 style="margin-top:20px">Your next steps</h2>
     <ul class="steps">${steps}</ul>
     ${app}
-    <div class="callout">Apply or ask questions through CILT: <b>${r.cilt_phone}</b> &middot;
+    <div class="callout">Apply or ask questions through CILT: <b>${d.cilt_phone}</b> &middot;
       <a href="https://www.dfontario.ca" target="_blank" rel="noopener">dfontario.ca</a> &middot;
-      <a href="${r.guide_url}" target="_blank" rel="noopener">application guide &#8599;</a></div>
-    <p class="note">Rates verified ${r.rates_verified} against the DF Application Guide. ${r.disclaimer}
+      <a href="${d.guide_url}" target="_blank" rel="noopener">application guide &#8599;</a></div>
+    <p class="note">Rates verified ${d.rates_verified} against the DF Application Guide. ${d.disclaimer}
        Covered prepares and tracks; nothing is submitted for you.</p>`;
+}
+
+function ahCard(a, primary) {
+  if (!primary) {
+    return `<section class="forkcard compact">${tag(false)}
+      <p class="headline">${a.name} &mdash; ${a.subtitle}</p>
+      <p class="sub" style="margin:0 0 10px">Have care arranged for you: a coordinator assesses your needs and sets up personal support, nursing and therapy.</p>
+      <p style="margin:0"><a class="src" href="${a.getting_started_url}" target="_blank" rel="noopener">How to start with Ontario Health atHome &#8599;</a></p>
+    </section>`;
+  }
+  const services = (a.services || []).map(x => `<li>${x}</li>`).join("");
+  const process = (a.process || []).map(x => `<li>${x}</li>`).join("");
+  return `<section class="forkcard primary">${tag(true)}
+    <p class="headline">${a.name} &mdash; ${a.subtitle}</p>
+    <p class="sub">${a.note}</p>
+    <h2 style="margin-top:14px">What you can get</h2>
+    <ul class="svc">${services}</ul>
+    <h2 style="margin-top:18px">How to start</h2>
+    <ul class="steps">${process}</ul>
+    <div class="callout">Start at <a href="${a.getting_started_url}" target="_blank" rel="noopener">Ontario Health atHome &#8599;</a>.
+      No doctor's referral is needed; you can contact them yourself.</div>
+    <p class="note">Covered routes and explains; the care coordinator assesses your eligibility and builds the plan.
+       Verified ${a.verified}.</p>`;
+}
+
+function renderResult(r) {
+  const el = $("result"); el.classList.remove("hidden");
+  const df = r.direct_funding || {}, ah = r.athome || {};
+  const dfFirst = r.recommended !== "athome";
+  let body = `<p class="headline forkintro" style="margin-top:0">Two ways to get home care in Ontario</p>
+    <p class="sub">Direct Funding puts you in charge of your own attendants. Ontario Health atHome arranges
+       care for you. Here's the better starting point for your answers, and the other option.</p>`;
+  body += dfFirst ? dfCard(df, true) + ahCard(ah, false) : ahCard(ah, true) + dfCard(df, false);
+  el.innerHTML = body;
 }
 </script>
 </body>

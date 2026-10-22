@@ -74,16 +74,26 @@ def test_auth_gate_fails_closed_outside_development():
             Settings(app_env=env, dev_allow_no_auth=True).assert_auth_safe()
 
 
-def test_homecare_screen_contract(client):
+def test_homecare_fork_recommends_df_for_self_manager(client):
     r = client.post("/homecare/screen", json={"age": 68, "permanent_physical_disability": True,
         "tasks": ["bathing", "household"], "needs_stable_1yr": True, "can_self_manage": True,
         "hours_per_week": 20})
     assert r.status_code == 200
     d = r.json()
-    assert d["eligibility"] == "likely"
-    assert d["monthly_budget"] > 0
-    assert d["source_url"].startswith("https://www.dfontario.ca")
-    assert len(d["application"]) == 8
+    assert d["recommended"] == "direct_funding"
+    assert d["direct_funding"]["eligibility"] == "likely"
+    assert d["direct_funding"]["monthly_budget"] > 0
+    assert len(d["direct_funding"]["application"]) == 8
+    assert d["athome"]["fit"] is True
+
+
+def test_homecare_fork_recommends_athome_when_not_self_managing(client):
+    r = client.post("/homecare/screen", json={"age": 68, "permanent_physical_disability": True,
+        "tasks": ["bathing", "household"], "needs_stable_1yr": True, "can_self_manage": False})
+    d = r.json()
+    assert d["recommended"] == "athome"
+    assert d["direct_funding"]["eligibility"] == "maybe"
+    assert d["athome"]["name"] == "Ontario Health atHome"
 
 
 @requires_surreal

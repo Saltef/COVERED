@@ -10,6 +10,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from app.domain import direct_funding as df
+from app.domain import ontario_health_athome as oha
 
 router = APIRouter(prefix="/homecare", tags=["homecare"])
 
@@ -53,9 +54,14 @@ def _application_outline(eligible: bool) -> list[dict]:
 
 @router.post("/screen")
 async def homecare_screen(body: DFScreenIn) -> dict:
+    """The home-care fork: self-managed Direct Funding vs agency-arranged Ontario Health atHome.
+
+    Direct Funding needs you to direct your own attendants; atHome arranges care for you. We present
+    both and recommend the one that fits your self-management answer, since the choice is yours.
+    """
     r = df.screen(**body.model_dump())
     eligible = r.eligibility in ("likely", "maybe")
-    return {
+    direct_funding = {
         "program": "direct_funding",
         "name": "Direct Funding",
         "subtitle": "Self-managed attendant services",
@@ -75,6 +81,16 @@ async def homecare_screen(body: DFScreenIn) -> dict:
         "disclaimer": ("Estimates and eligibility are a guide only. The DF eligibility interview panel "
                        "at CILT makes the final decision, and there is a province-wide waiting list."),
     }
+    athome = oha.route(ontario_resident=body.ontario_resident, has_ohip=body.has_ohip)
+
+    # Recommend DF when the person can self-manage and qualifies; otherwise agency-arranged atHome.
+    if r.eligibility == "likely":
+        recommended = "direct_funding"
+    elif athome["fit"]:
+        recommended = "athome"
+    else:
+        recommended = "direct_funding"  # neither is a clean fit; DF carries the specific reasons why
+    return {"recommended": recommended, "direct_funding": direct_funding, "athome": athome}
 
 
 @router.get("/tasks")
