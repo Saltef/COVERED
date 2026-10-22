@@ -1,0 +1,47 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      # SurrealDB the same way docker-compose runs it (in-memory for CI speed), on host port 8001
+      # so the journey tests run instead of skipping. Service containers can't set the start command,
+      # so we run it directly.
+      - name: Start SurrealDB
+        run: |
+          docker run -d --name surreal -p 8001:8000 surrealdb/surrealdb:latest \
+            start --user root --pass root --bind 0.0.0.0:8000 memory
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Wait for SurrealDB
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8001/health >/dev/null 2>&1; then
+              echo "SurrealDB is ready"; exit 0
+            fi
+            sleep 1
+          done
+          echo "SurrealDB did not become ready"; docker logs surreal || true; exit 1
+
+      # No API keys in CI: the app degrades deterministically (screening never needs the LLM),
+      # so the full suite is green without secrets.
+      - name: Run tests
+        env:
+          SURREAL_URL: ws://localhost:8001/rpc
+        run: python -m pytest
