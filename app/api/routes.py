@@ -44,11 +44,16 @@ async def config() -> dict:
     """Public runtime config for the frontend (which auth to use, and whether auth is enforced)."""
     s = get_settings()
     dev_no_auth = s.dev_allow_no_auth and s.is_development
+    # Pro features (caregiver, clinician, agency, saved screenings) need an identity: available when
+    # dev-mode supplies one or Clerk is configured. In a public-only deploy this is false and the UI
+    # hides the links that would lead to those auth-required pages.
+    pro_features = dev_no_auth or bool(s.clerk_publishable_key)
     return {"clerk_publishable_key": s.clerk_publishable_key,
             "auth_required": bool(s.clerk_publishable_key),
             # auth_enforced is false in local dev (header identity); the UI flags this honestly.
             "auth_enforced": not dev_no_auth,
-            "dev_mode": dev_no_auth}
+            "dev_mode": dev_no_auth,
+            "pro_features": pro_features}
 
 
 @router.get("/benchmark")

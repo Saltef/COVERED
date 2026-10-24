@@ -24,6 +24,7 @@ def test_config_reports_dev_mode(client):
     d = client.get("/config").json()
     assert d["auth_enforced"] is False
     assert d["dev_mode"] is True
+    assert d["pro_features"] is True  # dev mode supplies an identity, so pro pages are available
 
 
 def test_screen_contract(client):

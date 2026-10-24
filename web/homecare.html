@@ -85,7 +85,7 @@
     <p class="lede">Set up the home care you need: run your own attendants with <b>Direct Funding</b>, or
        have care arranged for you through <b>Ontario Health atHome</b>. Answer a few questions and we'll
        point you to the right one, with your real next steps.</p>
-    <p style="margin:12px 0 0;font-size:16px">
+    <p id="navlinks" class="hidden" style="margin:12px 0 0;font-size:16px">
       <a href="/caregiver" style="color:var(--brand);font-weight:700;text-decoration:none">Helping someone else? Caregiver view &#8594;</a>
       <span style="color:var(--line)">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
       <a href="/benefits" style="color:var(--muted);font-weight:700;text-decoration:none">Other benefits (tax credits, drug &amp; dental) &#8594;</a>
@@ -164,6 +164,16 @@ async function loadTasks() {
   add("Other daily activities", other);
 }
 loadTasks();
+
+// Show the links to the caregiver dashboard and the broader benefits screener only when those
+// auth-required pages are actually available (dev mode or Clerk). In a public-only deploy they stay hidden.
+async function showProLinks() {
+  try {
+    const cfg = await (await fetch("/config")).json();
+    if (cfg && cfg.pro_features) $("navlinks").classList.remove("hidden");
+  } catch (e) {}
+}
+showProLinks();
 
 function selectedTasks() {
   return Array.from($("tasks").querySelectorAll("input:checked")).map(c => c.value);

@@ -27,6 +27,19 @@ Start from `.env.production.example`. In short:
 - Set `ALLOWED_ORIGINS` to your exact site origin(s). In production CORS is closed to everything else.
 - The `demo-partner-key` is never accepted in production; issue real keys via `PARTNER_API_KEYS`.
 
+## Public-only deploy (no auth provider)
+The fastest live product: deploy the home-care journey with no auth at all.
+- Set `APP_ENV=production`, `DEV_ALLOW_NO_AUTH=false`, and `ALLOWED_ORIGINS` to your site URL. No Clerk.
+- **No database or API keys needed.** The home-care screening (Direct Funding + Ontario Health atHome)
+  is pure, deterministic computation, so it needs no SurrealDB and no LLM. Leave those vars blank; the
+  app boots and `/healthz` simply reports the DB as not connected, which is fine here.
+- **Works:** the home-care front door (`/`, `/homecare`). Add `PARTNER_API_KEYS` if you also want the
+  embed/partner API live.
+- **Off:** the caregiver, clinician and agency dashboards, saved screenings, and the `/benefits`
+  screener all return 401. `/config` reports `pro_features: false`, and the front door hides the links
+  to those pages, so there are no dead ends.
+- Add an auth provider and a database later (see below) to turn the professional side on.
+
 ## Images
 - The `Dockerfile` is production-ready: non-root user, a `/healthz` HEALTHCHECK, no `--reload`, and
   `WEB_CONCURRENCY` uvicorn workers. `docker-compose.yml` overrides the command with `--reload` for local dev.
