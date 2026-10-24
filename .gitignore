@@ -3,6 +3,7 @@
 .env.*
 era.env
 !.env.example
+!.env.production.example
 
 # python
 __pycache__/
