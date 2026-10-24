@@ -46,9 +46,18 @@ Start from `.env.production.example`. In short:
    ```
 4. `docker compose up -d --build`
 
-## Option B — Railway / Render (managed, Docker)
-Deploy the app from the `Dockerfile`; add SurrealDB as a second service (or use Surreal Cloud); set
-the env vars in the dashboard. Both give HTTPS out of the box.
+## Option B — Render (Blueprint, recommended)
+A `render.yaml` Blueprint is in the repo. Steps:
+1. Create a **Surreal Cloud** instance; note its `wss://` URL, user and pass.
+2. Create a **Clerk** project; note the publishable key, secret key and JWT public key.
+3. In Render: **New > Blueprint**, select this repo. It creates the Docker web service with HTTPS.
+4. In the service's **Environment**, fill the `sync: false` secrets: `ALLOWED_ORIGINS` (your Render
+   URL), the three Clerk keys, `SURREAL_URL`/`SURREAL_USER`/`SURREAL_PASS`, `OPENROUTER_API_KEY`,
+   `COHERE_API_KEY`, and any `PARTNER_API_KEYS`.
+5. Deploy. The app binds Render's `$PORT`; the health check hits `/healthz`.
+
+> Render has no Canadian region (`render.yaml` uses `ohio`). Fine for a pilot with synthetic data;
+> for real patient data, host in a Canadian region (see Privacy below).
 
 ## Option C — Google Cloud Run (partner credits)
 Build & push the app image; deploy to Cloud Run (HTTPS by default); point `SURREAL_URL` at a Surreal

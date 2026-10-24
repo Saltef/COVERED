@@ -1,0 +1,49 @@
+# Render Blueprint for Covered. In Render: New > Blueprint, point it at this repo.
+# Secrets (sync: false) are set in the Render dashboard, never committed.
+#
+# NOTE: Render has no Canadian region. For real Ontario health data (PHIPA), prefer a Canadian
+# region elsewhere (Fly.io Toronto, Cloud Run Montreal). This is fine for a pilot with synthetic data.
+# The database is external (Surreal Cloud): set SURREAL_URL to its wss:// endpoint.
+services:
+  - type: web
+    name: covered
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: ohio
+    plan: starter
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEV_ALLOW_NO_AUTH
+        value: "false"
+      - key: WEB_CONCURRENCY
+        value: "2"
+      - key: SURREAL_NS
+        value: covered
+      - key: SURREAL_DB
+        value: covered
+      - key: OPENROUTER_MODEL
+        value: anthropic/claude-3.5-haiku
+      # Secrets and site-specific values: set these in the Render dashboard.
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: CLERK_JWT_KEY
+        sync: false
+      - key: SURREAL_URL
+        sync: false
+      - key: SURREAL_USER
+        sync: false
+      - key: SURREAL_PASS
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: COHERE_API_KEY
+        sync: false
+      - key: PARTNER_API_KEYS
+        sync: false
