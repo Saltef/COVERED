@@ -13,6 +13,14 @@ class Settings(BaseSettings):
     # LOCAL DEV ONLY: when true, unauthenticated requests get a dev identity.
     dev_allow_no_auth: bool = True
 
+    # Production CORS: comma-separated allowed origins (e.g. "https://covered.example.com").
+    # In development CORS is open; in production only these origins are allowed.
+    allowed_origins: str = ""
+
+    @property
+    def allowed_origin_list(self) -> list[str]:
+        return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
+
     # AI / voice (optional — graceful degradation when blank)
     anthropic_api_key: str = ""
     cohere_api_key: str = ""

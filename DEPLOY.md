@@ -18,9 +18,22 @@
 > ⚠️ The Era bearer token **expires (~weekly)**. Regenerate with `era mcp <tenant>` before the demo.
 
 ## Harden before a public deploy
-- Set `APP_ENV=production` and `DEV_ALLOW_NO_AUTH=false` — this disables the local no-auth dev identity.
-- Set real **Clerk** keys (without them, endpoints have no real auth).
-- Tighten CORS (it's `*` in dev; restrict to your frontend origin).
+Start from `.env.production.example`. In short:
+- Set `APP_ENV=production` and `DEV_ALLOW_NO_AUTH=false`. The app refuses to boot if the no-auth dev
+  identity is on outside development, so a misconfigured deploy fails closed instead of running open.
+- Set real **Clerk** keys. Without them, every authenticated endpoint (agency, care team, saved
+  screenings) returns 401. The public screeners (`/`, `/benefits`, `/homecare`, `/v1/eligibility`) work
+  without auth.
+- Set `ALLOWED_ORIGINS` to your exact site origin(s). In production CORS is closed to everything else.
+- The `demo-partner-key` is never accepted in production; issue real keys via `PARTNER_API_KEYS`.
+
+## Images
+- The `Dockerfile` is production-ready: non-root user, a `/healthz` HEALTHCHECK, no `--reload`, and
+  `WEB_CONCURRENCY` uvicorn workers. `docker-compose.yml` overrides the command with `--reload` for local dev.
+
+## Rate limiting
+- Do it at the edge (your platform, or Cloudflare) on `/v1/eligibility` and the LLM-backed co-pilot
+  routes. In-process limiting is unreliable across multiple workers, so it is not built in.
 
 ## Option A — one small VM + Caddy (simplest full stack)
 1. Provision a 1–2 GB VM; install Docker + Compose.
@@ -45,4 +58,27 @@ Cloud instance; store secrets in Secret Manager.
 - `GET /healthz` → `surrealdb: connected`
 - `GET /benchmark` → `decision_accuracy: 1.0`
 - `GET /ops/benchmark` → scores once OpenRouter + Era are set
-- Open the site and run the voice interview end to end.
+- Open the site; the home-care journey loads, and a screening runs end to end.
+
+## Production readiness checklist
+Code-side (done in the repo): fail-closed auth gate, production Docker image, configurable CORS,
+`.env.production.example`, the four-layer pytest suite + CI. Still required for real users:
+
+- [ ] A **Clerk** project, with sign-in wired into the authenticated pages (front end).
+- [ ] A **managed, backed-up SurrealDB** (Surreal Cloud or a VM volume with real backups).
+- [ ] A **host** (Railway / Render / Fly / Cloud Run) with the env vars set in its secret store.
+- [ ] **Edge rate limiting** on the public API.
+- [ ] The **privacy work** below.
+
+## Privacy & legal (not optional for real data)
+Covered collects health and income information about Ontarians, so a real deployment is subject to
+**PHIPA** (Ontario's health-information law) and **PIPEDA**. Before taking real users:
+
+- Keep data **in Canada** (choose a Canadian region for the host and the database).
+- Publish a **privacy policy** and collect **informed consent** before screening.
+- Minimize and retain data only as needed; the domain model already keeps PII to a first name.
+- Consider a **privacy review / PIA** before handling real records.
+
+## What stays human (the honest ceiling)
+CRA, CILT's Direct Funding, and ADP do not accept third-party API submissions. Covered screens,
+prepares, hands off and tracks; the actual filing stays with the person, their clinician, or CILT.

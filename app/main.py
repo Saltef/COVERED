@@ -39,10 +39,10 @@ def create_app() -> FastAPI:
     settings.assert_auth_safe()
     app = FastAPI(title="Covered", version="0.1.0", lifespan=lifespan,
                   description="Helps Canadians discover and claim the health benefits they're owed.")
-    # Dev-friendly CORS; tighten to the real frontend origin before production.
+    # CORS: open in development; in production only the configured origins (ALLOWED_ORIGINS).
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"] if not settings.is_production else [],
+        allow_origins=settings.allowed_origin_list if settings.is_production else ["*"],
         allow_methods=["*"],
         allow_headers=["*"],
     )

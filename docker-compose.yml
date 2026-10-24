@@ -9,6 +9,8 @@ services:
       # Reliable uvicorn --reload on Windows bind mounts (inotify events don't cross the mount).
       WATCHFILES_FORCE_POLLING: "true"
       SURREAL_URL: ws://surrealdb:8000/rpc
+    # Dev override: the image's production CMD has no --reload; local dev wants hot reload.
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./:/app
     depends_on:
