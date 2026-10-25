@@ -54,7 +54,7 @@ class ProgramResult:
     program_name: str
     jurisdiction: str
     eligibility: Eligibility
-    confidence: float
+    confidence: float          # heuristic weight for ordering (not a calibrated probability)
     estimated_annual_value: Optional[float]
     reasons: list[str] = field(default_factory=list)
     next_steps: list[str] = field(default_factory=list)

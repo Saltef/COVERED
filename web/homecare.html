@@ -212,13 +212,14 @@ function dfCard(d, primary) {
   if (d.budget_breakdown) {
     const b = d.budget_breakdown;
     budget = `<div class="budget">
-      <div class="big">${money(d.monthly_budget)}/mo</div>
-      <div class="hint" style="margin:0 0 ${primary ? "12px" : "0"}">about ${money(b.annual_total)} a year &middot; ${b.monthly_hours} attendant hours/month${b.capped ? " (at the 212-hour cap)" : ""}</div>
+      <div class="big">~${money(d.monthly_budget)}/mo</div>
+      <div class="hint" style="margin:0 0 ${primary ? "12px" : "0"}">estimated from the hours you entered &middot; about ${money(b.annual_total)} a year &middot; ${b.monthly_hours} attendant hours/month${b.capped ? " (at the 212-hour cap)" : ""}</div>
       ${primary ? `<div class="brow"><span class="k">Attendant wages (${b.monthly_hours} hrs &times; $22)</span><span>${money(b.wages)}</span></div>
       <div class="brow"><span class="k">Employer costs (MERCs, 21%)</span><span>${money(b.mercs)}</span></div>
       <div class="brow"><span class="k">Admin (bookkeeper, bank, insurance)</span><span>${money(b.misc)}</span></div>
       <div class="brow"><span class="k">Contingency (5%)</span><span>${money(b.contingency)}</span></div>
-      <div class="brow"><span class="k">Estimated monthly budget</span><span>${money(b.monthly_total)}</span></div>` : ""}
+      <div class="brow"><span class="k">Estimated monthly budget</span><span>${money(b.monthly_total)}</span></div>
+      <p class="hint" style="margin:10px 0 0">This is an estimate using CILT's published formula. CILT sets the actual approved budget after an independent assessment of your needs.</p>` : ""}
     </div>`;
   }
   if (!primary) {
