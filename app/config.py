@@ -49,6 +49,11 @@ class Settings(BaseSettings):
     era_system: str = ""          # e.g. "hubspot" | "salesforce" — picks <SYSTEM>_BASE_URL/_MCP_HEADER
     era_records_path: str = ""    # vendor records collection, e.g. "/crm/v3/objects/contacts"
 
+    # SurrealDB Agent Memory (Spectron): time-aware, traceable policy-fact store (optional).
+    spectron_url: str = ""
+    spectron_context_id: str = ""
+    spectron_api_key: str = ""
+
     # SurrealDB
     surreal_url: str = "ws://surrealdb:8000/rpc"
     surreal_user: str = "root"
