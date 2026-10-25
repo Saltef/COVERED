@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.domain.policy_registry import REGISTRY  # noqa: E402
 from app.ops import agent_memory as mem  # noqa: E402
+from app.ops import policy_history as hist  # noqa: E402
 
 
 def _top_text(resp: dict) -> str:
@@ -40,12 +41,12 @@ def publish_from_registry() -> None:
 
 def publish_from_check() -> None:
     from app.ops import policy_checker as pc
-    print("Running the live drift check, publishing confident results as facts...")
+    sources = {r.id: r for r in REGISTRY}
+    print("Running the live drift check, publishing confident results as facts (with source)...")
     for res in pc.run():
-        if res.status in ("match", "mismatch") and res.confidence == "high":
-            val = res.extracted_value
-            mem.publish_policy_fact(res.label, f"{val:g}", "official source", "2026-10-25", res.quote)
-            print(f"  wrote {res.id}: {val:g} ({res.status})")
+        rule = sources.get(res.id)
+        if hist.record_check(res, source_url=rule.source_url if rule else "") is not None:
+            print(f"  wrote {res.id}: {res.extracted_value:g} ({res.status})")
 
 
 def demo_supersession() -> None:

@@ -2,10 +2,15 @@
 
     python scripts/check_policy_drift.py                 # check all web-checkable figures
     python scripts/check_policy_drift.py cdcp_income_cap # check one
+    python scripts/check_policy_drift.py --sync          # also write confident readings to memory
 
 Reads each registry source, extracts the current value with a verbatim quote (Cohere rerank +
 chat), and reports match / mismatch / unverified. It never changes a rule. A mismatch is a flag
 for a human to review the quote and decide whether to update the engine (and the benchmark).
+
+With --sync (and SPECTRON_* configured), each verifier-confident reading is written to the shared
+policy history in Agent Memory, with its source, date, and verbatim quote. A changed value
+supersedes the prior fact, so the memory becomes a queryable record of what each figure was.
 """
 from __future__ import annotations
 
@@ -16,7 +21,9 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from app.domain.policy_registry import REGISTRY  # noqa: E402
 from app.ops import policy_checker as pc  # noqa: E402
+from app.ops import policy_history as hist  # noqa: E402
 
 MARK = {"match": "[MATCH]", "mismatch": "[DRIFT]", "unverified": "[  ?  ]"}
 
@@ -24,11 +31,17 @@ MARK = {"match": "[MATCH]", "mismatch": "[DRIFT]", "unverified": "[  ?  ]"}
 def main() -> None:
     if not pc.available():
         print("COHERE_API_KEY not set."); sys.exit(2)
-    only = sys.argv[1:] or None
+    args = sys.argv[1:]
+    sync = "--sync" in args
+    only = [a for a in args if not a.startswith("--")] or None
+    sources = {r.id: r for r in REGISTRY}
+    if sync and not hist.available():
+        print("--sync given but SPECTRON_* not configured; running without memory writes.")
+        sync = False
     print("\nPolicy drift check (engine vs live official sources)")
     print("-" * 72)
     results = pc.run(only=only)
-    drift = 0
+    drift = written = 0
     for r in results:
         got = f"{r.extracted_value:g}" if r.extracted_value is not None else "-"
         conf = f" conf={r.confidence}" if r.confidence else ""
@@ -41,8 +54,14 @@ def main() -> None:
             print(f"            verifier: {r.verifier_note[:100]}")
         if r.status == "mismatch":
             drift += 1
+        if sync:
+            rule = sources.get(r.id)
+            if hist.record_check(r, source_url=rule.source_url if rule else "") is not None:
+                written += 1
+                print("            -> written to policy history (Agent Memory)")
     print("-" * 72)
-    print(f"  {len(results)} checked, {drift} drift flag(s) for review.\n")
+    tail = f", {written} fact(s) written to memory" if sync else ""
+    print(f"  {len(results)} checked, {drift} drift flag(s) for review{tail}.\n")
     sys.exit(1 if drift else 0)
 
 

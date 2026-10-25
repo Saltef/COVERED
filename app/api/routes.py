@@ -162,6 +162,14 @@ async def ops_benchmark() -> dict:
     return await run()
 
 
+@router.get("/ops/policy-history")
+async def policy_history(q: str) -> dict:
+    """Recall a policy figure's current value and provenance from the shared drift-check memory
+    (Agent Memory). Read-only; public policy facts only. Returns available=False if unconfigured."""
+    from app.ops import policy_history as hist
+    return hist.current(q)
+
+
 @router.post("/screen", response_model=ScreenResponse)
 async def do_screen(
     profile_in: ProfileIn,

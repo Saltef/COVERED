@@ -59,3 +59,55 @@ def test_publish_policy_fact_includes_provenance(monkeypatch):
     text = calls[0]["json"]["text"]
     assert "$90,000" in text and "https://canada.ca/x" in text and "2026-10-21" in text
     assert "less than $90,000" in text  # the quote is carried as provenance
+
+
+# ---- policy_history: the drift checker's shared, queryable memory ----
+from dataclasses import dataclass
+
+from app.ops import policy_history as hist
+
+
+@dataclass
+class _Res:
+    id: str = "cdcp_income_cap"
+    label: str = "CDCP income cap"
+    engine_value: float = 90_000
+    extracted_value: float | None = 90_000
+    quote: str = "less than $90,000"
+    status: str = "match"
+    confidence: str = "high"
+
+
+def test_record_check_noop_without_memory(monkeypatch):
+    monkeypatch.setattr(hist, "available", lambda: False)
+    assert hist.record_check(_Res()) is None  # degrades gracefully
+
+
+def test_record_check_only_writes_confident_results(monkeypatch):
+    written = []
+    monkeypatch.setattr(hist, "available", lambda: True)
+    monkeypatch.setattr(hist.mem, "publish_policy_fact",
+                        lambda *a, **k: written.append((a, k)) or {"ok": True})
+    # unverified / low-confidence results are not asserted as facts
+    assert hist.record_check(_Res(status="unverified", confidence="low")) is None
+    assert hist.record_check(_Res(extracted_value=None)) is None
+    assert not written
+    # a verifier-confident reading is written, with its source and quote
+    hist.record_check(_Res(status="mismatch"), source_url="https://canada.ca/x")
+    assert written and written[0][0][2] == "https://canada.ca/x"  # source_url passed through
+
+
+def test_current_noop_without_memory(monkeypatch):
+    monkeypatch.setattr(hist, "available", lambda: False)
+    r = hist.current("what is the CDCP cap?")
+    assert r == {"available": False, "answer": None, "provenance": None}
+
+
+def test_current_fact_picks_newest(monkeypatch):
+    monkeypatch.setattr(hist, "available", lambda: True)
+    resp = {"hits": [
+        {"source": "memory_chunk", "text": "old $23,000", "occurredAt": "2025-01-01"},
+        {"source": "memory_chunk", "text": "new $23,483", "occurredAt": "2026-10-25"},
+    ]}
+    monkeypatch.setattr(hist.mem, "recall", lambda q: resp)
+    assert "23,483" in hist.current("threshold?")["provenance"]
