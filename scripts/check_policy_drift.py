@@ -31,11 +31,14 @@ def main() -> None:
     drift = 0
     for r in results:
         got = f"{r.extracted_value:g}" if r.extracted_value is not None else "-"
-        print(f"  {MARK[r.status]}  {r.id:<22} engine={r.engine_value:<10g} source={got}")
+        conf = f" conf={r.confidence}" if r.confidence else ""
+        print(f"  {MARK[r.status]}  {r.id:<22} engine={r.engine_value:<10g} source={got}{conf}")
         if r.quote:
             print(f'            quote: "{r.quote[:170]}"')
         if r.detail:
             print(f"            {r.detail}")
+        if r.verifier_note:
+            print(f"            verifier: {r.verifier_note[:100]}")
         if r.status == "mismatch":
             drift += 1
     print("-" * 72)

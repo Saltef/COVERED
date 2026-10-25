@@ -36,6 +36,8 @@ class CheckResult:
     quote: str
     status: str          # "match" | "mismatch" | "unverified"
     detail: str = ""
+    confidence: str = ""     # "high" | "low" (from the verifier agent)
+    verifier_note: str = ""
 
 
 def available() -> bool:
@@ -91,17 +93,22 @@ def _parse_amount(s: str) -> float | None:
     return v
 
 
-def _extract(client, rule: Rule, passages: list[str]) -> tuple[float | None, str]:
-    """Rerank to the best passages, then extract the value + a verbatim quote."""
+def _rerank_top(client, query: str, passages: list[str], top_n: int = 5) -> list[str]:
+    """Cohere rerank: the passages most relevant to the parameter query, highest first."""
     if not passages:
-        return None, ""
-    top = passages
+        return []
     try:
-        rr = client.rerank(model=RERANK_MODEL, query=rule.query, documents=passages, top_n=5)
-        top = [passages[r.index] for r in rr.results]
+        rr = client.rerank(model=RERANK_MODEL, query=query, documents=passages, top_n=top_n)
+        return [passages[r.index] for r in rr.results]
     except Exception as exc:  # noqa: BLE001
         log.info("rerank failed (%s); using unranked passages", type(exc).__name__)
-        top = passages[:5]
+        return passages[:top_n]
+
+
+def _extract(client, rule: Rule, top: list[str]) -> tuple[float | None, str]:
+    """Generator agent: extract the value + a verbatim quote from the top passages."""
+    if not top:
+        return None, ""
     context = "\n---\n".join(top)
     prompt = (
         f"From the official text below, find: {rule.label}.\n"
@@ -142,21 +149,58 @@ def _extract(client, rule: Rule, passages: list[str]) -> tuple[float | None, str
     return value, quote
 
 
+def _verify(client, rule: Rule, value: float, quote: str, top: list[str]) -> dict:
+    """Verifier agent: independently check the generator's value and quote against the text,
+    and look for a conflicting figure. Returns {agrees, current_period, conflicting_value, reason}."""
+    context = "\n---\n".join(top)
+    prompt = (
+        f"A claim says the value for '{rule.label}' is {value}, supported by this quote:\n"
+        f'"{quote}"\n\n'
+        "Independently check the official text below. Return ONLY JSON: "
+        "{\"agrees\": true|false, \"current_period\": true|false, \"conflicting_value\": <number or null>, "
+        "\"reason\": \"<short>\"}. Set agrees=true only if the text clearly states that value for this "
+        "parameter. conflicting_value is any DIFFERENT figure the text gives for the SAME parameter, else null.\n\n"
+        f"TEXT:\n{context[:6000]}"
+    )
+    try:
+        resp = client.chat(model=CHAT_MODEL, messages=[{"role": "user", "content": prompt}])
+        m = re.search(r"\{.*\}", resp.message.content[0].text, re.S)
+        return json.loads(m.group()) if m else {"agrees": False, "reason": "no verifier output"}
+    except Exception as exc:  # noqa: BLE001
+        log.info("verify failed: %s", type(exc).__name__)
+        return {"agrees": False, "reason": "verifier error"}
+
+
 def check_rule(rule: Rule, client=None) -> CheckResult:
+    """Generator extracts, verifier confirms. Only a verifier-confident result gets a definitive
+    match/mismatch; anything the verifier cannot stand behind is downgraded to unverified for a human."""
     client = client or _client()
     try:
         passages = _fetch_passages(rule.source_url)
     except Exception as exc:  # noqa: BLE001
         return CheckResult(rule.id, rule.label, rule.value, None, "", "unverified",
                            f"fetch failed ({type(exc).__name__})")
-    value, quote = _extract(client, rule, passages)
+    top = _rerank_top(client, rule.query, passages)
+    value, quote = _extract(client, rule, top)
     if value is None or not quote:
         return CheckResult(rule.id, rule.label, rule.value, None, "", "unverified",
                            "no grounded value found on the page")
-    # tolerance: exact for dollars, small relative for rates
     tol = 0.5 if rule.value >= 100 else 0.001
-    status = "match" if abs(value - rule.value) <= tol else "mismatch"
-    return CheckResult(rule.id, rule.label, rule.value, value, quote, status)
+    raw = "match" if abs(value - rule.value) <= tol else "mismatch"
+
+    v = _verify(client, rule, value, quote, top)
+    conflict = _parse_amount(v.get("conflicting_value")) if v.get("conflicting_value") is not None else None
+    note = (v.get("reason") or "").strip()
+    confident = (bool(v.get("agrees")) and v.get("current_period", True) is not False
+                 and (conflict is None or abs(conflict - value) <= tol))
+    if confident:
+        return CheckResult(rule.id, rule.label, rule.value, value, quote, raw,
+                           confidence="high", verifier_note=note)
+    # verifier not confident: do not assert a verdict, send it to a human
+    detail = f"page also shows {conflict:g}" if (conflict is not None and abs(conflict - value) > tol) \
+        else "verifier not confident"
+    return CheckResult(rule.id, rule.label, rule.value, value, quote, "unverified", detail,
+                       confidence="low", verifier_note=note)
 
 
 def run(only: list[str] | None = None) -> list[CheckResult]:
