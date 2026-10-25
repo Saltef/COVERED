@@ -1,0 +1,196 @@
+{
+  "generated": "2026-10-25",
+  "note": "AI-discovered draft from official Ontario sources. For human curation; not authoritative and not shown to users as-is. Rule-based programs can become deterministic screens; assessment-based ones become routed leads.",
+  "sources": [
+    "https://www.ontario.ca/page/find-benefits-and-programs",
+    "https://www.ontario.ca/page/home-community-care",
+    "https://www.ontario.ca/page/long-term-care-ontario",
+    "https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
+    "https://www.ontario.ca/page/assistive-devices-program",
+    "https://www.ontario.ca/page/ontario-disability-support-program",
+    "https://www.ontario.ca/page/ontario-works",
+    "https://www.ontario.ca/page/mental-health-services"
+  ],
+  "programs": [
+    {
+      "name": "Ontario Health atHome",
+      "for_whom": "People of all ages requiring care at home, school, or in the community, including seniors and those with complex medical conditions.",
+      "kind": "assessment-based",
+      "how_to_apply": "Call 1-833-515-1234 or use the Ontario Health atHome map to find care in your area.",
+      "source_url": "https://www.ontario.ca/page/home-community-care",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Family-managed home care or self-directed care",
+      "for_whom": "Individuals eligible for home care services, including children with complex medical needs, adults with acquired brain injury, home-schooled children with qualifying needs, and those in extraordinary circumstances.",
+      "kind": "assessment-based",
+      "how_to_apply": "Contact Ontario Health atHome to determine eligibility and for more information.",
+      "source_url": "https://www.ontario.ca/page/home-community-care",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Ontario Drug Benefit Plan",
+      "for_whom": "Seniors requiring low-cost medication as part of end-of-life care at home.",
+      "kind": "unknown",
+      "how_to_apply": "Details not specified in the text; typically accessed through healthcare providers or pharmacists.",
+      "source_url": "https://www.ontario.ca/page/home-community-care",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Long-term care homes",
+      "for_whom": "Individuals needing long-term care services.",
+      "kind": "assessment-based",
+      "how_to_apply": "Explore care options, choose a home, and apply through Ontario Health atHome or the Ministry of Long-Term Care.",
+      "source_url": "https://www.ontario.ca/page/long-term-care-ontario",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Trillium Drug Program",
+      "for_whom": "Ontarians with high prescription drug costs compared to their household income.",
+      "kind": "rule-based",
+      "how_to_apply": "Apply online via the Ontario Drug Benefit Program Online Applications and Forms website or request a paper copy by phone, toll-free number, or email.",
+      "source_url": "https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Ontario Drug Benefit program",
+      "for_whom": "Individuals who do not qualify for the Trillium Drug Program, such as those enrolled in Ontario Works or with full insurance coverage.",
+      "kind": "rule-based",
+      "how_to_apply": "Not specified in the text, but mentioned as a program for which eligibility is considered when applying for the Trillium Drug Program.",
+      "source_url": "https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Exceptional Access Program (EAP)",
+      "for_whom": "Individuals needing access to specific drug products not covered under the standard Ontario Drug Benefit program.",
+      "kind": "rule-based",
+      "how_to_apply": "Not specified in the text, but mentioned as a program providing access to additional drug products.",
+      "source_url": "https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "OHIP+",
+      "for_whom": "Individuals under 25 years of age who are dependent on another person for support.",
+      "kind": "rule-based",
+      "how_to_apply": "Not specified in the text, but mentioned as a program for which eligibility is considered in household definitions.",
+      "source_url": "https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Assistive Devices Program (ADP)",
+      "for_whom": "People with long-term physical disabilities needing customized equipment or supplies.",
+      "kind": "rule-based",
+      "how_to_apply": "Find out more about how to qualify, apply, and find a vendor through the provided links.",
+      "source_url": "https://www.ontario.ca/page/assistive-devices-program",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Ontario Works",
+      "for_whom": "Individuals receiving financial support from Ontario Works.",
+      "kind": "rule-based",
+      "how_to_apply": "Not specified in the text.",
+      "source_url": "https://www.ontario.ca/page/assistive-devices-program",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Ontario Disability Support Program",
+      "for_whom": "Individuals receiving financial support from the Ontario Disability Support Program.",
+      "kind": "rule-based",
+      "how_to_apply": "Not specified in the text.",
+      "source_url": "https://www.ontario.ca/page/assistive-devices-program",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Assistance for Children with Severe Disabilities",
+      "for_whom": "Children with severe disabilities receiving financial support.",
+      "kind": "rule-based",
+      "how_to_apply": "Not specified in the text.",
+      "source_url": "https://www.ontario.ca/page/assistive-devices-program",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Ontario Disability Support Program (ODSP)",
+      "for_whom": "Individuals and families with disabilities in financial need.",
+      "kind": "assessment-based",
+      "how_to_apply": "Apply online, over the phone, or in-person at a local ODSP office.",
+      "source_url": "https://www.ontario.ca/page/ontario-disability-support-program",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Canada Disability Benefit",
+      "for_whom": "Individuals with disabilities receiving federal support.",
+      "kind": "unknown",
+      "how_to_apply": "Not specified in the text; refer to federal government resources.",
+      "source_url": "https://www.ontario.ca/page/ontario-disability-support-program",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Transition Child Benefit",
+      "for_whom": "Recipients of Ontario Disability Support Program (ODSP) or Ontario Works with children.",
+      "kind": "rule-based",
+      "how_to_apply": "Eligibility is assessed during the application for ODSP or Ontario Works.",
+      "source_url": "https://www.ontario.ca/page/ontario-works",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Health811",
+      "for_whom": "Anyone seeking health advice, including mental health and addiction concerns.",
+      "kind": "rule-based",
+      "how_to_apply": "Visit online or call 811 to speak to a registered nurse 24/7.",
+      "source_url": "https://www.ontario.ca/page/mental-health-services",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "ConnexOntario",
+      "for_whom": "Anyone seeking information and referral to mental health and addiction services.",
+      "kind": "unknown",
+      "how_to_apply": "Call 1-866-531-2600, use live online chat, or email via the ConnexOntario website.",
+      "source_url": "https://www.ontario.ca/page/mental-health-services",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Ontario Structured Psychotherapy Program",
+      "for_whom": "Individuals aged 18 and older with anxiety and depression.",
+      "kind": "assessment-based",
+      "how_to_apply": "Get referred by a physician, nurse practitioner, or other health care professional; self-referral available in some areas.",
+      "source_url": "https://www.ontario.ca/page/mental-health-services",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Homelessness and Addiction Recovery Treatment (HART) Hubs",
+      "for_whom": "People with complex needs, including homelessness and addiction.",
+      "kind": "unknown",
+      "how_to_apply": "Visit a HART Hub location or contact the specific organization for services.",
+      "source_url": "https://www.ontario.ca/page/mental-health-services",
+      "grounded": true,
+      "note": ""
+    },
+    {
+      "name": "Consumption and Treatment Services",
+      "for_whom": "Individuals seeking supervised drug consumption and overdose prevention services.",
+      "kind": "unknown",
+      "how_to_apply": "Visit a consumption and treatment service location for access to services and referrals.",
+      "source_url": "https://www.ontario.ca/page/mental-health-services",
+      "grounded": true,
+      "note": ""
+    }
+  ]
+}

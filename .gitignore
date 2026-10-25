@@ -16,6 +16,7 @@ venv/
 
 # data / runtime
 data/
+!data/ontario_health_catalogue.json
 *.db
 *.sqlite
 

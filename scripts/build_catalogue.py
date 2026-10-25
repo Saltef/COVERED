@@ -22,7 +22,16 @@ def main() -> None:
         print("COHERE_API_KEY not set."); sys.exit(2)
     programs = cb.build()
     if "--json" in sys.argv:
-        print(json.dumps([p.__dict__ for p in programs], indent=2)); return
+        import datetime
+        print(json.dumps({
+            "generated": datetime.date.today().isoformat(),
+            "note": ("AI-discovered draft from official Ontario sources. For human curation; not "
+                     "authoritative and not shown to users as-is. Rule-based programs can become "
+                     "deterministic screens; assessment-based ones become routed leads."),
+            "sources": cb.SEED_SOURCES,
+            "programs": [p.__dict__ for p in programs],
+        }, indent=2))
+        return
     print(f"\nOntario Health catalogue (draft, {len(programs)} programs)")
     print("-" * 72)
     for p in programs:
