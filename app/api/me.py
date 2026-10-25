@@ -7,16 +7,11 @@ from pydantic import BaseModel
 from app.api.schemas import ProfileIn, ProgramResultOut
 from app.db import care_team_repo as ct
 from app.db import repository as repo
-from app.domain.rules_engine import screen, summarize
+from app.domain.rules_engine import headline as _headline, screen, summarize
 from app.security.auth import Principal, Role, get_current_user
 from app.security.authz import require_role
 
 router = APIRouter()
-
-
-def _headline(s: dict) -> str:
-    return (f"You could be owed about ${s['total_estimated_annual']:,.0f} a year across "
-            f"{s['n_eligible_or_maybe']} programs you may not be getting.")
 
 
 @router.post("/me/screenings")

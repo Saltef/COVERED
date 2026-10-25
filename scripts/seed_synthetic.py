@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.api.schemas import ProfileIn, ProgramResultOut  # noqa: E402
 from app.db import repository as repo  # noqa: E402
-from app.domain.rules_engine import screen, summarize  # noqa: E402
+from app.domain.rules_engine import headline as build_headline, screen, summarize  # noqa: E402
 from app.ops import book_agent  # noqa: E402
 from app.seed.synthetic import generate_population  # noqa: E402
 
@@ -43,8 +43,7 @@ async def _seed(n: int) -> None:
     for i, p in enumerate(pop):
         results = screen(ProfileIn(**p).to_domain())
         s = summarize(results)
-        headline = (f"You could be owed about ${s['total_estimated_annual']:,.0f} a year across "
-                    f"{s['n_eligible_or_maybe']} programs you may not be getting.")
+        headline = build_headline(s)
         result_dicts = [ProgramResultOut.from_domain(r).model_dump() for r in results]
         await repo.save_screening(CASEWORKERS[i % len(CASEWORKERS)], headline, p, result_dicts, s)
     print(f"Seeded {n} synthetic clients across {len(CASEWORKERS)} caseworkers.")

@@ -163,9 +163,16 @@
   function renderResults(data) {
     body.className = "res"; body.innerHTML = "";
     var n = data.programs_claimable || 0;
-    body.appendChild(h("div", { class: "head" },
-      "You could be owed about <b>" + money(data.total_estimated_annual) + "/yr</b> across " +
-      n + " program" + (n === 1 ? "" : "s") + "."));
+    var total = data.total_estimated_annual || 0;
+    var cov = data.programs_coverage_only || 0;
+    var head = "You may qualify for <b>" + n + " program" + (n === 1 ? "" : "s") + "</b>.";
+    if (total) {
+      head += " Where the amount can be calculated, that is about <b>" + money(total) + "/yr</b>";
+      head += cov ? ", plus coverage from " + cov + " more." : ".";
+    } else if (cov) {
+      head += " " + cov + " provide coverage (dental, equipment) rather than a cash amount.";
+    }
+    body.appendChild(h("div", { class: "head" }, head));
     (data.programs || []).forEach(function (r) {
       if (r.eligibility === "not_eligible") return;
       var val = r.estimated_annual_value ? money(r.estimated_annual_value) + "/yr" : "";

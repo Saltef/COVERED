@@ -19,7 +19,16 @@ from app.models import Eligibility, Profile, ProgramResult
 # prior-year tax return filed, Canadian resident. Open to ALL ages since the May 2025 expansion (no
 # DTC/age route). 0% co-pay under $70k, then tiered. Source: Health Canada / canada.ca/dental.
 CDCP_INCOME_CAP = 90_000
-CDCP_ESTIMATED_VALUE = 900              # estimate: coverage value varies by person/treatment
+# CDCP co-pay tiers: the % of the set fee the plan pays, by adjusted family net income. Source: Health
+# Canada. The cash value depends on the dental work done, so we report the coverage %, not a made-up $.
+CDCP_COPAY_TIERS = [(70_000, 100), (80_000, 60), (90_000, 40)]
+
+
+def cdcp_coverage_pct(afni: float) -> int:
+    for cap, pct in CDCP_COPAY_TIERS:
+        if afni < cap:
+            return pct
+    return 0
 
 # Medical Expense Tax Credit (2025): threshold = lesser of 3% of net income or $2,834,
 # credited at the 15% federal rate. Source: CRA 2025.
@@ -133,10 +142,13 @@ def eval_cdcp(p: Profile) -> ProgramResult:
         ok = False
         reasons.append("Must be a Canadian resident.")
     if ok:
+        pct = cdcp_coverage_pct(afni)
         reasons.insert(0, "Open to anyone without dental insurance and with adjusted family net income "
                           f"under ${CDCP_INCOME_CAP:,.0f} (all ages, since the May 2025 expansion).")
+        reasons.append(f"At your income the plan pays {pct}% of the set fee for eligible dental care. "
+                       "The cash value depends on the treatment you need, so there is no fixed yearly amount.")
         return _r(program_id="cdcp", program_name="Canadian Dental Care Plan", jurisdiction="Federal (Health Canada)",
-                  eligibility=Eligibility.eligible, confidence=0.9, estimated_annual_value=CDCP_ESTIMATED_VALUE,
+                  eligibility=Eligibility.eligible, confidence=0.9, estimated_annual_value=None,
                   reasons=reasons,
                   next_steps=["Apply at canada.ca/dental or call 1-833-537-4342.",
                               "Renew coverage every year by the annual deadline."])

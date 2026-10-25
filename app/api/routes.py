@@ -11,7 +11,7 @@ from app.agents.explainer import explain
 from app.api.schemas import ProfileIn, ProgramResultOut, ScreenResponse
 from app.config import get_settings
 from app.db import repository as repo
-from app.domain.rules_engine import screen, summarize
+from app.domain.rules_engine import headline as build_headline, screen, summarize
 from app.models import Profile
 from app.security.auth import Principal, Role, get_current_user
 from app.security.authz import require_role
@@ -23,10 +23,7 @@ router = APIRouter()
 async def _build(profile: Profile) -> ScreenResponse:
     results = screen(profile)
     s = summarize(results)
-    headline = (
-        f"You could be owed about ${s['total_estimated_annual']:,.0f} a year across "
-        f"{s['n_eligible_or_maybe']} programs you may not be getting."
-    )
+    headline = build_headline(s)
     out = [ProgramResultOut.from_domain(r) for r in results]
     explanation = await explain(headline, out)
     from app.domain.programs import RATES_VERIFIED

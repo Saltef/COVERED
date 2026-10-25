@@ -13,7 +13,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.domain.rules_engine import screen, summarize  # noqa: E402
+from app.domain.rules_engine import headline as build_headline, screen, summarize  # noqa: E402
 from app.models import Eligibility  # noqa: E402
 from app.seed.personas import sample_senior  # noqa: E402
 
@@ -31,8 +31,7 @@ def main() -> None:
     s = summarize(results)
 
     print(f"\nPersona: {p.first_name}, {p.age}, {p.province}, net income ${p.annual_net_income:,.0f}\n")
-    print(f'Headline: "You could be owed about ${s["total_estimated_annual"]:,.0f} a year across '
-          f'{s["n_eligible_or_maybe"]} programs you may not be getting."\n')
+    print(f'Headline: "{build_headline(s)}"\n')
 
     order = sorted(results, key=lambda r: (r.eligibility is Eligibility.not_eligible, -r.confidence))
     for r in order:

@@ -75,6 +75,7 @@ async def eligibility(
         "rates_verified": RATES_VERIFIED,
         "total_estimated_annual": s["total_estimated_annual"],
         "programs_claimable": s["n_eligible_or_maybe"],
+        "programs_coverage_only": s["programs_coverage_only"],
         "programs": programs,
         "disclaimer": DISCLAIMER,
     }
