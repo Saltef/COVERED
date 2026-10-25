@@ -17,7 +17,9 @@ services:
       - surrealdb
 
   surrealdb:
-    image: surrealdb/surrealdb:latest
+    # Pinned to match the 2.x Python client (surrealdb>=2.0,<3.0). The :latest tag moved to
+    # SurrealDB 3.x, whose RPC protocol the 2.x client cannot speak (InvalidMessage on connect).
+    image: surrealdb/surrealdb:v2.1.4
     # Run as root so RocksDB can write the mounted volume.
     user: root
     command: start --user ${SURREAL_USER:-root} --pass ${SURREAL_PASS:-root} --bind 0.0.0.0:8000 rocksdb:/data/database.db
@@ -27,4 +29,7 @@ services:
       - surreal_data:/data
 
 volumes:
+  # One-time note: if this machine previously ran the old :latest (SurrealDB 3.x) image, the
+  # existing volume holds a 3.x on-disk format that 2.x cannot read. Remove it once with
+  # `docker compose down && docker volume rm <project>_surreal_data` before `up`.
   surreal_data:
