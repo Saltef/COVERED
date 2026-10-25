@@ -68,7 +68,24 @@ REGISTRY: list[Rule] = [
         query="federal disability amount base for the Disability Tax Credit",
         verified_date="2026-10-21"),
 
+    Rule(
+        id="odb_min_age", program="odb", label="Ontario Drug Benefit: automatic coverage age",
+        value=65, display="65",
+        source_url="https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
+        query="age at which Ontarians are automatically covered for prescription drugs under the Ontario Drug Benefit",
+        verified_date="2026-10-25"),
+    Rule(
+        id="ohip_plus_max_age", program="ohipplus", label="OHIP+: covers Ontarians under this age",
+        value=25, display="25",
+        source_url="https://www.ontario.ca/page/learn-about-ohip-plus",
+        query="age under which OHIP+ covers prescription drugs for Ontarians",
+        verified_date="2026-10-25"),
+
     # Manual-review figures (PDF guide or a formula; not auto-extractable reliably).
+    Rule(id="adp_coverage", program="adp", label="Assistive Devices Program: share of equipment cost funded",
+         value=0.75, display="75%",
+         source_url="https://www.ontario.ca/page/assistive-devices-program",
+         query="", verified_date="2026-10-25", checkable=False, note="Varies by device category; manual."),
     Rule(id="metc_federal_rate", program="metc", label="Medical Expense Tax Credit: federal rate",
          value=0.15, display="15%",
          source_url=f"{_CANADA}/revenue-agency/services/tax/individuals/frequently-asked-questions-individuals/canadian-income-tax-rates-individuals-current-previous-years.html",

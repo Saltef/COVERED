@@ -65,9 +65,32 @@ def test_cdcp_excluded_over_income_cap():
 
 
 def test_trillium_only_in_ontario():
-    base = {"prescription_costs_annual": 3000, "annual_net_income": 20000}
+    base = {"age": 50, "prescription_costs_annual": 3000, "annual_net_income": 20000}  # 25-64 band
     assert _by_id({**base, "province": "ON"})["otdp"].eligibility.value == "eligible"
     assert _by_id({**base, "province": "BC"})["otdp"].eligibility.value == "not_eligible"
+
+
+def test_drug_coverage_age_bands():
+    # under 25 -> OHIP+, 25-64 -> Trillium, 65+ -> ODB (only one fires per age)
+    youth = _by_id({"province": "ON", "age": 20, "prescription_costs_annual": 2000})
+    assert youth["ohipplus"].eligibility.value == "eligible"
+    assert youth["otdp"].eligibility.value == "not_eligible" and youth["odb"].eligibility.value == "not_eligible"
+    mid = _by_id({"province": "ON", "age": 50, "prescription_costs_annual": 2000, "annual_net_income": 20000})
+    assert mid["otdp"].eligibility.value == "eligible"
+    assert mid["ohipplus"].eligibility.value == "not_eligible" and mid["odb"].eligibility.value == "not_eligible"
+    senior = _by_id({"province": "ON", "age": 70})
+    assert senior["odb"].eligibility.value == "eligible"
+    assert senior["otdp"].eligibility.value == "not_eligible" and senior["ohipplus"].eligibility.value == "not_eligible"
+
+
+def test_adp_needs_ontario_and_impairment():
+    assert _by_id({"province": "ON", "age": 60, "has_severe_prolonged_impairment": True})["adp"].eligibility.value == "maybe"
+    assert _by_id({"province": "BC", "age": 60, "has_severe_prolonged_impairment": True})["adp"].eligibility.value == "not_eligible"
+    assert _by_id({"province": "ON", "age": 60})["adp"].eligibility.value == "not_eligible"
+
+
+def test_odb_is_not_income_tested():
+    assert _by_id({"province": "ON", "age": 70, "annual_net_income": 200000})["odb"].eligibility.value == "eligible"
 
 
 def test_dtc_certificate_is_high_confidence():

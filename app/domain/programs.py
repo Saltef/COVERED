@@ -44,6 +44,14 @@ TRILLIUM_RATE = 0.045
 TRILLIUM_FLAT = 500
 
 
+# Ontario Drug Benefit (ODB): automatic prescription coverage at 65+ in Ontario (small co-pay).
+ODB_MIN_AGE = 65
+# OHIP+: free prescription drugs for Ontarians under 25 without a private drug plan.
+OHIP_PLUS_MAX_AGE = 25
+# Assistive Devices Program (ADP): funds ~75% of approved equipment for a long-term physical disability.
+ADP_COVERAGE = 0.75
+
+
 def trillium_deductible(net_income: float) -> int:
     return int(round(max(net_income - TRILLIUM_BASE_DEDUCTION, 0) * TRILLIUM_RATE + TRILLIUM_FLAT))
 
@@ -190,6 +198,16 @@ def eval_trillium(p: Profile) -> ProgramResult:
         return _r(program_id="otdp", program_name="Ontario Trillium Drug Program", jurisdiction="Ontario",
                   eligibility=Eligibility.not_eligible, confidence=0.9, estimated_annual_value=None,
                   reasons=["Only available to Ontario residents."], next_steps=[])
+    if p.age >= ODB_MIN_AGE:
+        return _r(program_id="otdp", program_name="Ontario Trillium Drug Program", jurisdiction="Ontario",
+                  eligibility=Eligibility.not_eligible, confidence=0.8, estimated_annual_value=None,
+                  reasons=[f"At {ODB_MIN_AGE}+ the Ontario Drug Benefit covers your prescriptions instead."],
+                  next_steps=[])
+    if p.age < OHIP_PLUS_MAX_AGE:
+        return _r(program_id="otdp", program_name="Ontario Trillium Drug Program", jurisdiction="Ontario",
+                  eligibility=Eligibility.not_eligible, confidence=0.8, estimated_annual_value=None,
+                  reasons=[f"Under {OHIP_PLUS_MAX_AGE}, OHIP+ covers your prescriptions instead."],
+                  next_steps=[])
     if p.prescription_costs_annual <= 0:
         return _r(program_id="otdp", program_name="Ontario Trillium Drug Program", jurisdiction="Ontario",
                   eligibility=Eligibility.not_eligible, confidence=0.6, estimated_annual_value=None,
@@ -209,6 +227,53 @@ def eval_trillium(p: Profile) -> ProgramResult:
               next_steps=["Still worth applying if your drug costs are high relative to income."])
 
 
+def eval_odb(p: Profile) -> ProgramResult:
+    if p.province == "ON" and p.canadian_resident and p.age >= ODB_MIN_AGE:
+        val = round(p.prescription_costs_annual * 0.9) if p.prescription_costs_annual > 0 else None
+        return _r(program_id="odb", program_name="Ontario Drug Benefit", jurisdiction="Ontario",
+                  eligibility=Eligibility.eligible, confidence=0.95, estimated_annual_value=val,
+                  reasons=[f"At {ODB_MIN_AGE}+ in Ontario you are automatically covered for most "
+                           "prescription drugs under the ODB (small co-pay)."],
+                  next_steps=["Automatic at 65; show your Ontario health card at the pharmacy."])
+    reasons = ["Ontario Drug Benefit is for Ontario residents."] if p.province != "ON" \
+        else [f"Automatic at age {ODB_MIN_AGE}; under 65, see OHIP+ or Trillium instead."]
+    return _r(program_id="odb", program_name="Ontario Drug Benefit", jurisdiction="Ontario",
+              eligibility=Eligibility.not_eligible, confidence=0.85, estimated_annual_value=None,
+              reasons=reasons, next_steps=[])
+
+
+def eval_ohip_plus(p: Profile) -> ProgramResult:
+    if p.province == "ON" and p.canadian_resident and p.age < OHIP_PLUS_MAX_AGE:
+        val = round(p.prescription_costs_annual) if p.prescription_costs_annual > 0 else None
+        return _r(program_id="ohipplus", program_name="OHIP+", jurisdiction="Ontario",
+                  eligibility=Eligibility.eligible, confidence=0.85, estimated_annual_value=val,
+                  reasons=[f"Under {OHIP_PLUS_MAX_AGE} in Ontario, prescription drugs are free under "
+                           "OHIP+ for anyone without a private drug plan."],
+                  next_steps=["Show your health card at the pharmacy; no enrolment needed without a private plan."])
+    reasons = ["OHIP+ is for Ontario residents."] if p.province != "ON" \
+        else [f"OHIP+ covers Ontarians under {OHIP_PLUS_MAX_AGE}."]
+    return _r(program_id="ohipplus", program_name="OHIP+", jurisdiction="Ontario",
+              eligibility=Eligibility.not_eligible, confidence=0.85, estimated_annual_value=None,
+              reasons=reasons, next_steps=[])
+
+
+def eval_adp(p: Profile) -> ProgramResult:
+    if p.province == "ON" and p.canadian_resident and p.has_severe_prolonged_impairment:
+        return _r(program_id="adp", program_name="Assistive Devices Program", jurisdiction="Ontario",
+                  eligibility=Eligibility.maybe, confidence=0.6, estimated_annual_value=None,
+                  value_is_illustrative=True,
+                  reasons=[f"A long-term physical disability can qualify you for the ADP, which funds "
+                           f"about {int(ADP_COVERAGE*100)}% of approved equipment (mobility, hearing, "
+                           "respiratory and more)."],
+                  next_steps=["A registered health professional authorizes the equipment before purchase.",
+                              "Buy from an ADP-authorized vendor."])
+    reasons = ["The Assistive Devices Program is for Ontario residents."] if p.province != "ON" \
+        else ["ADP funds equipment for a long-term physical disability; none was reported."]
+    return _r(program_id="adp", program_name="Assistive Devices Program", jurisdiction="Ontario",
+              eligibility=Eligibility.not_eligible, confidence=0.7, estimated_annual_value=None,
+              reasons=reasons, next_steps=[])
+
+
 # Date the figures above were last checked against official sources, and the official page per
 # program. Surfaced in the UI so the numbers are traceable, not just asserted.
 RATES_VERIFIED = "2026-10-21"
@@ -220,6 +285,9 @@ SOURCES: dict[str, str] = {
     "ccc": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/line-30450-canada-caregiver-amount-other-infirm-dependants-age-18-older-including-parent-grandparent.html",
     "rdsp": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/registered-disability-savings-plan-rdsp.html",
     "otdp": "https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
+    "odb": "https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
+    "ohipplus": "https://www.ontario.ca/page/learn-about-ohip-plus",
+    "adp": "https://www.ontario.ca/page/assistive-devices-program",
 }
 
 
@@ -231,4 +299,7 @@ PROGRAMS: list[Program] = [
     Program("ccc", "Canada Caregiver Credit", "Federal (CRA)", eval_caregiver),
     Program("rdsp", "Registered Disability Savings Plan", "Federal (ESDC)", eval_rdsp),
     Program("otdp", "Ontario Trillium Drug Program", "Ontario", eval_trillium),
+    Program("odb", "Ontario Drug Benefit", "Ontario", eval_odb),
+    Program("ohipplus", "OHIP+", "Ontario", eval_ohip_plus),
+    Program("adp", "Assistive Devices Program", "Ontario", eval_adp),
 ]

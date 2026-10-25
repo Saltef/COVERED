@@ -17,6 +17,9 @@ ENGINE = {
     "dtc_disability_amount": p.DTC_DISABILITY_AMOUNT,
     "df_wage": df.WAGE,
     "df_max_hours_month": df.MAX_HOURS_MONTH,
+    "odb_min_age": p.ODB_MIN_AGE,
+    "ohip_plus_max_age": p.OHIP_PLUS_MAX_AGE,
+    "adp_coverage": p.ADP_COVERAGE,
 }
 
 

@@ -7,7 +7,7 @@ from app.domain.rules_engine import screen
 from app.eval.ground_truth import CASES
 from app.models import Profile
 
-ALL_PROGRAMS = ["dtc", "cdb", "cdcp", "metc", "ccc", "rdsp", "otdp"]
+ALL_PROGRAMS = ["dtc", "cdb", "cdcp", "metc", "ccc", "rdsp", "otdp", "odb", "ohipplus", "adp"]
 _ACTIONABLE = {"eligible", "likely", "maybe"}
 
 
