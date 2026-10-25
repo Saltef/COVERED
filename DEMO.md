@@ -1,54 +1,46 @@
-# Covered, 2-minute demo script
+# Covered: 2-minute demo script
 
-**Goal of the video:** show a senior go from "I don't know what I qualify for" to "I have
-completed, ready-to-submit applications", in one voice conversation. One number carries it:
-**"$3,736/year you're not getting."**
+A home-care demo. Deterministic, no keys needed for this flow.
 
-Record in Chrome at an **HTTPS** URL (or `localhost`) so the microphone works. Speak clearly,
-one answer per mic tap. Have the seeded persona's answers ready (Margaret, below).
+**Setup:** open the deployed URL (or `http://localhost:8000`). You land on the home-care journey.
 
----
+## The script
 
-### 0:00–0:15, The problem (hook)
-> *On screen:* title card, then the Covered home screen.
-> **Narration:** "Every year, billions in Canadian benefits go unclaimed. One in ten eligible
-> seniors miss the GIS, not because they don't qualify, but because the forms are impossible.
-> Meet Covered."
+**0:00 Frame it (say).**
+"An older adult in Ontario needs help at home. The programs exist, but the paths are a maze. Covered gives one clear path and prepares the real application."
 
-### 0:15–0:50, Voice interview (the signature)
-> *On screen:* tap the mic, speak each answer; the profile panel fills live.
-> **Say:** "Margaret" · "Ontario" · "seventy one" · "twenty-eight thousand five hundred" · "no"
-> (dental insurance) · "three thousand five hundred" · "eighteen hundred" · "yes" (impairment) ·
-> "no" (caregiver) · "yes" (filed taxes).
-> **Narration:** "You answer a few questions out loud. Covered reads it back, checks the spelling
-> of your name, and fills the form for you, no typing, no jargon."
+**0:15 Screen (do).** Fill the form:
+- Age 68, lives in Ontario with OHIP: Yes
+- Permanent physical disability: Yes
+- Needs help with: Bathing and Dressing (hands-on care)
+- Care needs steady for a year: Yes
+- Can direct your own attendants: Yes
+- Hours of help per week: 20
 
-### 0:50–1:15, Results + the unlock chain (the "wow")
-> *On screen:* the results list renders; the DTC "unlocked by" badges light up.
-> **Narration:** "In seconds: **you could be owed about $3,736 a year across four programs.**
-> Dental, the medical expense credit, Ontario's drug program, and the Disability Tax Credit, which
-> is a *key* that unlocks the Canada Disability Benefit and the RDSP. Every figure uses current CRA and Ontario rates, with the reason
-> in plain language."
+Click **Check my eligibility**.
 
-### 1:15–1:40, Apply (the Wealthsimple move)
-> *On screen:* click **Prepare my applications**; show the pre-filled T2201 with color-coded fields;
-> download a PDF.
-> **Narration:** "Then Covered prepares the actual applications, the T2201, the dental plan, the
-> rest, pre-filling everything it safely can (green), flagging what only you add, like your SIN
-> (amber), and what your doctor signs. Download a ready-to-submit PDF. We do everything short of
-> your signature."
+**0:35 The fork (say + point).**
+"Two ways to get home care. Because she can self-manage, Covered recommends Direct Funding, the self-managed route administered by CILT, and shows the other option too."
 
-### 1:40–2:00, Trust + proof (close)
-> *On screen:* the "nothing is filed automatically" line; then a quick flash of the benchmark
-> numbers / architecture.
-> **Narration:** "We inform and prepare, **you** confirm and submit. Nothing is ever filed
-> automatically. And it's accurate: the eligibility engine is **benchmarked at 100% against ground
-> truth**, an Eon-powered co-pilot helps caseworkers over real agency data, and every record is
-> locked down with row-level security. Covered, the benefits you're owed, finally within reach."
+**0:45 The real budget (point).**
+"This is not a placeholder. It is CILT's own formula: 86 attendant hours a month at $22, plus 21% employer costs, admin, and a 5% contingency. About $2,646 a month. And here are the real application sections, marked by who completes each."
 
----
+**1:10 The honest ceiling (say).**
+"Covered prepares and hands off. The person signs and sends it to CILT, and the interview panel decides. Nothing is filed automatically."
 
-### Backup / fallback during recording
-- If the venue mic is flaky, **type** the answers, the flow is identical.
-- If a question mishears, tap **↩ Redo** and re-answer.
-- Keep a second browser tab on `/benchmark` and `/ops/benchmark` to show the live scores if asked.
+**1:20 The other side of the fork (do).**
+Change "Can you direct your own attendants" to **Not sure**, check again.
+"For someone who cannot self-manage, Covered leads with Ontario Health atHome, agency-arranged care, with the services and how to start."
+
+**1:40 Why trust it (say).**
+"Every rule is deterministic and auditable, benchmarked 100% against hand-labeled ground truth. Every dollar figure is verified against official sources, with a source link and a verified date on each program."
+
+**1:55 Close (say).**
+"One clear path, real numbers, real next steps, and we never pretend to submit what a human must. That is Covered."
+
+## Optional add-ons (if time)
+- **`/benefits`:** the broader screener for DTC, CDCP, Trillium and more, with source links.
+- **Care team:** caregiver dashboard, clinician Part B coordination, agency console (behind auth).
+
+## Fallback
+The home-care flow is pure computation, so it works with no database, keys, or network beyond the page. If the deployed site is down, run `docker compose up` or `uvicorn app.main:app` locally and demo at `http://localhost:8000`.
