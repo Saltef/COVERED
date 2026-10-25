@@ -119,6 +119,16 @@
 
   <!-- Interview -->
   <section id="interview" class="card">
+    <!-- Busy-person fast path: upload a Notice of Assessment to skip the typing -->
+    <div id="fastpath" style="border:2px dashed var(--brand);border-radius:14px;padding:14px 16px;margin-bottom:18px;background:#fffdfb">
+      <p style="margin:0 0 4px;font-size:18px;font-weight:800">In a hurry? Upload your Notice of Assessment</p>
+      <p style="margin:0 0 10px;font-size:15px;color:#6b5b4d">Snap a photo and we'll read your income so you can skip the questions. We never read or store your SIN.</p>
+      <label style="display:inline-block;min-height:48px;line-height:28px;padding:9px 18px;font-size:17px;font-weight:700;color:#fff;background:var(--brand);border-radius:10px;cursor:pointer">
+        &#128247; Upload a photo
+        <input type="file" id="noaFile" accept="image/*" hidden />
+      </label>
+      <span id="noaStatus" aria-live="polite" style="display:block;margin-top:10px;font-size:15px;color:#6b5b4d"></span>
+    </div>
     <p class="stepcount" id="stepcount">Getting ready&hellip;</p>
     <div class="progress"><div id="bar"></div></div>
     <p class="q" id="question">&nbsp;</p>
@@ -167,6 +177,7 @@
 const $ = (id) => document.getElementById(id);
 let script = [], idx = 0, profile = { province: "ON", marital_status: "single",
   has_dtc_certificate: false, canadian_resident: true };
+let prefilled = new Set();   // fields filled from an uploaded document; we skip asking these
 let recording = false;
 let AUTH_TOKEN = null;
 function hdrs(json) {
@@ -247,6 +258,7 @@ async function loadScript() {
   ask();
 }
 function ask() {
+  while (idx < script.length && prefilled.has(script[idx].field)) idx++;  // skip what the upload filled
   if (idx >= script.length) return showReview();
   const q = script[idx];
   $("stepcount").textContent = `Question ${idx + 1} of ${script.length}`;
@@ -296,6 +308,31 @@ async function handleAnswer(text) {
   renderProfile();
   idx++;
   setTimeout(ask, 1300);  // let the confirmation be heard before the next question
+}
+
+// ----- busy-person fast path: read a Notice of Assessment and pre-fill -----
+async function onNoaUpload(e) {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  $("noaStatus").textContent = "Reading your document…";
+  const fd = new FormData();
+  fd.append("file", f, f.name || "document.png");
+  let j = {};
+  try { j = await (await fetch("/extract", { method: "POST", headers: hdrs(false), body: fd })).json(); }
+  catch (err) { $("noaStatus").textContent = "Couldn't reach the reader, please type your answers."; return; }
+  if (!j.available) { $("noaStatus").textContent = j.detail || "Couldn't read that. Please type your answers."; return; }
+  const fields = j.fields || {};
+  if (!Object.keys(fields).length) {
+    $("noaStatus").textContent = j.read || "We couldn't find the key fields. Please type them below.";
+    return;
+  }
+  for (const k in fields) { profile[k] = fields[k]; prefilled.add(k); }
+  renderProfile();
+  let msg = j.read || "We filled in what we could.";
+  if (j.stale) msg += " This looks like an older year, so please double-check the amount.";
+  $("noaStatus").textContent = msg;
+  speak(msg);
+  if (idx < script.length && prefilled.has(script[idx].field)) ask();  // jump past what we just filled
 }
 
 // ----- mic: records 16kHz mono WAV (Cohere Transcribe accepts wav, not webm) -----
@@ -478,6 +515,7 @@ $("hearBtn").addEventListener("click", () => speak($("question").textContent));
 $("answer").addEventListener("keydown", (e) => { if (e.key === "Enter") handleAnswer($("answer").value); });
 $("skipBtn").addEventListener("click", () => { if (idx < script.length) ask(); });
 $("seeResultsBtn").addEventListener("click", finish);
+$("noaFile").addEventListener("change", onNoaUpload);
 initAuth().then(loadScript).catch(loadScript);
 </script>
 </body>
