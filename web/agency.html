@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Covered — Agency</title>
+<title>Covered, Agency</title>
 <link rel="stylesheet" href="/static/styles.css" />
 <style>
   /* palette: /static/styles.css */
@@ -94,9 +94,9 @@
      ingestion from client systems via <b>Eon / Era</b>.</p>
 
   <div class="cards">
-    <div class="card stat"><div class="k">Clients screened</div><div class="v" id="sClients">&mdash;</div></div>
-    <div class="card stat"><div class="k">Total annual potential</div><div class="v brand" id="sTotal">&mdash;</div></div>
-    <div class="card stat"><div class="k">Avg per client</div><div class="v" id="sAvg">&mdash;</div></div>
+    <div class="card stat"><div class="k">Clients screened</div><div class="v" id="sClients">, </div></div>
+    <div class="card stat"><div class="k">Total annual potential</div><div class="v brand" id="sTotal">, </div></div>
+    <div class="card stat"><div class="k">Avg per client</div><div class="v" id="sAvg">, </div></div>
   </div>
 
   <div class="card" style="padding:6px 0 0">
@@ -108,7 +108,7 @@
     <div class="head"><h2 style="margin:0">Coverage gaps across your book</h2>
       <span class="pill ok" id="bookPct"></span></div>
     <p class="muted" style="margin:2px 0 0;font-size:14px">Every screened client, rolled up. Deterministic,
-       straight from the rules engine &mdash; no model in the loop.</p>
+       straight from the rules engine, no model in the loop.</p>
     <div id="bookBars" style="margin-top:14px"><p class="muted">Loading&hellip;</p></div>
     <div class="head" style="margin-top:20px"><h3 style="margin:0;font-size:15px">Ask about your book</h3>
       <span class="pill blue">book co-pilot</span></div>
@@ -126,7 +126,7 @@
     <div class="head"><h2 style="margin:0">Live data ingestion</h2>
       <span class="pill blue">Eon · Era</span><span id="benchPill"></span></div>
     <p class="muted" style="margin:2px 0 0;font-size:14px">Covered ingests a client population from the agency's
-       own systems through Era's live API &mdash; proof the platform plugs into existing infrastructure.</p>
+       own systems through Era's live API, proof the platform plugs into existing infrastructure.</p>
     <div id="eraStatus" style="margin-top:12px"><p class="muted">Checking connection&hellip;</p></div>
     <div class="bench" style="margin-top:14px"><button class="btn-ghost" id="benchBtn">Run screening accuracy benchmark</button>
       <span id="benchOut" style="margin-left:10px"></span></div>
@@ -147,7 +147,7 @@
 
   <div class="card" style="padding:6px 0 0;margin-top:22px">
     <div style="padding:16px 18px 0"><h2 style="margin:0 0 4px">Activity &amp; audit trail</h2>
-      <p class="muted" style="margin:0 0 6px;font-size:13px">Every access and action is logged &mdash; who did what, and when.</p></div>
+      <p class="muted" style="margin:0 0 6px;font-size:13px">Every access and action is logged, who did what, and when.</p></div>
     <div id="activity"><p class="muted" style="padding:14px 18px">Loading&hellip;</p></div>
   </div>
 </div>
@@ -216,7 +216,7 @@ async function runBenchmark() {
   let r = {};
   try { r = await (await fetch("/ops/benchmark", { headers: H })).json(); } catch (e) {}
   $("benchBtn").disabled = false;
-  if (r.accuracy == null) { $("benchOut").textContent = r.agent_available === false ? "Co-pilot not configured." : "—"; return; }
+  if (r.accuracy == null) { $("benchOut").textContent = r.agent_available === false ? "Co-pilot not configured." : ", "; return; }
   const pct = Math.round(r.accuracy * 100);
   $("benchOut").innerHTML = `<span class="pill ok">&#10003; ${r.passed}/${r.n} correct · ${pct}% vs ground truth</span>`;
   $("benchPill").innerHTML = `<span class="pill ok">benchmarked ${pct}%</span>`;

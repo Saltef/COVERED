@@ -59,4 +59,4 @@ class ProgramResult:
     reasons: list[str] = field(default_factory=list)
     next_steps: list[str] = field(default_factory=list)
     unlocked_by: Optional[str] = None          # e.g. "dtc" when gated by the DTC unlock chain
-    value_is_illustrative: bool = True         # see PLAN.md task V1
+    value_is_illustrative: bool = True         # illustrative values (V1)

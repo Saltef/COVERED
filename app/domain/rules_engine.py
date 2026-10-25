@@ -22,5 +22,5 @@ def summarize(results: list[ProgramResult]) -> dict:
         "total_estimated_annual": sum(r.estimated_annual_value or 0 for r in with_value),
         "programs_with_value": len(with_value),
         "n_eligible_or_maybe": len(claimable),
-        "all_values_illustrative": True,  # PLAN.md V1
+        "all_values_illustrative": True,  # all figures illustrative (V1)
     }

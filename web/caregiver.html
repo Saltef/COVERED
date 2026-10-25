@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Covered — Caregiver workspace</title>
+<title>Covered, Caregiver workspace</title>
 <link rel="stylesheet" href="/static/styles.css" />
 <style>
   /* palette: /static/styles.css */
@@ -144,7 +144,7 @@
       <div id="dProgress"></div>
     </div>
     <div class="careteam">
-      <p class="sectitle">Care team &mdash; invite a doctor to certify T2201 Part B</p>
+      <p class="sectitle">Care team, invite a doctor to certify T2201 Part B</p>
       <div class="ctrow">
         <input id="ctEmail" type="email" placeholder="doctor's email, e.g. dr.lee@clinic.ca" />
         <button class="btn-primary" id="ctInvite">Invite</button>
@@ -153,10 +153,10 @@
     </div>
     <div class="careteam">
       <p class="sectitle">Activity &amp; audit trail</p>
-      <div id="ctActivity" class="muted" style="font-size:14px">&mdash;</div>
+      <div id="ctActivity" class="muted" style="font-size:14px">, </div>
     </div>
     <p class="note">Amounts use 2025 CRA / Ontario rates and depend on the person's situation. Covered prepares
-       these — the person (or you, with their consent) confirms and submits. Nothing is filed automatically.</p>
+       these, the person (or you, with their consent) confirms and submits. Nothing is filed automatically.</p>
   </section>
 </div>
 
@@ -218,7 +218,7 @@ async function loadClients() {
   try { rows = await (await fetch("/me/screenings", { headers: hdrs(false) })).json(); } catch (e) {}
   const card = $("listCard");
   if (!Array.isArray(rows) || !rows.length) {
-    card.innerHTML = `<div class="empty"><b>No screenings yet</b>Start one for someone you help — it takes a minute.</div>`;
+    card.innerHTML = `<div class="empty"><b>No screenings yet</b>Start one for someone you help, it takes a minute.</div>`;
     return;
   }
   const body = rows.map(r => {
@@ -316,7 +316,7 @@ async function loadProgress() {
     if (pid === "dtc") {
       const s = st.dtc;
       const label = s === "submitted_to_cra" ? "Submitted in CRA (self-reported)"
-        : s === "partb_attested" ? "Part B attested — submit in CRA" : "Awaiting doctor's Part B";
+        : s === "partb_attested" ? "Part B attested, submit in CRA" : "Awaiting doctor's Part B";
       chip = `<span class="who ${s === "submitted_to_cra" ? "pre" : "you"}">${label}</span>`;
     } else {
       const s = st[pid] || "ready";
@@ -380,7 +380,7 @@ async function prepareApplications() {
       const cls = f.who === "prefilled" ? "pre" : (f.who === "practitioner" ? "doc" : "you");
       const whoL = f.who === "prefilled" ? "Pre-filled" : (f.who === "practitioner" ? "Doctor" : "Client");
       return `<div class="fr"><span class="fl">${f.label}</span>
-        <span class="fv ${todo ? "todo" : ""}">${todo ? "— to complete —" : f.value}</span>
+        <span class="fv ${todo ? "todo" : ""}">${todo ? ",  to complete , " : f.value}</span>
         <span class="who ${cls}">${whoL}</span></div>`;
     }).join("");
     const needed = (p.still_needed || []).map(s => `<li>${s}</li>`).join("");
@@ -424,10 +424,10 @@ $("f_doc").addEventListener("change", async () => {
   const fd = new FormData(); fd.append("file", f, f.name || "doc.png");
   let r = {};
   try { r = await (await fetch("/extract", { method: "POST", headers: hdrs(false), body: fd })).json(); } catch (e) {}
-  if (!r.available) { $("docStatus").textContent = "Auto-fill unavailable — please enter fields manually."; return; }
+  if (!r.available) { $("docStatus").textContent = "Auto-fill unavailable, please enter fields manually."; return; }
   const fx = r.fields || {};
   const found = DOC_FIELDS.filter(d => fx[d.key] != null && fx[d.key] !== "");
-  if (!found.length) { $("docStatus").textContent = "No fields found — please enter manually."; return; }
+  if (!found.length) { $("docStatus").textContent = "No fields found, please enter manually."; return; }
   $("docStatus").textContent = `Read ${found.length} field(s). Check them before applying.`;
   renderDocReview(found, fx);
 });

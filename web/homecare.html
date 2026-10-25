@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Covered — Home care</title>
+<title>Covered Home care</title>
 <link rel="stylesheet" href="/static/styles.css" />
 <style>
   /* palette: /static/styles.css */
@@ -224,7 +224,7 @@ function dfCard(d, primary) {
   if (!primary) {
     return `<section class="forkcard compact">${tag(false)}
       <span class="pill ${d.eligibility}">${PILL[d.eligibility] || ""}</span>
-      <p class="headline">${d.name} &mdash; ${d.subtitle}</p>
+      <p class="headline">${d.name}: ${d.subtitle}</p>
       <p class="sub" style="margin:0 0 10px">Run your own care: hire and direct your own attendants with a monthly budget.</p>
       ${budget}
       <p style="margin:12px 0 0"><a class="src" href="https://www.dfontario.ca" target="_blank" rel="noopener">See the steps and apply at dfontario.ca &#8599;</a></p>
@@ -244,7 +244,7 @@ function dfCard(d, primary) {
   }
   return `<section class="forkcard primary">${tag(true)}
     <span class="pill ${d.eligibility}">${PILL[d.eligibility] || ""}</span>
-    <p class="headline">${d.name} &mdash; ${d.subtitle}</p>
+    <p class="headline">${d.name}: ${d.subtitle}</p>
     <ul class="reasons">${reasons}</ul>
     ${budget}
     <h2 style="margin-top:20px">Your next steps</h2>
@@ -260,7 +260,7 @@ function dfCard(d, primary) {
 function ahCard(a, primary) {
   if (!primary) {
     return `<section class="forkcard compact">${tag(false)}
-      <p class="headline">${a.name} &mdash; ${a.subtitle}</p>
+      <p class="headline">${a.name}: ${a.subtitle}</p>
       <p class="sub" style="margin:0 0 10px">Have care arranged for you: a coordinator assesses your needs and sets up personal support, nursing and therapy.</p>
       <p style="margin:0"><a class="src" href="${a.getting_started_url}" target="_blank" rel="noopener">How to start with Ontario Health atHome &#8599;</a></p>
     </section>`;
@@ -268,7 +268,7 @@ function ahCard(a, primary) {
   const services = (a.services || []).map(x => `<li>${x}</li>`).join("");
   const process = (a.process || []).map(x => `<li>${x}</li>`).join("");
   return `<section class="forkcard primary">${tag(true)}
-    <p class="headline">${a.name} &mdash; ${a.subtitle}</p>
+    <p class="headline">${a.name}: ${a.subtitle}</p>
     <p class="sub">${a.note}</p>
     <h2 style="margin-top:14px">What you can get</h2>
     <ul class="svc">${services}</ul>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Covered — Clinician</title>
+<title>Covered, Clinician</title>
 <link rel="stylesheet" href="/static/styles.css" />
 <style>
   /* palette: /static/styles.css */
@@ -194,7 +194,7 @@ async function loadQueue() {
     div.innerHTML = `<div class="top"><span class="name">${it.patient_name || "Patient"}</span>
         <span class="badge warn">DTC · ${it.dtc ? it.dtc.eligibility : ""}</span></div>
       <p class="muted" style="margin:8px 0 0">${pb.self_reported || ""}</p>
-      <p class="muted" style="margin:10px 0 2px;font-weight:650">Part B — sections to complete:</p>
+      <p class="muted" style="margin:10px 0 2px;font-weight:650">Part B, sections to complete:</p>
       <ul class="sections">${sections}</ul>
       ${action}`;
     box.appendChild(div);

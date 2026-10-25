@@ -19,7 +19,7 @@ The live-dependency smoke check (`python scripts/preflight.py`) is complementary
 whether the real SurrealDB / OpenRouter / Cohere / Era are reachable before a demo. The pytest suite
 proves behaviour; preflight proves connectivity.
 
-## Layer 1 — rules engine matrix  (`tests/test_engine.py`, no dependencies)
+## Layer 1, rules engine matrix  (`tests/test_engine.py`, no dependencies)
 
 The core correctness layer: fast, deterministic, needs nothing external. The canonical table is
 `app/eval/ground_truth.py` (`CASES`), each row a `{profile, expected_actionable}`. The parametrized
@@ -40,7 +40,7 @@ test runs every row; the targeted tests pin one branch each so a failure names t
 
 To add an engine case: append a row to `ground_truth.CASES`.
 
-## Layer 2 — API contracts  (`tests/test_api_contracts.py`, TestClient; DB-free unless noted)
+## Layer 2, API contracts  (`tests/test_api_contracts.py`, TestClient; DB-free unless noted)
 
 One test per endpoint for response shape plus the honesty guarantees. No browser, no running server.
 
@@ -56,7 +56,7 @@ One test per endpoint for response shape plus the honesty guarantees. No browser
 | Auth gate fails closed | `assert_auth_safe()` raises for staging and production, not development |
 | `/agency/book-stats` admin only *(DB)* | senior is 403; admin is 200 with the rollup shape |
 
-## Layer 3 — persona journeys  (`tests/test_journeys.py`, require SurrealDB)
+## Layer 3, persona journeys  (`tests/test_journeys.py`, require SurrealDB)
 
 Each test walks one persona through several features end to end, which is where integration bugs
 show. Writes use random dev-user ids so runs never collide.
@@ -68,7 +68,7 @@ show. Writes use random dev-user ids so runs never collide.
 | Care-team Part B loop | create screening → invite clinician → verify → pending queue → attest Part B |
 | Agency book rollup | seed screenings under a caseworker → admin `/agency/book-stats` aggregates them |
 
-## Layer 4 — resilience  (`tests/test_resilience.py`, no live deps needed)
+## Layer 4, resilience  (`tests/test_resilience.py`, no live deps needed)
 
 Each test removes one dependency and asserts the surface degrades instead of crashing. These mirror
 `scripts/preflight.py`.
@@ -83,7 +83,7 @@ Each test removes one dependency and asserts the surface degrades instead of cra
 
 ## What is deliberately not here
 
-- Live transcription accuracy (needs real speech) — covered by `scripts/test_voice.py` and the browser mic.
-- Live LLM answer quality for the co-pilots — covered by `/ops/benchmark` against ground truth.
-- Real clinician-register verification and real CRA submission — not built (see FIXES.md #4, #12).
-- Cross-origin embedding on a third-party domain — not solved for production (FIXES.md #9).
+- Live transcription accuracy (needs real speech), covered by `scripts/test_voice.py` and the browser mic.
+- Live LLM answer quality for the co-pilots, covered by `/ops/benchmark` against ground truth.
+- Real clinician-register verification and real CRA submission, not built (see FIXES.md #4, #12).
+- Cross-origin embedding on a third-party domain, not solved for production (FIXES.md #9).

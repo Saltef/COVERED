@@ -1,84 +1,53 @@
-# Covered — Devpost submission
+# Covered: Devpost submission
 
-**Tagline:** The benefits you're owed, found and prepared in one voice conversation.
-
----
+**Tagline:** Home care in Ontario, found and prepared in one clear path.
 
 ## Inspiration
-Every year billions of dollars in Canadian health and disability benefits go unclaimed. The cause
-isn't fraud or scarcity — it's complexity. One in ten eligible seniors miss the Guaranteed Income
-Supplement; only ~44% of likely-eligible people claimed the Canada Housing Benefit top-up. People
-don't know what they qualify for, and the forms are impossible — especially for seniors, newcomers,
-and people with disabilities. We wanted to close that gap: not another tax app, but an agent that
-*finds* the money and *prepares* the paperwork, so a human just reviews and signs.
+
+Older adults and people with disabilities in Ontario struggle to find and set up home care. The programs exist, but the paths are a maze: self-managed attendant care, agency care, tax credits, drug and dental coverage, each with its own forms and front door. People miss what they qualify for, and the paperwork is hard. We wanted one clear path that finds the right program and prepares the real application, so a person just reviews and signs.
 
 ## What it does
-Covered interviews a person **by voice**, screens them across seven federal and Ontario programs,
-and prepares **ready-to-submit applications** — pre-filling everything it safely can.
 
-- **Voice-first interview.** You answer out loud; Covered transcribes (Cohere), reads your answer
-  back, checks the spelling of your name, and fills the form. Typing works as a fallback.
-- **Screening with a reason.** A deterministic rules engine decides eligibility (auditable), and
-  the model phrases *why* in grade-6 plain language. It surfaces the **DTC "unlock chain"** — the
-  Disability Tax Credit is a key that opens the Canada Disability Benefit and the RDSP.
-- **One number.** "You could be owed about **$3,736 a year** across 4 programs you may not be getting."
-- **Apply, not just advise.** For each program it builds a completed application (e.g. **Form T2201
-  Part A**), color-coding what's pre-filled, what you must add (SIN, address), and what your doctor
-  signs — then exports a PDF. We do everything short of the signature.
-- **We inform; you submit.** Nothing is ever filed to government automatically — our Security &
-  Ethics line, built into the design.
+Covered opens on a home-care journey. Answer a few questions and it routes you to the right program with your real next steps.
+
+- **Direct Funding** (self-managed attendant services, administered by CILT). Eligibility against Ontario Reg 367/94, a real monthly budget estimate from CILT's own formula (hours, wages, employer costs, contingency), and the real application sections laid out.
+- **Ontario Health atHome** (agency-arranged care) for people who do not self-manage. The services, the process, and how to start.
+- **Other benefits.** A deterministic screener for 7 federal and Ontario programs (DTC, CDCP, Trillium and more), with a dollar estimate and an official source link per program.
+
+Covered informs and prepares. A person confirms and submits. Nothing is filed to government automatically.
 
 ## How we built it
-A modular, layered FastAPI app (Python), all in Docker.
 
-- **Domain layer** — 7 programs + rules engine + the DTC unlock graph. Pure, auditable, and
-  **benchmarked at 100% (70/70 decisions) against hand-labeled ground truth** covering income caps,
-  province gating, age limits, and the "don't over-claim" case.
-- **SurrealDB** — persistence with **two-layer row-level security**: every record is owner-scoped in
-  the repository *and* in the database's table permissions. Caregivers get access only via an
-  explicit least-privilege grant. (Proven with an isolation test.)
-- **Cohere Transcribe** — Canadian speech-to-text; the browser records 16 kHz WAV so it's accepted
-  directly.
-- **Clerk** — authentication with a senior/caregiver role model.
-- **Eon / Era** — we generated a simulated healthcare agency on Era by Eon and built an **ops
-  co-pilot**: an LLM tool-use agent that answers questions over the agency's live CRM and is
-  **benchmarked at 100% (5/5) against ground truth computed from Era's own data** (532 contacts,
-  619 companies, $976,520 in deals). This is the real-world caseworker view.
-- **Swappable LLM provider** — the agents run through an OpenAI-compatible layer (OpenRouter), so the
-  model is one env var. We run Claude (via `anthropic/claude-3.5-haiku`) for cents.
-- **Figures verified** — every dollar value uses 2025 CRA / Ontario public rates, cited in the code.
+A modular FastAPI app in Docker, with a clean separation between deterministic rules and the model.
+
+- **Rules engine.** Pure, auditable eligibility for every program, benchmarked 100% (77/77 decisions) against hand-labeled ground truth covering income caps, province gating, age limits, and the do-not-over-claim case. The Direct Funding module encodes the real Reg 367/94 criteria and CILT's budget formula.
+- **Real numbers, cited.** Every dollar figure is verified against official sources (canada.ca, ontario.ca, CILT's guide), with a source link and a verified date surfaced in the UI.
+- **SurrealDB** with two-layer row-level security: every record is owner-scoped in the repository and in the database's table permissions. Caregivers get access only through an explicit grant.
+- **Honest by construction.** Auth fails closed (the app will not boot with the no-auth dev identity outside development). Demo-only features are labeled as such. The home-care journey is pure computation, so it needs no database or keys to run.
+- **Agency co-pilot.** An LLM tool-use agent answers questions over the screened book and over a simulated agency CRM on Era by Eon, benchmarked against exact ground truth.
+- **Swappable LLM** through an OpenAI-compatible layer (OpenRouter), running Claude for cents.
+- **Tested.** A four-layer pytest suite (engine matrix, API contracts, persona journeys, resilience) runs in CI.
 
 ## Challenges we ran into
-- **Era is enterprise-shaped.** Era by Eon generates B2B CRM/estate data with *enterprise* ground
-  truth — it has no benefit-eligibility fields. Rather than fake it, we used Era for what it's great
-  at: benchmarking a tool-use agent (the caseworker co-pilot) against exact ground truth, and kept
-  screening accuracy on our own labeled set.
-- **Cheap model, exact answers.** A cheap model couldn't aggregate hundreds of raw CRM values in its
-  head (20% on the first run). We moved the counting/summing into the tools (exact, server-side) — the
-  agent just picks the right tool, and the score jumped to 100%.
-- **Browser audio vs Cohere.** Browsers record WebM, which Cohere rejects. We encode 16 kHz mono WAV
-  client-side (Web Audio) so no server transcoding is needed and the mic works anywhere over HTTPS.
 
-## Accomplishments we're proud of
-- A benefits agent that **prepares real applications**, not just advice.
-- **100% on both benchmarks** — screening accuracy and the Eon ops co-pilot.
-- Honest, defensible engineering: deterministic eligibility, verified figures, row-level security,
-  and a human-in-the-loop guardrail we never cross.
+- **Breadth was hiding the product.** We first built a broad benefits screener with no clear use case. We refocused on one person and one job: older adults setting up home care. The engine and care-team work carried over; the path got clear.
+- **Real forms, not fake ones.** We pulled the actual Direct Funding criteria and budget formula from CILT's own guide, so the eligibility and the estimate are real, not approximations.
+- **Cheap model, exact answers.** A cheap model could not aggregate hundreds of records reliably. We moved the counting and summing into exact server-side tools; the agent just picks the right one, and accuracy went to 100%.
 
 ## What we learned
-Agents win when the tools do what tools are good at (exact aggregation, deterministic rules) and the
-model does what it's good at (language, orchestration). And for vulnerable users, *accessibility and
-trust* — voice, plain language, "you decide" — are the product, not features.
+
+Agents win when the tools do the exact work (deterministic rules, aggregation) and the model does the language. And a product for vulnerable users wins on a clear path and honesty: one route, real numbers, real next steps, and never pretending to submit what a human must.
 
 ## What's next
-Multilingual voice; more provinces; a caseworker console on the Eon integration; real DTC form
-(Part A) PDF pre-fill against the CRA template; pilot with a community agency.
+
+Add the Assistive Devices Program; wire Clerk for the professional dashboards; a Canadian-region deploy for PHIPA; a pilot with a community agency or an Independent Living Centre.
 
 ## Built with
-Python · FastAPI · SurrealDB · Cohere (Transcribe) · Clerk · Eon / Era · OpenRouter (Claude
-`claude-3.5-haiku`) · Docker · Web Audio API · reportlab · PyJWT
+
+Python, FastAPI, SurrealDB, OpenRouter (Claude), Cohere, Clerk, Eon / Era, Docker, pytest.
 
 ## Links
-- Live demo: *(deployed URL — see DEPLOY.md)*
-- Repo: *(GitHub URL)*
-- Demo video: *(2-min, script in DEMO.md)*
+
+- Live demo: (deployed URL)
+- Repo: https://github.com/Saltef/COVERED
+- Demo video: (2-min, script in DEMO.md)

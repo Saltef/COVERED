@@ -112,7 +112,7 @@
 <div class="wrap">
   <header>
     <h1>Covered <span class="leaf">&#127809;</span></h1>
-    <p>Let's find the benefits you're owed. Just type your answers &mdash; or use your voice if you prefer. It only takes a minute.</p>
+    <p>Let's find the benefits you're owed. Just type your answers, or use your voice if you prefer. It only takes a minute.</p>
     <p style="margin:8px 0 0"><a href="/caregiver"
        style="color:var(--brand);font-size:17px;font-weight:700;text-decoration:none">Helping someone else? Open the caregiver view &#8594;</a></p>
   </header>
@@ -135,7 +135,7 @@
     </div>
 
     <p class="status" id="status" aria-live="polite"></p>
-    <div class="banner" id="voiceBanner">Voice isn't turned on yet &mdash; please type your answers for now.</div>
+    <div class="banner" id="voiceBanner">Voice isn't turned on yet, please type your answers for now.</div>
   </section>
 
   <!-- Review -->
@@ -311,7 +311,7 @@ async function toggleMic() {
     micProc.onaudioprocess = (e) => pcm.push(new Float32Array(e.inputBuffer.getChannelData(0)));
     micSource.connect(micProc); micProc.connect(audioCtx.destination);
     setRec(true); setStatus("Listening… tap the button again when you're done.");
-  } catch (e) { $("voiceBanner").style.display = "block"; setStatus("Microphone unavailable — please type."); }
+  } catch (e) { $("voiceBanner").style.display = "block"; setStatus("Microphone unavailable, please type."); }
 }
 async function stopRec() {
   const sr = audioCtx ? audioCtx.sampleRate : 48000;
@@ -319,7 +319,7 @@ async function stopRec() {
   try { await audioCtx.close(); } catch (e) {}
   setRec(false);
   const wav = encodeWav(pcm, sr); pcm = [];
-  if (!wav) { setStatus("Didn't catch any audio — try again or type."); return; }
+  if (!wav) { setStatus("Didn't catch any audio, try again or type."); return; }
   setStatus("Transcribing…");
   const fd = new FormData();
   fd.append("file", wav, "answer.wav");
@@ -327,8 +327,8 @@ async function stopRec() {
     const j = await (await fetch("/voice/transcribe", { method: "POST", body: fd, headers: hdrs(false) })).json();
     if (j.available && j.text) { $("answer").value = j.text; handleAnswer(j.text); }
     else { $("voiceBanner").style.display = "block";
-           setStatus(j.detail ? ("Voice: " + j.detail + " — please type.") : "Voice not available — please type."); }
-  } catch (e) { setStatus("Couldn't reach the transcriber — please type."); }
+           setStatus(j.detail ? ("Voice: " + j.detail + ", please type.") : "Voice not available, please type."); }
+  } catch (e) { setStatus("Couldn't reach the transcriber, please type."); }
 }
 function downsample(buf, from, to) {
   if (to >= from) return buf;
@@ -415,7 +415,7 @@ async function prepareApplications() {
   for (const p of pkgs) {
     const rows = p.fields.map(f => {
       const todo = f.value === null;
-      const val = todo ? "— to complete —" : f.value;
+      const val = todo ? ",  to complete , " : f.value;
       const cls = f.who === "prefilled" ? "pre" : (f.who === "practitioner" ? "doc" : "you");
       const whoL = f.who === "prefilled" ? "Pre-filled" : (f.who === "practitioner" ? "Doctor" : "You");
       return `<div class="fr"><span class="fl">${f.label}</span>
@@ -449,7 +449,7 @@ async function downloadPdf(pid) {
 async function initAuth() {
   let cfg;
   try { cfg = await (await fetch("/config")).json(); } catch (e) { return; }
-  if (!cfg.clerk_publishable_key) return;  // dev mode — backend supplies a dev identity
+  if (!cfg.clerk_publishable_key) return;  // dev mode, backend supplies a dev identity
   await loadClerk(cfg.clerk_publishable_key);
   const Clerk = window.Clerk;
   await Clerk.load();

@@ -9,7 +9,7 @@
 | Var | Purpose |
 |---|---|
 | `OPENROUTER_API_KEY` | LLM for the ops co-pilot + explanations |
-| `OPENROUTER_MODEL` | **Recommended: `anthropic/claude-3.5-haiku`** — cheap Claude, keeps the Anthropic-host story |
+| `OPENROUTER_MODEL` | **Recommended: `anthropic/claude-3.5-haiku`**, cheap Claude, keeps the Anthropic-host story |
 | `COHERE_API_KEY` | voice speech-to-text |
 | `CLERK_PUBLISHABLE_KEY` / `CLERK_JWT_KEY` / `CLERK_SECRET_KEY` | auth (see hardening below) |
 | `SURREAL_URL` (`ws://surrealdb:8000/rpc`), `SURREAL_USER/PASS/NS/DB` | database |
@@ -48,10 +48,10 @@ The fastest live product: deploy the home-care journey with no auth at all.
 - Do it at the edge (your platform, or Cloudflare) on `/v1/eligibility` and the LLM-backed co-pilot
   routes. In-process limiting is unreliable across multiple workers, so it is not built in.
 
-## Option A — one small VM + Caddy (simplest full stack)
+## Option A, one small VM + Caddy (simplest full stack)
 1. Provision a 1–2 GB VM; install Docker + Compose.
 2. Copy the repo and a `.env` with the secrets above.
-3. Front it with Caddy for automatic HTTPS — `Caddyfile`:
+3. Front it with Caddy for automatic HTTPS, `Caddyfile`:
    ```
    covered.example.com {
      reverse_proxy localhost:8000
@@ -59,7 +59,7 @@ The fastest live product: deploy the home-care journey with no auth at all.
    ```
 4. `docker compose up -d --build`
 
-## Option B — Render (Blueprint, recommended)
+## Option B, Render (Blueprint, recommended)
 A `render.yaml` Blueprint is in the repo. Steps:
 1. Create a **Surreal Cloud** instance; note its `wss://` URL, user and pass.
 2. Create a **Clerk** project; note the publishable key, secret key and JWT public key.
@@ -72,7 +72,7 @@ A `render.yaml` Blueprint is in the repo. Steps:
 > Render has no Canadian region (`render.yaml` uses `ohio`). Fine for a pilot with synthetic data;
 > for real patient data, host in a Canadian region (see Privacy below).
 
-## Option C — Google Cloud Run (partner credits)
+## Option C, Google Cloud Run (partner credits)
 Build & push the app image; deploy to Cloud Run (HTTPS by default); point `SURREAL_URL` at a Surreal
 Cloud instance; store secrets in Secret Manager.
 
