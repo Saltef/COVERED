@@ -37,6 +37,20 @@ REGISTRY: list[Rule] = [
         query="adjusted family net income threshold to qualify for the Canadian Dental Care Plan",
         verified_date="2026-10-21"),
     Rule(
+        id="cdcp_copay_tier1_cap", program="cdcp",
+        label="Canadian Dental Care Plan: income below which the plan pays the full set fee (no co-payment)",
+        value=70_000, display="$70,000",
+        source_url=f"{_CANADA}/services/benefits/dental/dental-care-plan/coverage.html",
+        query="adjusted family net income under which the Canadian Dental Care Plan covers 100% of eligible costs at the set fees with no co-payment",
+        verified_date="2026-10-21"),
+    Rule(
+        id="cdcp_copay_tier2_cap", program="cdcp",
+        label="Canadian Dental Care Plan: upper income of the 60%-covered co-payment band",
+        value=80_000, display="$80,000",
+        source_url=f"{_CANADA}/services/benefits/dental/dental-care-plan/coverage.html",
+        query="adjusted family net income band where the Canadian Dental Care Plan covers 60% of eligible costs and the person pays a 40% co-payment",
+        verified_date="2026-10-21"),
+    Rule(
         id="metc_threshold", program="metc",
         label="Medical Expense Tax Credit: fixed threshold (lesser of 3% of net income or this amount)",
         value=2_834, display="$2,834",
@@ -60,6 +74,21 @@ REGISTRY: list[Rule] = [
         query="single person adjusted family net income threshold where the Canada Disability Benefit starts to reduce",
         verified_date="2026-10-21",
         note="2026-27 indexed; see cdb_max_annual note."),
+    Rule(
+        id="cdb_threshold_partnered", program="cdb",
+        label="Canada Disability Benefit: couple income threshold before reduction",
+        value=33_182, display="$33,182",
+        source_url=f"{_CANADA}/services/benefits/disability/canada-disability-benefit/amount.html",
+        query="married or common-law couple adjusted family net income threshold where the Canada Disability Benefit starts to reduce",
+        verified_date="2026-10-21",
+        note="2026-27 indexed; see cdb_max_annual note."),
+    Rule(
+        id="cdb_reduction_rate", program="cdb",
+        label="Canada Disability Benefit: reduction rate above the income threshold",
+        value=0.20, display="20%",
+        source_url=f"{_CANADA}/services/benefits/disability/canada-disability-benefit/amount.html",
+        query="rate the Canada Disability Benefit is reduced per dollar of income above the threshold, e.g. 20 cents for every dollar",
+        verified_date="2026-10-21"),
     Rule(
         id="dtc_disability_amount", program="dtc",
         label="Disability Tax Credit: federal base disability amount",
@@ -99,3 +128,16 @@ REGISTRY: list[Rule] = [
          source_url="https://www.dfontario.ca/df_public/df_application_guide_may2023_2_en.pdf",
          query="", verified_date="2026-10-22", checkable=False, note="CILT PDF guide; manual."),
 ]
+
+
+def coverage() -> dict:
+    """Honest coverage of the drift checker: how many registry figures are auto-checkable against a
+    live web source, and how many are manual-review (PDF guide or formula)."""
+    checkable = [r for r in REGISTRY if r.checkable]
+    manual = [r for r in REGISTRY if not r.checkable]
+    return {
+        "total": len(REGISTRY),
+        "web_checkable": len(checkable),
+        "manual_review": len(manual),
+        "manual_ids": [r.id for r in manual],
+    }

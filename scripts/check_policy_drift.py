@@ -21,7 +21,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.domain.policy_registry import REGISTRY  # noqa: E402
+from app.domain.policy_registry import REGISTRY, coverage  # noqa: E402
 from app.ops import policy_checker as pc  # noqa: E402
 from app.ops import policy_history as hist  # noqa: E402
 
@@ -38,7 +38,10 @@ def main() -> None:
     if sync and not hist.available():
         print("--sync given but SPECTRON_* not configured; running without memory writes.")
         sync = False
+    cov = coverage()
     print("\nPolicy drift check (engine vs live official sources)")
+    print(f"Coverage: {cov['web_checkable']}/{cov['total']} figures web-checkable; "
+          f"{cov['manual_review']} manual-review (PDF/formula): {', '.join(cov['manual_ids'])}")
     print("-" * 72)
     results = pc.run(only=only)
     drift = written = 0

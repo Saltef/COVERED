@@ -10,10 +10,14 @@ from app.domain.policy_registry import REGISTRY
 # registry id -> the engine constant it must equal
 ENGINE = {
     "cdcp_income_cap": p.CDCP_INCOME_CAP,
+    "cdcp_copay_tier1_cap": p.CDCP_COPAY_TIERS[0][0],
+    "cdcp_copay_tier2_cap": p.CDCP_COPAY_TIERS[1][0],
     "metc_threshold": p.METC_FIXED_THRESHOLD,
     "metc_federal_rate": p.METC_FEDERAL_RATE,
     "cdb_max_annual": p.CDB_MAX_ANNUAL,
     "cdb_threshold_single": p.CDB_THRESHOLD_SINGLE,
+    "cdb_threshold_partnered": p.CDB_THRESHOLD_PARTNERED,
+    "cdb_reduction_rate": p.CDB_REDUCTION_RATE,
     "dtc_disability_amount": p.DTC_DISABILITY_AMOUNT,
     "df_wage": df.WAGE,
     "df_max_hours_month": df.MAX_HOURS_MONTH,
