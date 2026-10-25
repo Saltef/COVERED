@@ -40,12 +40,16 @@ class Program:
 
 
 def _fetch_text(url: str, cap: int = 9000) -> str:
+    """Main-content text only: use the <main> element and drop nav/header/footer, so enumeration
+    sees the page's programs, not its site-wide navigation and related-links."""
     import httpx
     with httpx.Client(timeout=30, follow_redirects=True,
                       headers={"User-Agent": "Mozilla/5.0 (compatible; CoveredCatalogue/1.0)"}) as c:
         html = c.get(url).text
-    html = re.sub(r"(?is)<(script|style|noscript|head).*?</\1>", " ", html)
-    text = re.sub(r"(?s)<[^>]+>", " ", html)
+    main = re.search(r"(?is)<main\b[^>]*>(.*?)</main>", html)
+    body = main.group(1) if main else html
+    body = re.sub(r"(?is)<(script|style|noscript|head|nav|header|footer).*?</\1>", " ", body)
+    text = re.sub(r"(?s)<[^>]+>", " ", body)
     text = re.sub(r"&nbsp;", " ", text).replace("&amp;", "&")
     return re.sub(r"[ \t]+", " ", text).strip()[:cap]
 
@@ -98,6 +102,21 @@ def _grounded(name: str, text: str) -> bool:
     return bool(key) and key in text.lower()
 
 
+def _relevant(client, name: str, for_whom: str) -> bool:
+    """Drop off-topic entries: appeals boards, government bodies, and unrelated programs (e.g. student
+    aid). Keeps health, home-care, disability, and income/senior support benefits for individuals."""
+    prompt = (
+        f"Is '{name}' ({for_whom}) a health, home-care, disability, or income or senior support "
+        "benefit or service that an individual person receives? Answer only yes or no. Answer no for "
+        "appeals boards, government bodies or administrative units, and education or student programs."
+    )
+    try:
+        resp = client.chat(model=CHAT_MODEL, messages=[{"role": "user", "content": prompt}])
+        return "yes" in resp.message.content[0].text.strip().lower()[:6]
+    except Exception:  # noqa: BLE001
+        return True  # keep on error; human curation catches it
+
+
 def build(sources: list[str] | None = None) -> list[Program]:
     client = _client()
     seen: dict[str, Program] = {}
@@ -111,13 +130,15 @@ def build(sources: list[str] | None = None) -> list[Program]:
             name = (item.get("name") or "").strip()
             if not name or name.lower() in seen:
                 continue
-            grounded = _grounded(name, text)
-            kind = _classify(client, name, text) if grounded else "unknown"
+            if not _grounded(name, text):
+                continue  # not on the page: likely invented, drop it
+            for_whom = (item.get("for_whom") or "").strip()
+            if not _relevant(client, name, for_whom):
+                continue  # off-topic (appeals board, student aid, etc.), drop it
             seen[name.lower()] = Program(
-                name=name, for_whom=(item.get("for_whom") or "").strip(),
-                kind=kind, how_to_apply=(item.get("how_to_apply") or "").strip(),
-                source_url=url, grounded=grounded,
-                note="" if grounded else "name not found verbatim on the page; drop or re-source")
+                name=name, for_whom=for_whom, kind=_classify(client, name, text),
+                how_to_apply=(item.get("how_to_apply") or "").strip(),
+                source_url=url, grounded=True)
     return list(seen.values())
 
 
