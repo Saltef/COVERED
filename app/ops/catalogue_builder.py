@@ -22,9 +22,17 @@ from app.ops.policy_checker import CHAT_MODEL, _client, available  # reuse the C
 
 log = logging.getLogger(__name__)
 
+# Authoritative Ontario index pages (all verified to resolve). Expand this list to broaden coverage;
+# "all of Ontario" is not a finite set, so this is a curated breadth across the main provincial sources.
 SEED_SOURCES = [
+    "https://www.ontario.ca/page/find-benefits-and-programs",   # Ontario's own benefits finder
     "https://www.ontario.ca/page/home-community-care",
-    "https://www.ontario.ca/page/get-coverage-high-prescription-drug-costs",
+    "https://www.ontario.ca/page/long-term-care-ontario",
+    "https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
+    "https://www.ontario.ca/page/assistive-devices-program",
+    "https://www.ontario.ca/page/ontario-disability-support-program",
+    "https://www.ontario.ca/page/ontario-works",
+    "https://www.ontario.ca/page/mental-health-services",
 ]
 
 

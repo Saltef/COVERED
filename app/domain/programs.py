@@ -219,7 +219,7 @@ SOURCES: dict[str, str] = {
     "metc": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/lines-33099-33199-eligible-medical-expenses-you-claim-on-your-tax-return.html",
     "ccc": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/line-30450-canada-caregiver-amount-other-infirm-dependants-age-18-older-including-parent-grandparent.html",
     "rdsp": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/registered-disability-savings-plan-rdsp.html",
-    "otdp": "https://www.ontario.ca/page/get-coverage-high-prescription-drug-costs",
+    "otdp": "https://www.ontario.ca/page/get-help-high-prescription-drug-costs",
 }
 
 
