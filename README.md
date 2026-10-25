@@ -16,7 +16,7 @@ Covered informs and prepares. A person confirms and submits. Nothing is filed to
 
 ## How it works
 
-The rules engine decides eligibility. It is deterministic and auditable, benchmarked 100% against hand-labeled ground truth. The model only phrases the plain-language explanation. Dollar figures are verified against official sources, with a source link and a verified date on each program.
+The rules engine decides eligibility. It is deterministic and auditable. A regression suite of hand-labeled cases keeps it internally consistent and catches policy drift (it passes every case, which proves no regression, not real-world correctness). The real accuracy check is separate: a policy drift checker compares each dollar figure and threshold against the official government source, so every program carries a source link and a verified date. The model only phrases the plain-language explanation.
 
 ## Run
 

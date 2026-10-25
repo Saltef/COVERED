@@ -43,6 +43,12 @@ def run(cases: Optional[list[dict]] = None) -> dict:
             per_program_errors[m["program"]] = per_program_errors.get(m["program"], 0) + 1
     return {
         "source": source,
+        # What this measures: the engine's decisions against expectations hand-derived from the
+        # same program rules. A pass means no regression and internal consistency, NOT that the
+        # eligibility logic matches reality. The external accuracy check (engine figures vs
+        # official government sources) is scripts/check_policy_drift.py.
+        "measures": "regression / self-consistency vs hand-labeled expectations",
+        "external_accuracy_check": "scripts/check_policy_drift.py (figures vs official sources)",
         "n_cases": len(case_results),
         "cases_passed": sum(1 for c in case_results if c["passed"]),
         "decision_accuracy": round(total_correct / total, 4) if total else 0.0,

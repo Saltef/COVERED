@@ -1,8 +1,12 @@
-"""Hand-labeled ground-truth cases for benchmarking the screening agent.
+"""Hand-labeled regression cases for the screening engine.
 
 Each case lists the programs that SHOULD be actionable (eligible / likely / maybe) for that
-person, derived independently from the real program rules. The benchmark checks the engine's
-decisions against these labels, catching policy regressions and over/under-claiming.
+person. The labels are hand-derived from the same program rules the engine encodes, by the same
+team, so a pass measures regression-stability and internal consistency, NOT that the eligibility
+logic matches reality. The external accuracy check (engine figures vs official government sources)
+is the policy drift checker (scripts/check_policy_drift.py). This suite catches policy regressions
+and over/under-claiming across income caps, province gating, age bands, and the do-not-over-claim
+case.
 
 Drug-coverage age bands: under 25 = OHIP+, 25-64 = Trillium (if high rx cost), 65+ = Ontario Drug
 Benefit. Ontario programs (otdp, odb, ohipplus, adp) never fire outside Ontario.

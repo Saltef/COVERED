@@ -17,9 +17,11 @@ from app.eval.era import fetch_era_cases  # noqa: E402
 
 def main() -> None:
     report = run(fetch_era_cases())  # None unless Era access is configured -> built-in ground truth
-    print(f"\nBenchmark source: {report['source']}")
+    print(f"\nRegression suite source: {report['source']}")
+    print("Measures: regression / self-consistency vs hand-labeled expectations")
+    print("External accuracy check: scripts/check_policy_drift.py (figures vs official sources)")
     print(f"Cases passed:     {report['cases_passed']}/{report['n_cases']}")
-    print(f"Decision accuracy: {report['decision_accuracy'] * 100:.1f}%  "
+    print(f"Decision match:   {report['decision_accuracy'] * 100:.1f}%  "
           f"({report['correct_decisions']}/{report['total_decisions']} program decisions)\n")
     for c in report["cases"]:
         mark = "PASS" if c["passed"] else "FAIL"

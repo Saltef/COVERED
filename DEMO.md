@@ -33,7 +33,7 @@ Change "Can you direct your own attendants" to **Not sure**, check again.
 "For someone who cannot self-manage, Covered leads with Ontario Health atHome, agency-arranged care, with the services and how to start."
 
 **1:40 Why trust it (say).**
-"Every rule is deterministic and auditable, benchmarked 100% against hand-labeled ground truth. Every dollar figure is verified against official sources, with a source link and a verified date on each program."
+"Every rule is deterministic and auditable. A regression suite keeps it consistent and catches drift, and a policy drift checker verifies every dollar figure against its official government source, with a source link and a verified date on each program."
 
 **1:55 Close (say).**
 "One clear path, real numbers, real next steps, and we never pretend to submit what a human must. That is Covered."

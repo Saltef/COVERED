@@ -218,7 +218,7 @@ async function runBenchmark() {
   $("benchBtn").disabled = false;
   if (r.accuracy == null) { $("benchOut").textContent = r.agent_available === false ? "Co-pilot not configured." : ", "; return; }
   const pct = Math.round(r.accuracy * 100);
-  $("benchOut").innerHTML = `<span class="pill ok">&#10003; ${r.passed}/${r.n} correct · ${pct}% vs ground truth</span>`;
+  $("benchOut").innerHTML = `<span class="pill ok">&#10003; ${r.passed}/${r.n} correct · ${pct}% vs deterministic answer key</span>`;
   $("benchPill").innerHTML = `<span class="pill ok">benchmarked ${pct}%</span>`;
 }
 

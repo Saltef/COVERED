@@ -55,7 +55,9 @@ async def config() -> dict:
 
 @router.get("/benchmark")
 async def benchmark() -> dict:
-    """Score the screening agent against ground-truth cases (accuracy, per-program errors)."""
+    """Regression / self-consistency check: the engine's decisions against hand-labeled
+    expectations. Proves no regression, not real-world correctness; the external accuracy
+    check is scripts/check_policy_drift.py (figures vs official sources)."""
     from app.eval.benchmark import run
     from app.eval.era import fetch_era_cases
     return run(fetch_era_cases())

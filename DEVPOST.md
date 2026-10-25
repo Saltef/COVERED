@@ -20,8 +20,8 @@ Covered informs and prepares. A person confirms and submits. Nothing is filed to
 
 A modular FastAPI app in Docker, with a clean separation between deterministic rules and the model.
 
-- **Rules engine.** Pure, auditable eligibility for every program, benchmarked 100% (77/77 decisions) against hand-labeled ground truth covering income caps, province gating, age limits, and the do-not-over-claim case. The Direct Funding module encodes the real Reg 367/94 criteria and CILT's budget formula.
-- **Real numbers, cited.** Every dollar figure is verified against official sources (canada.ca, ontario.ca, CILT's guide), with a source link and a verified date surfaced in the UI.
+- **Rules engine.** Pure, auditable eligibility for every program. A regression suite of hand-labeled cases (130/130 program decisions) keeps it internally consistent across income caps, province gating, age bands, and the do-not-over-claim case. That proves no regression, not real-world correctness, so the accuracy check is separate (below). The Direct Funding module encodes the real Reg 367/94 criteria and CILT's budget formula.
+- **Real numbers, cited, and checked.** Every dollar figure and threshold is verified against its official source (canada.ca, ontario.ca, CILT's guide), with a source link and a verified date in the UI. A policy drift checker re-reads each official page and flags any figure that has changed, so the catalogue is the actual accuracy signal, not the hand-labeled suite.
 - **SurrealDB** with two-layer row-level security: every record is owner-scoped in the repository and in the database's table permissions. Caregivers get access only through an explicit grant.
 - **Honest by construction.** Auth fails closed (the app will not boot with the no-auth dev identity outside development). Demo-only features are labeled as such. The home-care journey is pure computation, so it needs no database or keys to run.
 - **Agency co-pilot.** An LLM tool-use agent answers questions over the screened book and over a simulated agency CRM on Era by Eon, benchmarked against exact ground truth.
