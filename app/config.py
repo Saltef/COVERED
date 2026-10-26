@@ -25,6 +25,22 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     cohere_api_key: str = ""
 
+    # Natural text-to-speech (optional). The browser's built-in speechSynthesis sounds robotic;
+    # with one of these keys set, /voice/speak returns real neural audio instead. ElevenLabs is
+    # preferred when both are set. OpenRouter has no audio endpoint, so OpenAI TTS needs a direct
+    # OpenAI key. Without any key the frontend falls back to the browser voice.
+    elevenlabs_api_key: str = ""
+    elevenlabs_voice_id: str = "21m00Tcm4TlvDq8ikWAM"   # "Rachel": warm, natural, clear
+    # eleven_turbo_v2_5 is very natural and low-latency; eleven_multilingual_v2 is a touch richer.
+    elevenlabs_model: str = "eleven_turbo_v2_5"
+    openai_api_key: str = ""
+    openai_tts_model: str = "gpt-4o-mini-tts"
+    openai_tts_voice: str = "shimmer"                   # warm female; others: nova, coral, alloy
+
+    @property
+    def tts_available(self) -> bool:
+        return bool(self.elevenlabs_api_key or self.openai_api_key)
+
     # LLM provider (OpenRouter, OpenAI-compatible) — powers the ops co-pilot + explanations.
     # Set OPENROUTER_MODEL to any OpenRouter id, e.g. "openai/gpt-4o-mini" (cheap) or
     # "anthropic/claude-3.5-haiku" (cheap Claude) or "google/gemini-2.0-flash-001" (cheapest).

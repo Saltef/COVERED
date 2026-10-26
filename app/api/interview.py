@@ -3,10 +3,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, Response, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
+from app.agents import tts
 from app.agents.voice import transcribe
 from app.domain.interview import FIELD_INDEX, QUESTIONS, parse_answer
 from app.security.auth import Principal, get_current_user
@@ -92,6 +93,21 @@ async def interview_parse(body: ParseIn, user: Principal = Depends(get_current_u
         "confirmation": pr.confirmation,
         "needs_clarification": pr.needs_clarification,
     }
+
+
+class SpeakIn(BaseModel):
+    text: str
+
+
+@router.post("/voice/speak")
+async def voice_speak(body: SpeakIn, user: Principal = Depends(get_current_user)) -> Response:
+    """Return natural neural audio (MP3) for the given text, or 204 when no TTS provider is
+    configured so the frontend falls back to the browser voice."""
+    audio = tts.synthesize(body.text)
+    if not audio:
+        return Response(status_code=204)
+    return Response(content=audio, media_type="audio/mpeg",
+                    headers={"Cache-Control": "no-store"})
 
 
 @router.post("/voice/transcribe")

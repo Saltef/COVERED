@@ -137,6 +137,8 @@
       <input type="text" id="answer" placeholder="Type your answer here" aria-label="Type your answer" />
       <button class="send" id="sendBtn">Enter</button>
     </div>
+    <!-- Tap-to-answer: Yes/No for yes-no questions, a picker for province. Typing and voice stay available. -->
+    <div id="choiceRow" style="display:none;gap:12px;flex-wrap:wrap;margin-top:4px"></div>
 
     <div class="altrow">
       <button class="ghost" id="micBtn" aria-pressed="false">&#127908; Speak instead</button>
@@ -219,13 +221,30 @@ function pickVoice() {
   };
   VOICE = list.slice().sort((a, b) => score(b) - score(a))[0] || null;
 }
-function speak(text) {
+let currentAudio = null;
+async function speak(text) {
+  if (!text) return;
+  try { window.speechSynthesis.cancel(); } catch (e) {}
+  if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
+  // Try real neural TTS first; it sounds human. Falls back to the browser voice on 204 or error.
+  try {
+    const r = await fetch("/voice/speak", { method: "POST", headers: hdrs(true), body: JSON.stringify({ text }) });
+    if (r.ok && r.status === 200) {
+      const url = URL.createObjectURL(await r.blob());
+      const a = new Audio(url); currentAudio = a;
+      a.onended = () => URL.revokeObjectURL(url);
+      await a.play();
+      return;
+    }
+  } catch (e) {}
+  browserSpeak(text);
+}
+function browserSpeak(text) {
   try {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     if (VOICE) u.voice = VOICE;
-    u.rate = 0.9;    // slightly slow = calm, relaxed, easy to follow
-    u.pitch = 1.0;
+    u.rate = 0.95; u.pitch = 1.0;   // the robotic fallback; used only when no TTS key is set
     window.speechSynthesis.speak(u);
   } catch (e) {}
 }
@@ -257,6 +276,41 @@ async function loadScript() {
   script = await (await fetch("/interview/script", { headers: hdrs(false) })).json();
   ask();
 }
+const PROVINCES = [["ON","Ontario"],["QC","Quebec"],["BC","British Columbia"],["AB","Alberta"],
+  ["MB","Manitoba"],["SK","Saskatchewan"],["NS","Nova Scotia"],["NB","New Brunswick"],
+  ["NL","Newfoundland and Labrador"],["PE","Prince Edward Island"],["YT","Yukon"],
+  ["NT","Northwest Territories"],["NU","Nunavut"]];
+
+// Render tap-to-answer controls for this question. Yes/No for yes-no questions, a picker for
+// province, otherwise the text box. Typing and the voice buttons stay available in every case.
+function renderControls(q) {
+  const typerow = document.querySelector(".typerow");
+  const cr = $("choiceRow");
+  cr.innerHTML = "";
+  const bigBtn = "flex:1;min-width:120px;min-height:56px;font:inherit;font-size:20px;font-weight:700;" +
+    "border:2px solid var(--brand);border-radius:12px;background:#fff;color:var(--brand);cursor:pointer";
+  if (q.type === "bool") {
+    typerow.style.display = "none"; cr.style.display = "flex";
+    [["Yes", true], ["No", false]].forEach(([lbl]) => {
+      const b = document.createElement("button");
+      b.style.cssText = bigBtn; b.textContent = lbl;
+      b.addEventListener("click", () => handleAnswer(lbl));
+      cr.appendChild(b);
+    });
+  } else if (q.type === "enum" && q.field === "province") {
+    typerow.style.display = "none"; cr.style.display = "flex";
+    const sel = document.createElement("select");
+    sel.style.cssText = "flex:1;min-width:200px;min-height:56px;font:inherit;font-size:19px;" +
+      "padding:0 12px;border:2px solid var(--line);border-radius:12px;background:#fff";
+    sel.innerHTML = '<option value="">Choose your province or territory…</option>' +
+      PROVINCES.map(p => `<option value="${p[0]}">${p[1]}</option>`).join("");
+    sel.addEventListener("change", () => { if (sel.value) handleAnswer(sel.value); });
+    cr.appendChild(sel);
+  } else {
+    typerow.style.display = "flex"; cr.style.display = "none";
+  }
+}
+
 function ask() {
   while (idx < script.length && prefilled.has(script[idx].field)) idx++;  // skip what the upload filled
   if (idx >= script.length) return showReview();
@@ -265,7 +319,8 @@ function ask() {
   $("bar").style.width = Math.round((idx / script.length) * 100) + "%";
   $("question").textContent = q.prompt;
   $("answer").value = "";
-  $("answer").focus();
+  renderControls(q);
+  if (q.type !== "bool" && !(q.type === "enum" && q.field === "province")) $("answer").focus();
   setStatus("");
   speak(q.prompt);
 }
