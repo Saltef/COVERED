@@ -1,54 +1,68 @@
 # Covered: Devpost submission
 
-**Tagline:** Home care in Ontario, found and prepared in one clear path.
+**Elevator pitch:** Older adults in Ontario miss care and benefits they qualify for. Covered screens 10 programs in a few taps, reads a tax slip, routes home care and prepares the forms.
 
 ## Inspiration
 
-Older adults and people with disabilities in Ontario struggle to find and set up home care. The programs exist, but the paths are a maze: self-managed attendant care, agency care, tax credits, drug and dental coverage, each with its own forms and front door. People miss what they qualify for, and the paperwork is hard. We wanted one clear path that finds the right program and prepares the real application, so a person just reviews and signs.
+We built Covered for people like Maria, a benefits caseworker who knows every program her clients are owed but can't get most of them there. Getting there means forms, offices and proof, and there is only one of her.
+
+The research said the same thing. In a peer-reviewed study of Ontario caregivers, one put it plainly: "If you don't go online and do your research, you have no clue." Under 40% of eligible people claim the Disability Tax Credit, about a third have an RDSP, and only 12% of caregivers have ever claimed the Canada Caregiver Credit.
 
 ## What it does
 
-Covered opens on a home-care journey. Answer a few questions and it routes you to the right program with your real next steps.
-
-- **Direct Funding** (self-managed attendant services, administered by CILT). Eligibility against Ontario Reg 367/94, a real monthly budget estimate from CILT's own formula (hours, wages, employer costs, contingency), and the real application sections laid out.
-- **Ontario Health atHome** (agency-arranged care) for people who do not self-manage. The services, the process, and how to start.
-- **Other benefits.** A deterministic screener for 7 federal and Ontario programs (DTC, CDCP, Trillium and more), with a dollar estimate and an official source link per program.
-
-Covered informs and prepares. A person confirms and submits. Nothing is filed to government automatically.
+- **Screens 10 federal and Ontario programs** from a few questions. People can tap Yes/No, type, or speak, or upload a photo of their CRA Notice of Assessment so income is read for them. The SIN is never read or stored.
+- **Routes home care**: Direct Funding (the person hires and directs their own attendants, using the real Reg 367/94 criteria) or Ontario Health atHome (care arranged for them). It estimates the Direct Funding budget from CILT's published formula; CILT sets the final amount.
+- **Prepares applications**: it pre-fills what it safely can and names what is still needed. A person confirms and submits. Nothing is ever filed automatically.
+- **Connects the care team**: a caregiver gets access only with consent, and a clinician completes the medical part of the DTC.
+- **Plugs into organizations**: an agency console screens a whole caseload (a simulated CRM through Era) with a co-pilot that answers from exact counts, and partners can embed a widget or call one API.
+- **Shows only numbers it can calculate.** Coverage programs such as dental are labelled as coverage, not given invented dollar amounts.
 
 ## How we built it
 
-A modular FastAPI app in Docker, with a clean separation between deterministic rules and the model.
+- **FastAPI and Python, in Docker.** A deterministic rules engine makes every eligibility decision. The language model (through OpenRouter) only writes the plain-language explanation.
+- **A drift checker built on Cohere** re-reads canada.ca and ontario.ca. One agent finds the figure and a verbatim quote; a second agent independently verifies it. Anything it isn't confident about goes to a human. Today it re-checks 11 of the 15 figures automatically.
+- **SurrealDB** with two layers of row-level security (it runs embedded when no server is available). SurrealDB Agent Memory keeps each confirmed figure with its source, date and quote, so a changed value supersedes the old one instead of erasing it.
+- **A vision model** reads the Notice of Assessment. Natural voice comes from ElevenLabs, with a browser fallback.
+- **99 automated tests in CI**, covering the engine, the API, full user journeys, privacy and row-level security.
 
-- **Rules engine.** Pure, auditable eligibility for every program. A regression suite of hand-labeled cases (130/130 program decisions) keeps it internally consistent across income caps, province gating, age bands, and the do-not-over-claim case. That proves no regression, not real-world correctness, so the accuracy check is separate (below). The Direct Funding module encodes the real Reg 367/94 criteria and CILT's budget formula.
-- **Real numbers, cited, and checked.** Every dollar figure and threshold is verified against its official source (canada.ca, ontario.ca, CILT's guide), with a source link and a verified date in the UI. A policy drift checker re-reads each official page and flags any figure that has changed, so the catalogue is the actual accuracy signal, not the hand-labeled suite.
-- **Time-aware policy memory (SurrealDB Agent Memory).** The drift checker's confident readings are written to Agent Memory as facts with full provenance (value, source URL, date, verbatim quote). A changed value supersedes the prior fact rather than overwriting it, so the memory is a queryable history of what each figure was and when. The app reads the current value and its source back at `/ops/policy-history`. Only public policy facts go here; no user, health, or income data (that stays in our own SurrealDB under PHIPA).
-- **SurrealDB** with two-layer row-level security: every record is owner-scoped in the repository and in the database's table permissions. Caregivers get access only through an explicit grant.
-- **Honest by construction.** Auth fails closed (the app will not boot with the no-auth dev identity outside development). Demo-only features are labeled as such. The home-care journey is pure computation, so it needs no database or keys to run.
-- **Agency co-pilot.** An LLM tool-use agent answers questions over the screened book and over a simulated agency CRM on Era by Eon, benchmarked against exact ground truth.
-- **Swappable LLM** through an OpenAI-compatible layer (OpenRouter), running Claude for cents.
-- **Tested.** A four-layer pytest suite (engine matrix, API contracts, persona journeys, resilience) runs in CI.
+The Direct Funding estimate follows CILT's formula:
+
+$$B = (1 + c)\,\big(h \cdot w \cdot (1 + m) + a\big)$$
+
+where h is monthly attendant hours (capped at 212.2), w = 22 per hour, m = 0.21 for employer costs, a = 215 for admin, and c = 0.05 for contingency. Thirty hours a week gives about 3,857 a month.
 
 ## Challenges we ran into
 
-- **Breadth was hiding the product.** We first built a broad benefits screener with no clear use case. We refocused on one person and one job: older adults setting up home care. The engine and care-team work carried over; the path got clear.
-- **Real forms, not fake ones.** We pulled the actual Direct Funding criteria and budget formula from CILT's own guide, so the eligibility and the estimate are real, not approximations.
-- **Cheap model, exact answers.** A cheap model could not aggregate hundreds of records reliably. We moved the counting and summing into exact server-side tools; the agent just picks the right one, and accuracy went to 100%.
+- **Breadth was hiding the product.** A general benefits screener had no clear user. Focusing on older adults setting up home care made the path obvious.
+- **Adding AI without losing trust.** The model does language and discovery; the deterministic engine decides. The drift checker flagged a live mismatch in the Canada Disability Benefit threshold between our figure and a canada.ca page, and sent it to a human instead of changing the rule.
+- **Keeping our own numbers honest.** We removed a placeholder dental value and stopped calling our regression suite "100% accurate", because passing cases we wrote ourselves proves consistency, not correctness.
+- **Infrastructure.** A database server and client that had drifted to different versions broke persistence. We pinned them and made the database run embedded, so the demo works anywhere.
+
+## Accomplishments that we're proud of
+
+- **Real forms, not mock-ups**: the actual Direct Funding criteria and CILT's budget formula.
+- **Honest by construction**: every figure links to its source and date, and a person always confirms.
+- **Built for busy people**: large text, tap-to-answer, voice, and upload instead of typing.
 
 ## What we learned
 
-Agents win when the tools do the exact work (deterministic rules, aggregation) and the model does the language. And a product for vulnerable users wins on a clear path and honesty: one route, real numbers, real next steps, and never pretending to submit what a human must.
+The person with the problem often can't pay. The value goes to whoever captures it, and only one saving can be proven with arithmetic today: disability insurers reduce long-term disability payments dollar for dollar by any CPP Disability benefit a claimant is approved for, so a better-prepared application is directly measurable. Hospitals freeing beds and employers keeping caregivers at work are strong hypotheses we still need to test with a pilot.
 
 ## What's next
 
-Add the Assistive Devices Program; wire Clerk for the professional dashboards; a Canadian-region deploy for PHIPA; a pilot with a community agency or an Independent Living Centre.
+- Model tax owed, so non-refundable credits are valued for each household's real situation.
+- Read PDF Notices of Assessment, not only photos.
+- Turn on real sign-in, and host in a Canadian region for privacy.
+- Add provinces one by one.
+- Run a first pilot with a payer, measuring the savings it captures.
 
 ## Built with
 
-Python, FastAPI, SurrealDB, OpenRouter (Claude), Cohere, Clerk, Eon / Era, Docker, pytest.
+Python, FastAPI, SurrealDB, SurrealDB Agent Memory, OpenRouter, Cohere, ElevenLabs, Clerk, Eon / Era, Docker, pytest.
 
 ## Links
 
 - Live demo: (deployed URL)
 - Repo: https://github.com/Saltef/COVERED
-- Demo video: (2-min, script in DEMO.md)
+- Demo video: [demo/covered-demo.mp4](demo/covered-demo.mp4) in the repo (upload to YouTube or Vimeo for the Devpost link)
+- Logo and thumbnail: [brand/](brand/)
