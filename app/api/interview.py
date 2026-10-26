@@ -23,6 +23,13 @@ async def index() -> FileResponse:
     return FileResponse(WEB_DIR / "start.html")
 
 
+@router.get("/report")
+async def report() -> FileResponse:
+    """The before/after report: the take-up gap, the journey with and without covered, and a
+    worked example computed by the live engine."""
+    return FileResponse(WEB_DIR / "report.html")
+
+
 @router.get("/benefits")
 async def benefits() -> FileResponse:
     """The broader benefits screener (DTC, CDCP, Trillium and the rest), demoted from the front door."""

@@ -68,6 +68,21 @@
   .honest .demo { background: var(--maybe-bg); } .honest .demo b { color: var(--maybe); }
   .honest ul { margin: 6px 0 0; padding-left: 18px; } .honest li { margin: 5px 0; }
 
+  /* integration */
+  .integ { display: grid; gap: 12px; }
+  .ipt { display: grid; grid-template-columns: 46px 1fr; gap: 14px; border: 2px solid var(--line);
+    border-radius: 14px; padding: 16px; background: #fffdfb; }
+  .ipt .ic { width: 46px; height: 46px; border-radius: 12px; background: var(--brand-tint);
+    display: grid; place-items: center; font-size: 22px; }
+  .ipt .t { font-weight: 800; font-size: 18px; }
+  .ipt p { margin: 2px 0 10px; font-size: 16px; color: var(--muted); }
+  .tests { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .tests .lbl { font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  .tests a { font-size: 15px; font-weight: 700; text-decoration: none; border: 2px solid var(--brand);
+    color: var(--brand-strong); border-radius: 99px; padding: 4px 14px; background: #fff; }
+  .tests a:hover { background: var(--brand-tint); }
+  .more { margin: 16px 0 0; font-weight: 700; }
+
   .foot { text-align: center; color: var(--muted); font-size: 15px; padding: 10px 0 36px; }
 </style>
 </head>
@@ -106,9 +121,9 @@
       <a class="pcard" href="/developers"><div class="ico">&#128295;</div>
         <div class="t">I'm a developer or judge</div>
         <div class="d">The embed API, the deterministic engine, and how it stays honest.</div></a>
-      <a class="pcard" href="#how"><div class="ico">&#128161;</div>
+      <a class="pcard" href="#integration"><div class="ico">&#128161;</div>
         <div class="t">Show me how it works</div>
-        <div class="d">The before/after and what is real versus demo, below.</div></a>
+        <div class="d">How it plugs into existing systems, with a test link for each piece.</div></a>
     </div>
   </section>
 
@@ -140,6 +155,7 @@
         </ul>
       </div>
     </div>
+    <p class="more"><a href="/report">Read the full before/after report, with a worked example &#8594;</a></p>
   </section>
 
   <!-- proof -->
@@ -154,6 +170,44 @@
     </div>
   </section>
 
+  <!-- integration: how it works, each piece with a link to test it -->
+  <section class="card" id="integration">
+    <h2>Integration</h2>
+    <p class="sub">How covered plugs into the systems people and organizations already use. Each piece links to a working test.</p>
+    <div class="integ">
+      <div class="ipt"><div class="ic">&#129513;</div><div>
+        <div class="t">Embeds in sites people already visit</div>
+        <p>One script tag drops the screener into a pharmacy portal or tax software, pre-filled from what that site already knows about the person.</p>
+        <div class="tests"><span class="lbl">Test</span><a href="/pharmacy">Pharmacy demo</a><a href="/tax">Tax software demo</a></div>
+      </div></div>
+      <div class="ipt"><div class="ic">&#128268;</div><div>
+        <div class="t">One API for any system</div>
+        <p>POST a profile to <code>/v1/eligibility</code> and get every program back with its coverage and official source, as JSON. The widget and the app call the same engine.</p>
+        <div class="tests"><span class="lbl">Test</span><a href="/developers">API docs and examples</a></div>
+      </div></div>
+      <div class="ipt"><div class="ic">&#128196;</div><div>
+        <div class="t">Reads the paperwork people already have</div>
+        <p>Upload a photo of a CRA Notice of Assessment: income and province are read so those questions are skipped. The SIN is never read or stored.</p>
+        <div class="tests"><span class="lbl">Test</span><a href="/benefits">Try an upload</a></div>
+      </div></div>
+      <div class="ipt"><div class="ic">&#127970;</div><div>
+        <div class="t">Works across a whole caseload</div>
+        <p>An agency's client list is pulled in (here, a simulated CRM through Era) and every client is screened. A co-pilot answers questions about the book with exact counts, not guesses.</p>
+        <div class="tests"><span class="lbl">Test</span><a href="/agency">Agency console</a></div>
+      </div></div>
+      <div class="ipt"><div class="ic">&#129309;</div><div>
+        <div class="t">Connects the people around the client</div>
+        <p>A caregiver gets access only with the client's consent, and can prepare applications. A clinician completes the medical part of the Disability Tax Credit.</p>
+        <div class="tests"><span class="lbl">Test</span><a href="/caregiver">Caregiver view</a><a href="/clinician">Clinician view</a></div>
+      </div></div>
+      <div class="ipt"><div class="ic">&#9989;</div><div>
+        <div class="t">Rules that stay correct</div>
+        <p>A deterministic rules engine decides eligibility, never the AI; the AI only explains in plain language. A checker re-reads canada.ca and ontario.ca and flags any figure that has changed.</p>
+        <div class="tests"><span class="lbl">Test</span><a href="/benchmark">Regression results (raw JSON)</a><a href="/report">The report</a></div>
+      </div></div>
+    </div>
+  </section>
+
   <!-- honesty for judges -->
   <section class="card">
     <h2>What's real, and what's demo</h2>
@@ -162,7 +216,7 @@
       <div class="box real">
         <b>&#10003; Real</b>
         <ul>
-          <li>The rules engine: deterministic, auditable, 94 tests, cited figures.</li>
+          <li>The rules engine: deterministic, auditable, 99 tests, cited figures.</li>
           <li>The Notice of Assessment reader (income extracted; SIN never stored).</li>
           <li>The policy drift checker: re-reads official pages and flags changed figures.</li>
           <li>SurrealDB persistence with two-layer row-level security.</li>
@@ -180,7 +234,7 @@
   </section>
 
   <p class="foot">Built for the Georgian "Build North: Ship Something Real" hackathon &middot;
-     <a href="/developers">How it works</a></p>
+     <a href="/report">Report</a> &middot; <a href="#integration">Integration</a> &middot; <a href="/developers">Developers</a></p>
 
 </div>
 </body>

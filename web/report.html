@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Before and after covered</title>
+<link rel="icon" href="/static/logo.svg" />
+<link rel="stylesheet" href="/static/styles.css" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 18px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 16px; }
+  a { color: var(--brand-strong); }
+  .top { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
+  .top img { height: 40px; width: auto; display: block; }
+  .top a.back { font-size: 15px; font-weight: 700; text-decoration: none; }
+
+  .intro { padding: 18px 0 4px; }
+  .kicker { color: var(--brand-strong); font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+    font-size: 14px; margin: 0; }
+  .intro h1 { font-size: 38px; line-height: 1.15; margin: 8px 0 10px; }
+  .intro p { font-size: 19px; margin: 0 0 8px; max-width: 700px; }
+  .intro .meta { color: var(--muted); font-size: 15px; }
+
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+    padding: 24px; margin: 22px 0; }
+  h2 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 18px; font-size: 16px; }
+  .note { color: var(--muted); font-size: 15px; margin: 14px 0 0; }
+
+  /* meters: share of eligible people who claim (ratio against 100%) */
+  .meter { margin: 16px 0; outline: none; border-radius: 10px; padding: 4px 6px; }
+  .meter:focus-visible, .meter:hover { background: #fffaf6; }
+  .meter .row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .meter .name { font-weight: 700; font-size: 17px; }
+  .meter .val { font-weight: 800; font-size: 22px; color: var(--ink); }
+  .meter .track { height: 22px; border-radius: 4px; background: var(--brand-tint); margin: 6px 0 4px; overflow: hidden; }
+  .meter .fill { height: 100%; background: var(--brand); border-radius: 0 4px 4px 0; }
+  .meter .base { color: var(--muted); font-size: 14px; }
+
+  /* journey diagram */
+  .journey { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px) { .journey { grid-template-columns: 1fr; } }
+  .lane { border-radius: 14px; padding: 18px; border: 2px solid var(--line); }
+  .lane.before { background: #fbf3ee; } .lane.after { background: var(--brand-tint); border-color: var(--brand); }
+  .lane h3 { margin: 0 0 4px; font-size: 18px; }
+  .lane .lab { font-size: 13px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+  .before .lab { color: var(--muted); } .after .lab { color: var(--brand-strong); }
+  .steps { list-style: none; margin: 12px 0 0; padding: 0; }
+  .steps li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; position: relative; padding: 0 0 14px; }
+  .steps li:not(:last-child)::after { content: ""; position: absolute; left: 16px; top: 34px; bottom: 2px;
+    width: 2px; background: var(--line); }
+  .after .steps li:not(:last-child)::after { background: #f3c4a2; }
+  .num { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800;
+    font-size: 15px; background: #fff; border: 2px solid var(--line); color: var(--muted); }
+  .after .num { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .steps .t { font-weight: 700; font-size: 16px; } .steps .d { color: var(--muted); font-size: 15px; }
+  .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 4px; }
+  @media (max-width: 680px) { .summary { grid-template-columns: 1fr; } }
+  .summary div { font-size: 15px; color: var(--muted); padding: 0 4px; }
+  .summary b { color: var(--ink); }
+
+  /* worked example */
+  .persona { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+  .chip { background: #fffdfb; border: 2px solid var(--line); border-radius: 99px; padding: 4px 12px; font-size: 15px; }
+  .hero { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 0 0 6px; }
+  .hero .n { font-size: 52px; font-weight: 800; line-height: 1; }
+  .hero .l { font-size: 18px; color: var(--muted); }
+  .bars { margin: 18px 0 6px; }
+  .bar { display: grid; grid-template-columns: 210px 1fr; gap: 12px; align-items: center; padding: 6px 4px;
+    border-radius: 10px; outline: none; }
+  .bar:hover, .bar:focus-visible { background: #fffaf6; }
+  @media (max-width: 560px) { .bar { grid-template-columns: 1fr; gap: 4px; } }
+  .bar .who { font-size: 16px; font-weight: 700; line-height: 1.3; }
+  .bar .kind { display: block; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .bar .lane2 { display: flex; align-items: center; gap: 10px; }
+  .bar .b { height: 22px; background: var(--brand); border-radius: 0 4px 4px 0; min-width: 4px; }
+  .bar .v { font-weight: 800; font-size: 17px; white-space: nowrap; }
+  .axis { display: grid; grid-template-columns: 210px 1fr; gap: 12px; padding: 0 4px; }
+  @media (max-width: 560px) { .axis { display: none; } }
+  .axis .ticks { display: flex; justify-content: space-between; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; padding-top: 4px; }
+  .cov { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  @media (max-width: 560px) { .cov { grid-template-columns: 1fr; } }
+  .cov div { border: 2px dashed var(--line); border-radius: 12px; padding: 12px 14px; font-size: 15px; background: #fffdfb; }
+  .cov b { display: block; font-size: 16px; }
+  .caveat { background: var(--maybe-bg); border-radius: 12px; padding: 12px 14px; font-size: 15px; margin-top: 16px; }
+  .caveat b { color: var(--maybe); }
+
+  /* stat tiles */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .tile { border: 2px solid var(--line); border-radius: 14px; padding: 16px; background: #fffdfb; }
+  .tile .v { font-size: 32px; font-weight: 800; line-height: 1.1; }
+  .tile .l { font-size: 15px; color: var(--muted); margin-top: 6px; }
+
+  details { margin-top: 12px; font-size: 15px; }
+  summary { cursor: pointer; color: var(--brand-strong); font-weight: 700; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .sources { font-size: 14px; color: var(--muted); padding-left: 20px; }
+  .sources li { margin: 4px 0; }
+  .cta { display: inline-flex; align-items: center; min-height: 56px; padding: 0 22px; border-radius: 14px;
+    background: var(--brand); color: #fff; font-weight: 800; text-decoration: none; font-size: 18px;
+    box-shadow: 0 4px 0 var(--brand-strong); margin: 6px 10px 0 0; }
+  .cta.sec { background: #fff; color: var(--brand-strong); border: 2px solid var(--brand); box-shadow: none; }
+
+  #tip { position: fixed; pointer-events: none; z-index: 10; max-width: 280px; background: var(--ink); color: #fff;
+    font-size: 14px; line-height: 1.4; padding: 8px 10px; border-radius: 8px; opacity: 0; transition: opacity .12s; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a href="/" aria-label="covered home"><img src="/static/logo-wordmark.svg" alt="covered" /></a>
+    <a class="back" href="/">&#8592; Back to start</a>
+  </div>
+
+  <section class="intro">
+    <p class="kicker">Report</p>
+    <h1>Before and after covered</h1>
+    <p>Older adults in Ontario, and the family members who care for them, are entitled to more support than they
+       receive. Not because they don't qualify, but because finding, understanding and applying for it is hard.</p>
+    <p>This report shows the gap as it stands, what the journey looks like with and without covered, and one worked
+       example run through the live engine.</p>
+    <p class="meta">Figures are cited below. The worked example is computed by the same engine the app uses.</p>
+  </section>
+
+  <!-- 1. the gap -->
+  <section class="card">
+    <h2>The gap today</h2>
+    <p class="sub">Share of people who claim, out of everyone who could. Each bar has its own base, so read them separately.</p>
+    <div id="meters"></div>
+    <details><summary>View as table</summary>
+      <table><thead><tr><th>Program</th><th>Who it counts</th><th class="num">Claim it</th></tr></thead>
+      <tbody id="meterTable"></tbody></table>
+    </details>
+    <p class="note">Home care itself is slow to start, too: in the Auditor General's 2015 audit, 65% of initial
+       home care assessments missed the required timeframe, some by a year or more.</p>
+  </section>
+
+  <!-- 2. the journey -->
+  <section class="card">
+    <h2>The journey, before and after</h2>
+    <p class="sub">The same person trying to set up care and claim what they're owed.</p>
+    <div class="journey">
+      <div class="lane before">
+        <span class="lab">Today</span>
+        <h3>Five scattered steps</h3>
+        <ol class="steps">
+          <li><span class="num">1</span><div><div class="t">Hear about programs by chance</div>
+            <div class="d">A search, a friend, or a hospital social worker. No one tells you proactively.</div></div></li>
+          <li><span class="num">2</span><div><div class="t">Call each office separately</div>
+            <div class="d">Home care, CRA, Service Canada, CILT. Each has its own rules and phone line.</div></div></li>
+          <li><span class="num">3</span><div><div class="t">Dig up your income figures</div>
+            <div class="d">Every income-tested program asks for numbers few people remember.</div></div></li>
+          <li><span class="num">4</span><div><div class="t">Fill long forms and repeat your story</div>
+            <div class="d">Different forms, the same details, again and again.</div></div></li>
+          <li><span class="num">5</span><div><div class="t">Miss the links between programs</div>
+            <div class="d">The Disability Tax Credit unlocks the Canada Disability Benefit and the RDSP. That link is invisible.</div></div></li>
+        </ol>
+      </div>
+      <div class="lane after">
+        <span class="lab">With covered</span>
+        <h3>Three steps in one place</h3>
+        <ol class="steps">
+          <li><span class="num">1</span><div><div class="t">Answer a few questions, or upload</div>
+            <div class="d">Tap, type or speak. Upload a Notice of Assessment and we read your income for you.</div></div></li>
+          <li><span class="num">2</span><div><div class="t">See everything you may qualify for</div>
+            <div class="d">In plain language, each with its official source, and the unlock chain spelled out.</div></div></li>
+          <li><span class="num">3</span><div><div class="t">Get forms prepared and the next step named</div>
+            <div class="d">You confirm and submit. A caregiver can follow along with your consent.</div></div></li>
+        </ol>
+      </div>
+    </div>
+    <div class="summary">
+      <div><b>Today:</b> many offices, many forms, and the most valuable connection left for you to discover.</div>
+      <div><b>With covered:</b> one place, one set of answers, and nothing filed without you.</div>
+    </div>
+  </section>
+
+  <!-- 3. worked example -->
+  <section class="card">
+    <h2>A worked example: Margaret</h2>
+    <p class="sub">A sample client run through the live engine, exactly as the app does it.</p>
+    <div class="persona">
+      <span class="chip">71 years old</span><span class="chip">Ontario</span>
+      <span class="chip">$28,500 net income</span><span class="chip">Reports a lasting impairment</span>
+      <span class="chip">$3,500 medical costs</span><span class="chip">$1,800 prescriptions</span>
+    </div>
+    <div class="hero"><span class="n">5</span><span class="l">programs she may qualify for</span></div>
+    <p style="margin:0;font-size:16px">Three have a dollar value the engine can calculate (up to $3,538 a year);
+       two provide coverage rather than cash.</p>
+
+    <div class="bars" id="bars"></div>
+    <div class="axis"><span></span><div class="ticks" id="ticks"></div></div>
+    <details><summary>View as table</summary>
+      <table><thead><tr><th>Program</th><th>Status</th><th>Kind</th><th class="num">Value / year</th></tr></thead>
+      <tbody id="barTable"></tbody></table>
+    </details>
+
+    <div class="cov">
+      <div><b>Canadian Dental Care Plan</b>Eligible. Pays a share of the set fee for dental care; the cash value depends on the treatment.</div>
+      <div><b>Assistive Devices Program</b>May qualify. Funds about 75% of approved equipment such as mobility aids.</div>
+    </div>
+    <div class="caveat"><b>Read the tax credits carefully.</b> The Disability Tax Credit and Medical Expense Tax Credit are
+      non-refundable: they reduce tax owed. At Margaret's income she may owe little tax, so their value may come mainly from
+      transferring the credit to a supporting family member. We show these as ceilings, not cash in hand.</div>
+    <p style="margin:16px 0 0"><a class="cta" href="/benefits">Try her case yourself &#8594;</a></p>
+  </section>
+
+  <!-- 4. why trust the after -->
+  <section class="card">
+    <h2>Why you can trust the after</h2>
+    <p class="sub">Things you can check in the repository and the running app.</p>
+    <div class="tiles">
+      <div class="tile"><div class="v">2</div><div class="l">questions skipped by uploading a Notice of Assessment (income and province)</div></div>
+      <div class="tile"><div class="v">11 of 15</div><div class="l">policy figures re-checked automatically against official government pages</div></div>
+      <div class="tile"><div class="v">130/130</div><div class="l">program decisions match the hand-labelled regression cases</div></div>
+      <div class="tile"><div class="v">99</div><div class="l">automated tests, including privacy and row-level security</div></div>
+    </div>
+    <p class="note">The regression cases prove the engine is consistent, not that it matches reality; the policy check
+       against official pages is what keeps the figures honest.</p>
+  </section>
+
+  <section class="card">
+    <h2>Try it</h2>
+    <p class="sub">Every part of this report is a working flow.</p>
+    <a class="cta" href="/homecare">Set up home care</a><a class="cta sec" href="/benefits">Find benefits</a>
+    <a class="cta sec" href="/#integration">How it plugs in</a>
+  </section>
+
+  <section style="padding: 4px 0 30px">
+    <h2 style="font-size:18px">Sources</h2>
+    <ol class="sources">
+      <li>Disability Tax Credit take-up under 40%: Dunn &amp; Zwicker (2018); programs tied to the DTC under 50% (Canadian Tax Observatory, via CBC).</li>
+      <li>RDSP: about 34% of eligible people have opened one (Statistics Canada 2024, via CBC); 36.3% in 2022 (Canadian Journal of Public Health).</li>
+      <li>Canada Caregiver Credit: 43% of caregivers did not know it existed and 12% had ever claimed it (CIBC poll, 2018).</li>
+      <li>Home care assessments: Auditor General of Ontario, 2015 annual report.</li>
+      <li>Worked example: computed by the covered rules engine with the sample client; program rules and rates cite canada.ca and ontario.ca.</li>
+    </ol>
+    <p class="note">Full references and the research behind the use cases: GROUNDED-USE-CASES.md in the repository.</p>
+  </section>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const tip = document.getElementById("tip");
+function showTip(e, html) {
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const r = e.currentTarget.getBoundingClientRect();
+  const x = Math.min(window.innerWidth - 296, Math.max(8, (e.clientX || r.left + 40) + 12));
+  const y = (e.clientY || r.top) + 14;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+function hideTip() { tip.style.opacity = 0; }
+function hover(el, html) {
+  el.tabIndex = 0;
+  el.addEventListener("mousemove", e => showTip(e, html));
+  el.addEventListener("focus", e => showTip(e, html));
+  el.addEventListener("mouseleave", hideTip); el.addEventListener("blur", hideTip);
+}
+
+// 1. take-up meters (each its own base, so separate meters, not one shared axis)
+const METERS = [
+  { name: "Disability Tax Credit", pct: 40, label: "under 40%", base: "of eligible people claim it",
+    tip: "Under 40% of eligible Canadians claim the DTC (Dunn & Zwicker 2018). Bar drawn at the 40% upper bound." },
+  { name: "Registered Disability Savings Plan", pct: 34, label: "about 34%", base: "of eligible people have opened one",
+    tip: "About 34% of people who qualify have an RDSP (Statistics Canada 2024)." },
+  { name: "Canada Caregiver Credit", pct: 12, label: "12%", base: "of caregivers have ever claimed it",
+    tip: "12% of caregivers had ever claimed it, and 43% didn't know it existed (CIBC poll 2018)." },
+];
+const mWrap = document.getElementById("meters"), mTable = document.getElementById("meterTable");
+for (const m of METERS) {
+  const el = document.createElement("div"); el.className = "meter";
+  el.setAttribute("aria-label", `${m.name}: ${m.label} ${m.base}`);
+  el.innerHTML = `<div class="row"><span class="name">${m.name}</span><span class="val">${m.label}</span></div>
+    <div class="track"><div class="fill" style="width:${m.pct}%"></div></div>
+    <div class="base">${m.base}</div>`;
+  hover(el, m.tip); mWrap.appendChild(el);
+  mTable.insertAdjacentHTML("beforeend", `<tr><td>${m.name}</td><td>${m.base}</td><td class="num">${m.label}</td></tr>`);
+}
+
+// 3. Margaret's calculable values (from the engine; single series, value at the bar end)
+const PROGRAMS = [
+  { name: "Ontario Drug Benefit", kind: "drug coverage", status: "eligible", value: 1620,
+    tip: "Eligible: automatic at 65+ in Ontario. Value is the prescription cost the plan covers (small co-pay)." },
+  { name: "Disability Tax Credit", kind: "tax credit, ceiling", status: "may qualify", value: 1521,
+    tip: "May qualify: needs a medical practitioner to certify. Non-refundable; transferable to a supporting relative." },
+  { name: "Medical Expense Tax Credit", kind: "tax credit, ceiling", status: "eligible", value: 397,
+    tip: "Eligible: $3,500 of medical costs exceeds the $855 threshold (3% of net income). Non-refundable." },
+];
+const MAX = 2000;
+const bWrap = document.getElementById("bars"), bTable = document.getElementById("barTable");
+for (const p of PROGRAMS) {
+  const el = document.createElement("div"); el.className = "bar";
+  el.setAttribute("aria-label", `${p.name}, ${p.status}, ${p.kind}: $${p.value.toLocaleString()} a year`);
+  el.innerHTML = `<div class="who">${p.name}<span class="kind">${p.status} &middot; ${p.kind}</span></div>
+    <div class="lane2"><div class="b" style="width:${(p.value / MAX) * 100}%"></div>
+    <span class="v">$${p.value.toLocaleString()}</span></div>`;
+  hover(el, p.tip); bWrap.appendChild(el);
+  bTable.insertAdjacentHTML("beforeend", `<tr><td>${p.name}</td><td>${p.status}</td><td>${p.kind}</td>
+    <td class="num">$${p.value.toLocaleString()}</td></tr>`);
+}
+document.getElementById("ticks").innerHTML = [0, 500, 1000, 1500, 2000]
+  .map(t => `<span>${t < 1000 ? "$" + t : "$" + (t / 1000) + "K"}</span>`).join("");
+</script>
+</body>
+</html>
