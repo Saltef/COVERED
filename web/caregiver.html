@@ -381,7 +381,7 @@ async function prepareApplications() {
       const cls = f.who === "prefilled" ? "pre" : (f.who === "practitioner" ? "doc" : "you");
       const whoL = f.who === "prefilled" ? "Pre-filled" : (f.who === "practitioner" ? "Doctor" : "Client");
       return `<div class="fr"><span class="fl">${f.label}</span>
-        <span class="fv ${todo ? "todo" : ""}">${todo ? ",  to complete , " : f.value}</span>
+        <span class="fv ${todo ? "todo" : ""}">${todo ? "to complete" : f.value}</span>
         <span class="who ${cls}">${whoL}</span></div>`;
     }).join("");
     const needed = (p.still_needed || []).map(s => `<li>${s}</li>`).join("");

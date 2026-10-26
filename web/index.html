@@ -508,7 +508,7 @@ async function prepareApplications() {
   for (const p of pkgs) {
     const rows = p.fields.map(f => {
       const todo = f.value === null;
-      const val = todo ? ",  to complete , " : f.value;
+      const val = todo ? "to complete" : f.value;
       const cls = f.who === "prefilled" ? "pre" : (f.who === "practitioner" ? "doc" : "you");
       const whoL = f.who === "prefilled" ? "Pre-filled" : (f.who === "practitioner" ? "Doctor" : "You");
       return `<div class="fr"><span class="fl">${f.label}</span>

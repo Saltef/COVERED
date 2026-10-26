@@ -55,7 +55,7 @@ def build_t2201(p: Profile) -> ApplicationPackage:
     return ApplicationPackage(
         program_id="dtc",
         program_name="Disability Tax Credit",
-        form_name="Form T2201 — Disability Tax Credit Certificate (Part A)",
+        form_name="Form T2201: Disability Tax Credit Certificate (Part A)",
         fields=[
             FormField("First name", p.first_name or None),
             FormField("Last name", None, APPLICANT),
@@ -86,7 +86,7 @@ def build_cdcp(p: Profile) -> ApplicationPackage:
     return ApplicationPackage(
         program_id="cdcp",
         program_name="Canadian Dental Care Plan",
-        form_name="Canadian Dental Care Plan — Application Summary",
+        form_name="Canadian Dental Care Plan: Application Summary",
         fields=[
             FormField("First name", p.first_name or None),
             FormField("Last name", None, APPLICANT),
@@ -117,7 +117,7 @@ def build_metc(p: Profile) -> ApplicationPackage:
     return ApplicationPackage(
         program_id="metc",
         program_name="Medical Expense Tax Credit",
-        form_name="Medical Expense Tax Credit — Claim Worksheet (line 33099)",
+        form_name="Medical Expense Tax Credit: Claim Worksheet (line 33099)",
         fields=[
             FormField("Net income", _m(p.annual_net_income)),
             FormField("Total eligible medical expenses", _m(p.out_of_pocket_medical_annual)),
@@ -143,7 +143,7 @@ def build_trillium(p: Profile) -> ApplicationPackage:
     return ApplicationPackage(
         program_id="otdp",
         program_name="Ontario Trillium Drug Program",
-        form_name="Ontario Trillium Drug Program — Application Summary",
+        form_name="Ontario Trillium Drug Program: Application Summary",
         fields=[
             FormField("First name", p.first_name or None),
             FormField("Last name", None, APPLICANT),
