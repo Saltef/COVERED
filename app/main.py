@@ -38,7 +38,19 @@ def create_app() -> FastAPI:
     # Refuse to start wide open: the no-auth dev fallback must never run in a deployed env.
     settings.assert_auth_safe()
     app = FastAPI(title="Covered", version="0.1.0", lifespan=lifespan,
-                  description="Helps Canadians discover and claim the health benefits they're owed.")
+                  description="Helps older adults in Ontario set up home care and claim the benefits "
+                              "they're owed.")
+
+    @app.middleware("http")
+    async def revalidate_frontend(request, call_next):
+        # Pages and static assets must revalidate on every load (a cheap 304 via ETag), so a new
+        # deploy is never hidden behind a stale cached stylesheet or script.
+        response = await call_next(request)
+        if (request.url.path.startswith("/static/")
+                or response.headers.get("content-type", "").startswith("text/html")):
+            response.headers.setdefault("Cache-Control", "no-cache")
+        return response
+
     # CORS: open in development; in production only the configured origins (ALLOWED_ORIGINS).
     app.add_middleware(
         CORSMiddleware,

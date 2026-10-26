@@ -23,6 +23,31 @@ class SurrealUnavailable(RuntimeError):
     pass
 
 
+# Embedded SurrealDB runs inside this process: mem:// (throwaway) or surrealkv://path (persistent
+# file). No server, no Docker, no sign-in. Each embedded connection is its own database, so we keep
+# one long-lived connection per event loop instead of opening one per call. Single-process only;
+# a multi-worker deploy should point SURREAL_URL at a SurrealDB server (ws:// or wss://).
+_EMBEDDED_SCHEMES = ("mem://", "surrealkv://")
+_embedded: dict[int, object] = {}
+
+
+def is_embedded(url: str) -> bool:
+    return url.startswith(_EMBEDDED_SCHEMES)
+
+
+async def _embedded_db(settings):
+    import asyncio
+    from surrealdb import AsyncSurreal
+    key = id(asyncio.get_running_loop())
+    db = _embedded.get(key)
+    if db is None:
+        db = AsyncSurreal(settings.surreal_url)
+        await db.connect()
+        await db.use(settings.surreal_ns, settings.surreal_db)
+        _embedded[key] = db
+    return db
+
+
 @asynccontextmanager
 async def _db():
     settings = get_settings()
@@ -30,6 +55,15 @@ async def _db():
         from surrealdb import AsyncSurreal
     except Exception as exc:  # noqa: BLE001
         raise SurrealUnavailable("client-not-installed") from exc
+    if is_embedded(settings.surreal_url):
+        try:
+            yield await _embedded_db(settings)
+        except SurrealUnavailable:
+            raise
+        except Exception as exc:  # noqa: BLE001
+            log.info("Embedded SurrealDB error: %s", type(exc).__name__)
+            raise SurrealUnavailable(type(exc).__name__) from exc
+        return
     try:
         async with AsyncSurreal(settings.surreal_url) as db:
             await db.signin({"username": settings.surreal_user, "password": settings.surreal_pass})
