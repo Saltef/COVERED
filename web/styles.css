@@ -1,5 +1,9 @@
 /* Covered — shared orange design tokens (single source of truth for all pages).
    Warm, accessible orange. Pages link this and keep only their own layout CSS. */
+/* Logo: /static/logo-wordmark.svg is lowercase "covered" drawn from Cairo ExtraBold outlines, with
+   the d's stem rising into an umbrella. It is a self-contained SVG, so no web font is loaded. */
+a.wm-link { color: inherit; text-decoration: none; }
+
 :root {
   --bg: #fff7f0;            /* warm off-white */
   --card: #ffffff;

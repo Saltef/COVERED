@@ -18,8 +18,9 @@ WEB_DIR = Path(__file__).resolve().parents[2] / "web"
 
 @router.get("/")
 async def index() -> FileResponse:
-    """Front door: the home-care journey (Direct Funding vs Ontario Health atHome)."""
-    return FileResponse(WEB_DIR / "homecare.html")
+    """Front door: a guided entry (what brings you here?), the before/after, and what is real vs
+    demo. Routes people, and judges, into the working flows; home care lives at /homecare."""
+    return FileResponse(WEB_DIR / "start.html")
 
 
 @router.get("/benefits")

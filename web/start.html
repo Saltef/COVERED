@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>covered</title>
+<link rel="icon" href="/static/logo.svg" />
+<link rel="stylesheet" href="/static/styles.css" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 18px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 16px; }
+  a { color: var(--brand-strong); }
+
+  /* hero */
+  .hero { text-align: center; padding: 34px 0 8px; }
+  h1.brandmark { margin: 18px 0 0; line-height: 0; }
+  h1.brandmark img { height: 104px; width: auto; max-width: 100%; }
+  .tagline { color: var(--brand-strong); font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+    font-size: 14px; margin: 10px 0 0; }
+  .lede { font-size: 22px; color: var(--ink); margin: 16px auto 0; max-width: 640px; }
+  .lede b { color: var(--brand-strong); }
+  .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 22px 0 6px; }
+  .cta { min-height: 60px; display: inline-flex; align-items: center; justify-content: center;
+    font: inherit; font-size: 19px; font-weight: 800; border-radius: 14px; padding: 0 26px; text-decoration: none;
+    border: 2px solid var(--brand); cursor: pointer; }
+  .cta.pri { background: var(--brand); color: #fff; box-shadow: 0 4px 0 var(--brand-strong); }
+  .cta.pri:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--brand-strong); }
+  .cta.sec { background: #fff; color: var(--brand-strong); }
+
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+    padding: 24px; margin: 22px 0; }
+  h2 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 16px; font-size: 16px; }
+
+  /* guided entry */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .pcard { display: block; text-decoration: none; color: inherit; border: 2px solid var(--line);
+    border-radius: 14px; padding: 16px; background: #fffdfb; }
+  .pcard:hover { border-color: var(--brand); background: var(--brand-tint); }
+  .pcard .ico { font-size: 26px; }
+  .pcard .t { font-weight: 800; font-size: 18px; margin: 6px 0 2px; }
+  .pcard .d { color: var(--muted); font-size: 15px; }
+
+  /* before / after */
+  .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 620px) { .ba { grid-template-columns: 1fr; } }
+  .col { border: 2px solid var(--line); border-radius: 14px; padding: 18px; }
+  .col.before { background: #fbf3ee; }
+  .col.after { background: var(--brand-tint); border-color: var(--brand); }
+  .col h3 { margin: 0 0 10px; font-size: 18px; }
+  .col .lab { font-size: 13px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+  .before .lab { color: var(--muted); } .after .lab { color: var(--brand-strong); }
+  .col ul { margin: 8px 0 0; padding-left: 20px; } .col li { margin: 8px 0; font-size: 16px; }
+
+  /* proof */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .stat { border: 2px solid var(--line); border-radius: 14px; padding: 16px; text-align: center; background: #fffdfb; }
+  .stat .n { font-size: 30px; font-weight: 800; color: var(--brand-strong); }
+  .stat .l { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+  /* honesty */
+  .honest { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 620px) { .honest { grid-template-columns: 1fr; } }
+  .honest .box { border-radius: 12px; padding: 14px 16px; font-size: 15px; }
+  .honest .real { background: var(--ok-bg); } .honest .real b { color: var(--ok); }
+  .honest .demo { background: var(--maybe-bg); } .honest .demo b { color: var(--maybe); }
+  .honest ul { margin: 6px 0 0; padding-left: 18px; } .honest li { margin: 5px 0; }
+
+  .foot { text-align: center; color: var(--muted); font-size: 15px; padding: 10px 0 36px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1 class="brandmark"><img src="/static/logo-wordmark.svg" alt="covered" /></h1>
+    <p class="tagline">Home care &amp; benefits for older adults in Ontario</p>
+    <p class="lede">Older adults leave real money and care on the table because the system is hard to navigate.
+       <b>Under 40%</b> of eligible people claim the Disability Tax Credit; only <b>~a third</b> have an RDSP.
+       Covered finds what you qualify for in plain language, with the real next steps.</p>
+    <div class="ctas">
+      <a class="cta pri" href="/homecare">Set up home care &#8594;</a>
+      <a class="cta sec" href="/benefits">Find benefits &middot; 2 min</a>
+    </div>
+  </div>
+
+  <!-- guided entry / survey -->
+  <section class="card">
+    <h2>What brings you here?</h2>
+    <p class="sub">Pick the closest one. Every path is a real, working demo.</p>
+    <div class="cards">
+      <a class="pcard" href="/homecare"><div class="ico">&#127968;</div>
+        <div class="t">Home care for me or a parent</div>
+        <div class="d">Direct Funding (run your own attendants) or agency care, with your real next steps.</div></a>
+      <a class="pcard" href="/benefits"><div class="ico">&#128269;</div>
+        <div class="t">Find benefits I might be missing</div>
+        <div class="d">Answer a few questions, or upload your Notice of Assessment and skip the typing.</div></a>
+      <a class="pcard" href="/caregiver"><div class="ico">&#129309;</div>
+        <div class="t">I'm helping someone else</div>
+        <div class="d">Screen a parent or client and track their applications.</div></a>
+      <a class="pcard" href="/agency"><div class="ico">&#128202;</div>
+        <div class="t">I run an agency or caseload</div>
+        <div class="d">See the money a whole book is missing, with a co-pilot over the data.</div></a>
+      <a class="pcard" href="/developers"><div class="ico">&#128295;</div>
+        <div class="t">I'm a developer or judge</div>
+        <div class="d">The embed API, the deterministic engine, and how it stays honest.</div></a>
+      <a class="pcard" href="#how"><div class="ico">&#128161;</div>
+        <div class="t">Show me how it works</div>
+        <div class="d">The before/after and what is real versus demo, below.</div></a>
+    </div>
+  </section>
+
+  <!-- before / after -->
+  <section class="card" id="how">
+    <h2>Before and after</h2>
+    <p class="sub">The same person, setting up care and claiming what they're owed.</p>
+    <div class="ba">
+      <div class="col before">
+        <span class="lab">Today</span>
+        <h3>Scattered, and money left behind</h3>
+        <ul>
+          <li>You find out what exists by Googling, or from a hospital social worker. If you don't research, you have no clue.</li>
+          <li>You call around. No one explains your options, your costs, or your future eligibility.</li>
+          <li>You repeat your story to each worker; the forms are long and full of jargon.</li>
+          <li>Income-tested programs need figures you can't recall, and the DTC gateway that unlocks the Canada Disability Benefit and the RDSP is invisible.</li>
+          <li>Result: benefits go unclaimed and care gets delayed.</li>
+        </ul>
+      </div>
+      <div class="col after">
+        <span class="lab">With Covered</span>
+        <h3>One path, in plain language</h3>
+        <ul>
+          <li>One screen, or upload your Notice of Assessment and we read your income so you skip the questions.</li>
+          <li>You see every program you may qualify for, with the unlock chain (DTC &#8594; CDB &#8594; RDSP) surfaced for you.</li>
+          <li>Deterministic, cited, drift-checked rules: numbers you can trust, each with its official source.</li>
+          <li>Real next steps and prepared forms. You confirm and submit; nothing is filed automatically.</li>
+          <li>Built for busy people: large text, a natural voice, tap Yes/No, upload instead of type.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- proof -->
+  <section class="card">
+    <h2>Why it matters</h2>
+    <p class="sub">The gap is real and documented. Sources in the repo's grounded use cases.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">&lt;40%</div><div class="l">of eligible people claim the Disability Tax Credit</div></div>
+      <div class="stat"><div class="n">~34%</div><div class="l">of eligible people have opened an RDSP</div></div>
+      <div class="stat"><div class="n">$758/mo</div><div class="l">average out-of-pocket for Ontario caregivers</div></div>
+      <div class="stat"><div class="n">69%</div><div class="l">of caregivers feel too burnt out to be sure they can continue</div></div>
+    </div>
+  </section>
+
+  <!-- honesty for judges -->
+  <section class="card">
+    <h2>What's real, and what's demo</h2>
+    <p class="sub">So you can trust what you're testing.</p>
+    <div class="honest">
+      <div class="box real">
+        <b>&#10003; Real</b>
+        <ul>
+          <li>The rules engine: deterministic, auditable, 94 tests, cited figures.</li>
+          <li>The Notice of Assessment reader (income extracted; SIN never stored).</li>
+          <li>The policy drift checker: re-reads official pages and flags changed figures.</li>
+          <li>SurrealDB persistence with two-layer row-level security.</li>
+        </ul>
+      </div>
+      <div class="box demo">
+        <b>&#9888; Demo only</b>
+        <ul>
+          <li>Sign-in is off in this public demo; auth is architected and fails closed in production.</li>
+          <li>The agency console reads a simulated CRM (synthetic records), not real client data.</li>
+          <li>Nothing is ever filed to the CRA or a program; Covered prepares, you submit.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <p class="foot">Built for the Georgian "Build North: Ship Something Real" hackathon &middot;
+     <a href="/developers">How it works</a></p>
+
+</div>
+</body>
+</html>
